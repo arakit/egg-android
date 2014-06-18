@@ -1,16 +1,20 @@
-package jp.egg.android;
+package jp.egg.android.ui.fragment;
 
-import android.support.v7.app.ActionBarActivity;
+import java.util.ArrayList;
+
+import jp.egg.android.R;
+import jp.egg.android.util.DUtil;
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +34,14 @@ import android.widget.Toast;
  * implemented here.
  */
 public class NavigationDrawerFragment extends Fragment {
+
+	public static NavigationDrawerFragment newInstance(){
+		NavigationDrawerFragment f = new NavigationDrawerFragment();
+		Bundle args = new Bundle();
+		f.setArguments(args);
+		return f;
+	}
+
 
 	/**
 	 * Remember the position of the selected item.
@@ -54,11 +66,12 @@ public class NavigationDrawerFragment extends Fragment {
 
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerListView;
-	private View mFragmentContainerView;
+	private View mNavigationContainerView;
 
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
+
 
 	public NavigationDrawerFragment() {
 	}
@@ -90,11 +103,16 @@ public class NavigationDrawerFragment extends Fragment {
 		// Indicate that this fragment would like to influence the set of
 		// actions in the action bar.
 		setHasOptionsMenu(true);
+
+		//setUpOnAttatched();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+
+		DUtil.d("test", "onCreateView "+getActivity());
+
 		mDrawerListView = (ListView) inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
 		mDrawerListView
@@ -105,20 +123,30 @@ public class NavigationDrawerFragment extends Fragment {
 						selectItem(position);
 					}
 				});
+
+		ArrayList<String> items = new ArrayList<String>();
+		NavigationDrawerInterface ndi =
+				getActivity() instanceof NavigationDrawerInterface ?
+						(NavigationDrawerInterface)getActivity() : null;
+		if(ndi!=null){
+			int size = ndi.getNavigationDrawerItemSize();
+			for(int i=0;i<size;i++){
+				items.add( ndi.getNavigationDrawerItemTitle(i) );
+			}
+		}
+
 		mDrawerListView.setAdapter(new ArrayAdapter<String>(getActionBar()
 				.getThemedContext(), android.R.layout.simple_list_item_1,
-				android.R.id.text1, new String[] {
-						getString(R.string.title_section1),
-						getString(R.string.title_section2),
-						getString(R.string.title_section3), }));
+				android.R.id.text1, items));
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 		return mDrawerListView;
 	}
 
 	public boolean isDrawerOpen() {
 		return mDrawerLayout != null
-				&& mDrawerLayout.isDrawerOpen(mFragmentContainerView);
+				&& mDrawerLayout.isDrawerOpen(mNavigationContainerView);
 	}
+
 
 	/**
 	 * Users of this fragment must call this method to set up the navigation
@@ -129,9 +157,22 @@ public class NavigationDrawerFragment extends Fragment {
 	 * @param drawerLayout
 	 *            The DrawerLayout containing this fragment's UI.
 	 */
-	public void setUp(int fragmentId, DrawerLayout drawerLayout) {
-		mFragmentContainerView = getActivity().findViewById(fragmentId);
+	public void setUp(View navigationDrawer, DrawerLayout drawerLayout, boolean attached){
+		DUtil.d("test", "setUp "+navigationDrawer + "; "+drawerLayout);
+		mNavigationContainerView = navigationDrawer;
 		mDrawerLayout = drawerLayout;
+		if(attached) setUpOnAttatched(getActivity());
+	}
+
+
+	public void setUpOnAttatched(Activity activity) {
+		//mFragmentContainerView = getActivity().findViewById(fragmentId);
+//		mNavigationContainerView = navigationDrawer;
+//		mDrawerLayout = drawerLayout;
+
+		//Activity activity = getActivity();
+		if(mNavigationContainerView == null || mDrawerLayout==null ) return ;
+		DUtil.d("test", "setUpOnAttatched");
 
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
@@ -139,13 +180,13 @@ public class NavigationDrawerFragment extends Fragment {
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 
-		ActionBar actionBar = getActionBar();
+		ActionBar actionBar = getActionBar(activity);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the navigation drawer and the action bar app icon.
-		mDrawerToggle = new ActionBarDrawerToggle(getActivity(), /* host Activity */
+		mDrawerToggle = new ActionBarDrawerToggle(activity, /* host Activity */
 		mDrawerLayout, /* DrawerLayout object */
 		R.drawable.ic_drawer, /* nav drawer image to replace 'Up' caret */
 		R.string.navigation_drawer_open, /*
@@ -171,9 +212,11 @@ public class NavigationDrawerFragment extends Fragment {
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
+				DUtil.d("test", "onDrawerOpened");
 				if (!isAdded()) {
 					return;
 				}
+				DUtil.d("test", "onDrawerOpened isAddeed.");
 
 				if (!mUserLearnedDrawer) {
 					// The user manually opened the drawer; store this flag to
@@ -195,7 +238,7 @@ public class NavigationDrawerFragment extends Fragment {
 		// them to the drawer,
 		// per the navigation drawer design guidelines.
 		if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
-			mDrawerLayout.openDrawer(mFragmentContainerView);
+			mDrawerLayout.openDrawer(mNavigationContainerView);
 		}
 
 		// Defer code dependent on restoration of previous instance state.
@@ -206,6 +249,7 @@ public class NavigationDrawerFragment extends Fragment {
 			}
 		});
 
+		DUtil.d("test", "setDrawerListener");
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 	}
 
@@ -215,7 +259,7 @@ public class NavigationDrawerFragment extends Fragment {
 			mDrawerListView.setItemChecked(position, true);
 		}
 		if (mDrawerLayout != null) {
-			mDrawerLayout.closeDrawer(mFragmentContainerView);
+			mDrawerLayout.closeDrawer(mNavigationContainerView);
 		}
 		if (mCallbacks != null) {
 			mCallbacks.onNavigationDrawerItemSelected(position);
@@ -225,18 +269,28 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+		DUtil.d("test", "onAttach "+mNavigationContainerView);
 		try {
 			mCallbacks = (NavigationDrawerCallbacks) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(
 					"Activity must implement NavigationDrawerCallbacks.");
 		}
+		setUpOnAttatched(activity);
 	}
+
+
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		DUtil.d("test", "onDetach ");
 		mCallbacks = null;
+		if(mDrawerLayout!=null){
+			mDrawerLayout.setDrawerListener(null);
+			mDrawerLayout =null;
+		}
+		mNavigationContainerView = null;
 	}
 
 	@Override
@@ -295,6 +349,10 @@ public class NavigationDrawerFragment extends Fragment {
 	private ActionBar getActionBar() {
 		return ((ActionBarActivity) getActivity()).getSupportActionBar();
 	}
+	private ActionBar getActionBar(Activity activity) {
+		return ((ActionBarActivity) activity).getSupportActionBar();
+	}
+
 
 	/**
 	 * Callbacks interface that all activities using this fragment must
@@ -305,5 +363,11 @@ public class NavigationDrawerFragment extends Fragment {
 		 * Called when an item in the navigation drawer is selected.
 		 */
 		void onNavigationDrawerItemSelected(int position);
+	}
+
+
+	public static interface NavigationDrawerInterface {
+		String getNavigationDrawerItemTitle(int position);
+		int getNavigationDrawerItemSize();
 	}
 }
