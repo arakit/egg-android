@@ -5,22 +5,45 @@ public abstract class EggTask <S, E extends EggTaskError> {
 	private boolean mIsCanceled = false;
 	private boolean mIsStarted = false;
 	private boolean mIsRunning = false;
+	private boolean mIsError = false;
 
 
 	public final void cancel(){
 		if(mIsCanceled) return ;
-		mIsCanceled = true;
-		onCancel();
+		try{
+			mIsCanceled = true;
+			onCancel();
+		}catch(Exception ex){
+			mIsCanceled = false;
+		}
 	}
 	public final void start(){
 		if(mIsStarted) return ;
-		mIsStarted = true;
-		mIsRunning = true;
-		onStart();
+		try{
+			mIsStarted = true;
+			mIsRunning = true;
+			onStart();
+		}catch(Exception ex){
+			error(null);
+		}
 	}
-	protected final void finish(){
+
+	//
+	private final void finish(){
 		if(!mIsStarted) return ;
 		mIsRunning = false;
+		onStop();
+	}
+	protected final void error(E error){
+		if(!mIsStarted) return ;
+		mIsError = true;
+		onError(error);
+		finish();
+	}
+	protected final void success(S success){
+		if(!mIsStarted) return ;
+		onSuccess(success);
+		finish();
 	}
 
 
@@ -40,6 +63,9 @@ public abstract class EggTask <S, E extends EggTaskError> {
 	public final boolean isRunning(){
 		return mIsRunning;
 	}
+	public final boolean isError(){
+		return mIsError;
+	}
 
 
 
@@ -51,33 +77,32 @@ public abstract class EggTask <S, E extends EggTaskError> {
 	 * この中でキャンセル処理してください
 	 *
 	 */
-	protected void onCancel(){
-
-	}
+	protected abstract void onCancel() throws FailedCancelExeption;
 
 	/**
 	 * 処理を開始してください。
 	 *
 	 */
-	protected void onStart(){
+	protected abstract void onStart() throws FailedStartExeption;
 
-	}
+	/**
+	 * 処理は終了します。
+	 * onSucsess か onErroeの後
+	 *
+	 */
+	protected abstract void onStop();
 
 
 	/**
 	 *
 	 *
 	 */
-	protected void onSuccess(S result){
-
-	}
+	protected abstract void onSuccess(S result);
 
 	/**
 	 *
 	 *
 	 */
-	protected void onError(E result){
-
-	}
+	protected abstract void onError(E result);
 
 }
