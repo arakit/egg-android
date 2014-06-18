@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.ListView;
 
 public class TestListFragment extends EggBaseFragment{
 
@@ -16,9 +18,13 @@ public class TestListFragment extends EggBaseFragment{
 	}
 
 
+
 	public TestListFragment() {
 		// TODO 自動生成されたコンストラクター・スタブ
 	}
+
+
+	private String mRequestUrl;
 
 
     /*
@@ -31,11 +37,23 @@ public class TestListFragment extends EggBaseFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_test_listview, null, false);
 
-//        getFragmentManager().beginTransaction()
-//                .replace(R.id.tab_content, f)
-//                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-//                .addToBackStack(null)
-//                .commit();
+        ListView listView = (ListView) v.findViewById(R.id.fragment_test_listview_listview);
+
+		listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(AbsListView absListView, int i) {
+
+			}
+
+			@Override
+			public void onScroll(AbsListView absListView, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
+					// 最後尾までスクロールしたので、何かデータ取得する処理
+
+				}
+			}
+		});
 
         return v;
     }
@@ -44,6 +62,8 @@ public class TestListFragment extends EggBaseFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		mRequestUrl = "http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=sky";
 
 	}
 

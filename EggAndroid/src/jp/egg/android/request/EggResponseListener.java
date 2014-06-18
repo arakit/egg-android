@@ -1,9 +1,12 @@
 package jp.egg.android.request;
 
-public interface EggResponseListener<T> {
+import jp.egg.android.task.EggTaskError;
+import jp.egg.android.task.EggTaskListener;
 
+public interface EggResponseListener<S, E extends EggTaskError> extends EggTaskListener<S, E>{
 
-	public void onSucessResponse(T response);
-	public void onErrorResponse();
+	//public void onSucess(S response);
+	//public void onError(E error);
+
 
 }

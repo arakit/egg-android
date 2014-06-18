@@ -2,7 +2,7 @@
  * Copyright(c) 2014 RichMedia Co., Ltd. All Rights Reserved.
  */
 
-package jp.egg.android.request;
+package jp.egg.android.request.volley;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -18,21 +18,22 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.RequestFuture;
+
 
 /**
  * APIリクエスト基底クラス。 (POSTしか無いAPIの為、その前提で。)
  */
-public abstract class EggBaseRequest<T> extends Request<T> {
+public abstract class BaseVolleyRequest<T> extends Request<T> {
 
 	//private Context mContext;
 	//private HttpResponseListener<T> mListener;
+	private Listener<T> mResponseListener;
+	//private ErrorListener mErrorListener;
 
-	private EggResponseListener<T> mResponseListener;
-	private RequestFuture<T> mFuture;
-
+	//private RequestFuture<T> mFuture;
 
 	/**
 	 * @param url
@@ -40,21 +41,32 @@ public abstract class EggBaseRequest<T> extends Request<T> {
 	 * @param listener
 	 *            {@link HttpResponseListener}
 	 */
-	public EggBaseRequest(String url, EggResponseListener<T> listener) {
-		super(Request.Method.POST, url, makeErrorListener(listener) );
-		mResponseListener = listener;
+	public BaseVolleyRequest(int method, String url, HttpResponseListener<T> listener) {
+		this(method, url, listener, listener);
 	}
 
 	/**
 	 * @param url
 	 *            {@link String}
-	 * @param future
-	 *            {@link RequestFuture}
+	 * @param listener
+	 *            {@link HttpResponseListener}
 	 */
-	public EggBaseRequest(String url, RequestFuture<T> future) {
-		super(Request.Method.POST, url, future);
-		mFuture = future;
+	public BaseVolleyRequest(int method, String url, Listener<T> response, ErrorListener error) {
+		super(method, url, error);
+		mResponseListener = response;
+		//mErrorListener = error;
 	}
+
+//	/**
+//	 * @param url
+//	 *            {@link String}
+//	 * @param future
+//	 *            {@link RequestFuture}
+//	 */
+//	public BaseVolleyRequest(int method, String url, RequestFuture<T> future) {
+//		super(Request.Method.POST, url, future);
+//		mFuture = future;
+//	}
 
 	/**
 	 * POSTパラメータを準備する。
@@ -73,10 +85,14 @@ public abstract class EggBaseRequest<T> extends Request<T> {
 	 */
 	@Override
 	protected void deliverResponse(T response) {
-		if (mResponseListener != null) {
-			mResponseListener.onSucessResponse(response);
-		} else if (mFuture != null) {
-			mFuture.onResponse(response);
+//		if (mListener != null) {
+//			mListener.onResponse(response);
+//		}
+//		if (mFuture != null) {
+//			mFuture.onResponse(response);
+//		}
+		if(mResponseListener!=null){
+			mResponseListener.onResponse(response);
 		}
 	}
 
@@ -150,13 +166,5 @@ public abstract class EggBaseRequest<T> extends Request<T> {
 	}
 
 
-	private final static ErrorListener makeErrorListener(final EggResponseListener<?> listener){
-		return new ErrorListener() {
-			@Override
-			public void onErrorResponse(VolleyError error) {
-				listener.onErrorResponse();
-			}
-		};
-	}
 
 }
