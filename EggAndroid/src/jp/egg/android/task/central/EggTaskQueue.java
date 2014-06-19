@@ -32,6 +32,7 @@ public class EggTaskQueue {
 
 
 		public void add(EggTask<?, ?> task){
+			task.onQueue();
 			mQueue.put(task);
 		}
 

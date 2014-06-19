@@ -48,6 +48,7 @@ public class EggTaskCentral {
 	private void onInitialize(Context context){
 		mContext = context.getApplicationContext();
 		mVolleyQueue = EggVolley.newRequestQueue(mContext, 5 * 1024 * 1024);
+		mQueue = new EggTaskQueue();
 		startTask();
 		startVolleyRequest();
 	}

@@ -4,22 +4,24 @@
 
 package jp.egg.android.request.volley;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import com.android.volley.AuthFailureError;
+import jp.egg.android.request.in.EggRequestBody;
+import jp.egg.android.request.out.EggResponseBody;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.VolleyLog;
 
 
 /**
- * APIリクエスト基底クラス。 (POSTしか無いAPIの為、その前提で。)
+ * APIリクエスト基底クラス。
  */
-public abstract class BaseVolleyRequest<T> extends Request<T> {
+public class BaseVolleyRequest<T> extends Request<T> {
 
     /** Charset for request. */
     private static final String PROTOCOL_CHARSET = "utf-8";
@@ -33,7 +35,8 @@ public abstract class BaseVolleyRequest<T> extends Request<T> {
 	//private HttpResponseListener<T> mListener;
 	private Listener<T> mResponseListener;
 	//private ErrorListener mErrorListener;
-	private Object mRequestBody;
+	private EggRequestBody mReqBody;
+	private EggResponseBody<T> mResponseBody;
 
 	//private RequestFuture<T> mFuture;
 
@@ -53,10 +56,13 @@ public abstract class BaseVolleyRequest<T> extends Request<T> {
 	 * @param listener
 	 *            {@link HttpResponseListener}
 	 */
-	public BaseVolleyRequest(int method, String url, Object body, Listener<T> response, ErrorListener error) {
-		super(method, url, error);
+	public BaseVolleyRequest(
+			EggRequestBody requestBody, EggResponseBody<T> responseBody,
+			Listener<T> response, ErrorListener error) {
+		super(requestBody.getMethod(), requestBody.getUrl(), error);
 		mResponseListener = response;
-		mRequestBody = body;
+		mReqBody = requestBody;
+		mResponseBody = responseBody;
 		//mErrorListener = error;
 	}
 
@@ -71,23 +77,26 @@ public abstract class BaseVolleyRequest<T> extends Request<T> {
 //		mFuture = future;
 //	}
 
-	/**
-	 * POSTパラメータを準備する。
-	 *
-	 * @return Key=Value
-	 */
-	protected Map<String, String> prepareParams(){
-		if( mRequestBody == null ) return null;
-		if( mRequestBody instanceof Map ){
-			try{
-				Map<String, String> map = (Map) mRequestBody;
-				return map;
-			}catch(Exception ex){
-				throw new IllegalArgumentException("Can not use this map.", ex);
-			}
-		}
-		return null;
-	}
+//	/**
+//	 * POSTパラメータを準備する。
+//	 *
+//	 * @return Key=Value
+//	 */
+//	protected Map<String, String> prepareParams(){
+//
+//		mReqBody.get
+//
+//		if( mRequestBody == null ) return null;
+//		if( mRequestBody instanceof Map ){
+//			try{
+//				Map<String, String> map = (Map) mRequestBody;
+//				return map;
+//			}catch(Exception ex){
+//				throw new IllegalArgumentException("Can not use this map.", ex);
+//			}
+//		}
+//		return null;
+//	}
 
 	/*
 	 * (non-Javadoc)
@@ -107,21 +116,49 @@ public abstract class BaseVolleyRequest<T> extends Request<T> {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.android.volley.Request#getParams()
-	 */
-	@Override
-	protected Map<String, String> getParams() throws AuthFailureError {
-		Map<String, String> params = prepareParams();
-		return params;
-	}
+//	/*
+//	 * (non-Javadoc)
+//	 *
+//	 * @see com.android.volley.Request#getParams()
+//	 */
+//	@Override
+//	protected Map<String, String> getParams() throws AuthFailureError {
+//		Map<String, String> params = prepareParams();
+//		return params;
+//	}
 
 
+
+//    @Override
+//    abstract protected Response<T> parseNetworkResponse(NetworkResponse response);
 
     @Override
-    abstract protected Response<T> parseNetworkResponse(NetworkResponse response);
+    protected Response<T> parseNetworkResponse(NetworkResponse response) {
+
+    	return mResponseBody.parseNetworkResponse(response);
+
+//        try {
+//            String jsonString =
+//                    new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+//
+//        	ObjectMapper om = new ObjectMapper();
+//        	JsonNode jnode = om.readTree(jsonString);
+//
+////            String jsonString =
+////                new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+//
+//            return Response.success(jnode,
+//                    HttpHeaderParser.parseCacheHeaders(response));
+//        } catch (UnsupportedEncodingException e) {
+//            return Response.error(new ParseError(e));
+//        } catch (JsonProcessingException e) {
+//            return Response.error(new ParseError(e));
+//		} catch (IOException e) {
+//            return Response.error(new ParseError(e));
+//		}
+    }
+
+
 
 
     @Override
@@ -131,18 +168,40 @@ public abstract class BaseVolleyRequest<T> extends Request<T> {
 
     @Override
     public byte[] getBody() {
-        try {
-        	if(mRequestBody == null) return null;
-        	if(mRequestBody instanceof String){
-        		String str = (String) mRequestBody;
-                return str.getBytes(PROTOCOL_CHARSET);
-        	}
-        	throw new IllegalArgumentException("謎なrequestBody.");
-        } catch (UnsupportedEncodingException uee) {
-            VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
-                    mRequestBody, PROTOCOL_CHARSET);
-            return null;
-        }
+    	try{
+	    	InputStream in = mReqBody.getBody();
+	    	if(in == null) return null;
+
+	    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+	    	byte [] buffer = new byte[1024];
+	        while(true) {
+	            int len = in.read(buffer);
+	            if(len < 0) {
+	                break;
+	            }
+	            out.write(buffer, 0, len);
+	        }
+	        return out.toByteArray();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+    	return null;
+
+//        try {
+//        	if(mRequestBody == null) return null;
+//        	if(mRequestBody instanceof String){
+//        		String str = (String) mRequestBody;
+//                return str.getBytes(PROTOCOL_CHARSET);
+//        	}
+//        	throw new IllegalArgumentException("謎なrequestBody.");
+//        } catch (UnsupportedEncodingException uee) {
+//            VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
+//                    mRequestBody, PROTOCOL_CHARSET);
+//            return null;
+//        }
     }
 
 

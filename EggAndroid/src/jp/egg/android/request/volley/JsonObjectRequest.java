@@ -43,9 +43,9 @@ public class JsonObjectRequest extends BaseVolleyRequest<JSONObject> {
      * @param listener Listener to receive the JSON response
      * @param errorListener Error listener, or null to ignore errors.
      */
-    public JsonObjectRequest(int method, String url, Object requestBody,
+    public JsonObjectRequest(Object requestBody,
             Listener<JSONObject> listener, ErrorListener errorListener) {
-        super(method, url, requestBody, listener,
+        super(null, null, listener,
                     errorListener);
     }
 

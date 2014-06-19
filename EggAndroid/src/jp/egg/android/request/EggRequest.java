@@ -1,73 +1,52 @@
 package jp.egg.android.request;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-import jp.egg.android.request.volley.JacksonRequest;
-import jp.egg.android.request.volley.RequestVolleyHelper;
+import jp.egg.android.request.in.EggRequestBody;
+import jp.egg.android.request.out.EggResponseBody;
+import jp.egg.android.request.volley.BaseVolleyRequest;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.central.EggTaskCentral;
 
 import com.android.volley.Request;
-import com.android.volley.Request.Method;
 import com.android.volley.RequestQueue.RequestFilter;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.android.volley.toolbox.RequestFuture;
 
-public abstract class EggRequest<S> extends EggTask<S, EggRequestError>{
+public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError>{
 
 
-	private boolean mIsSetUped = false;
 
-	private int mMethod;
-	private String mUrl;
-	private Map<String, String> mParams;
+
+
+
+
+
+	//private boolean mIsSetUped = false;
 
 
 	private Request<?> mVollayRequest;
 
-
-
+	private EggRequestBody mRequestBody;
+	private EggResponseBody<O> mResponseBody;
 
 
 
 	protected EggRequest() {
 
 	}
-
-
-	protected void setUp(){
-
-		mMethod = prepareMethod();
-		mUrl = prepareUrl();
-		mParams = prepareParams();
-
-		mIsSetUped = true;
+	protected EggRequest(EggRequestBody reqBody, EggResponseBody<O> resBody) {
+		mRequestBody = reqBody;
+		mResponseBody = resBody;
 	}
 
 
-	//ベース処理系
-	protected final int prepareMethod(){
-		int method = Method.GET;
-		return onPrepareMethod(method);
+	//ベース系
+	public final void setRequestBody(EggRequestBody reqBody){
+		mRequestBody = reqBody;
 	}
-	protected final String prepareUrl(){
-		String url = null;
-		return onPrepareUrl(url);
+	public final void setResponseBody(EggResponseBody<O> resBody){
+		mResponseBody = resBody;
 	}
-	protected final Map<String, String> prepareParams(){
-		Map<String, String> params = new HashMap<String, String>();
-		return onPrepareParams(params);
-	}
-
-
-
-	//イベント系
-
-	protected abstract Map<String, String> onPrepareParams(Map<String, String> params);
-	protected abstract String onPrepareUrl(String url);
-	protected abstract int onPrepareMethod(int method);
 
 
 	//その他スーパイベント
@@ -86,33 +65,51 @@ public abstract class EggRequest<S> extends EggTask<S, EggRequestError>{
 
 	@Override
 	protected void onStart() {
-		if(!mIsSetUped) error(null);
+//		if(!mIsSetUped){
+//			setError(null);
+//			return ;
+//		}
 
+	}
+
+
+
+
+	@Override
+	protected void onDoInBackground() {
 		final EggTaskCentral c = EggTaskCentral.getInstance();
 
-		JacksonRequest request = new JacksonRequest(mMethod, mUrl,
-				RequestVolleyHelper.requestBodyWithParamas(mParams),
-				new Response.Listener<JsonNode>() {
-					@Override
-					public void onResponse(JsonNode response) {
-
-					}
-				},
-				new Response.ErrorListener() {
-					@Override
-					public void onErrorResponse(VolleyError error) {
-
-					}
-				}
+		RequestFuture<O> future = RequestFuture.newFuture();
+		BaseVolleyRequest<O> request = new BaseVolleyRequest<O>(
+				mRequestBody,
+				mResponseBody,
+				future,
+				future
 		);
 		mVollayRequest = request;
 
 		c.addVolleyRequestByObject(request, null);
 
+		try {
+			O response = future.get();
+
+			setSucces(response);
+
+			return ;
+
+		} catch (InterruptedException e) {
+
+		} catch (ExecutionException e) {
+
+		}
+		setError(null);
 	}
 
+
+
+
 	@Override
-	protected void onSuccess(S result) {
+	protected void onSuccess(O result) {
 
 	}
 

@@ -28,6 +28,12 @@ public class EggSimulationTask extends EggTask<String, EggTaskError>{
 
 	}
 
+	@Override
+	protected void onDoInBackground() {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
 
 
 

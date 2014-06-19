@@ -2,15 +2,24 @@ package jp.egg.android.ui.fragment;
 
 import jp.egg.android.R;
 import jp.egg.android.app.EggApplication;
-import jp.egg.android.request.EggSimpleJacksonRequest;
+import jp.egg.android.request.EggRequestError;
+import jp.egg.android.request.EggSimpleJsonNodeRequest;
+import jp.egg.android.task.EggTaskError;
+import jp.egg.android.task.EggTaskListener;
 import jp.egg.android.task.central.EggTaskCentral;
+import jp.egg.android.util.DUtil;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+
+import com.android.volley.Request.Method;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class TestListFragment extends EggBaseFragment{
 
@@ -44,6 +53,7 @@ public class TestListFragment extends EggBaseFragment{
         View v = inflater.inflate(R.layout.fragment_test_listview, null, false);
 
         ListView listView = (ListView) v.findViewById(R.id.fragment_test_listview_listview);
+        Button btn1 = (Button) v.findViewById(R.id.button1);
 
 		listView.setOnScrollListener(new AbsListView.OnScrollListener() {
 			@Override
@@ -61,11 +71,31 @@ public class TestListFragment extends EggBaseFragment{
 			}
 		});
 
-		listView.setOnClickListener(new View.OnClickListener() {
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+
+			}
+		});
+
+		btn1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				EggSimpleJacksonRequest r = EggSimpleJacksonRequest.newGetRequest(mRequestUrl);
+				EggSimpleJsonNodeRequest r = EggSimpleJsonNodeRequest.newInstance(
+						Method.GET, mRequestUrl, null);
+				r.setOnListener(new EggTaskListener<JsonNode, EggRequestError>() {
+					@Override
+					public void onSucess(JsonNode response) {
+						DUtil.d("test", "success = "+response);
+					}
+					@Override
+					public void onError(EggTaskError error) {
+						DUtil.d("test", "error = "+error);
+					}
+				});
 				EggTaskCentral.getInstance().addTask(r);
+
 			}
 		});
 

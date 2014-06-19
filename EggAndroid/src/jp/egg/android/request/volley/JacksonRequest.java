@@ -46,9 +46,9 @@ public class JacksonRequest extends BaseVolleyRequest<JsonNode> {
      * @param listener Listener to receive the JSON response
      * @param errorListener Error listener, or null to ignore errors.
      */
-    public JacksonRequest(int method, String url, Object requestBody,
+    public JacksonRequest(Object requestBody,
             Listener<JsonNode> listener, ErrorListener errorListener) {
-        super(method, url, requestBody, listener,
+        super(null, null, listener,
                     errorListener);
     }
 

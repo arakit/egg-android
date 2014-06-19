@@ -81,6 +81,8 @@ public class ExecuteThread extends Thread{
                     continue;
                 }
 
+                request.execute();
+
                 //addTrafficStatsTag(request);
 
 //                // Perform the network request.
