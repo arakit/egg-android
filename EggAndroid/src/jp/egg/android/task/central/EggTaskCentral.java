@@ -2,6 +2,7 @@ package jp.egg.android.task.central;
 
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
+import jp.egg.android.task.EggTask;
 import android.content.Context;
 
 import com.android.volley.Request;
@@ -35,7 +36,8 @@ public class EggTaskCentral {
 	//インスタンス
 
 	private Context mContext;
-	private RequestQueue mQueue;
+	private RequestQueue mVolleyQueue;
+	private EggTaskQueue mQueue;
 
 
 	private EggTaskCentral() {
@@ -45,26 +47,28 @@ public class EggTaskCentral {
 
 	private void onInitialize(Context context){
 		mContext = context.getApplicationContext();
-		mQueue = EggVolley.newRequestQueue(mContext, 5 * 1024 * 1024);
-		startRequest();
+		mVolleyQueue = EggVolley.newRequestQueue(mContext, 5 * 1024 * 1024);
+		startTask();
+		startVolleyRequest();
 	}
 	private void onDestroy(){
 		mContext = null;
-		cancelRquestAll();
-		stopRquest();
+		cancelVolleyRquestAll();
+		stopVolleyRquest();
+		stopTask();
 	}
 
-	public void startRequest(){
-		mQueue.start();
+	private void startVolleyRequest(){
+		mVolleyQueue.start();
 	}
-	public void stopRquest(){
-		mQueue.stop();
+	private void stopVolleyRquest(){
+		mVolleyQueue.stop();
 	}
-	public void cancelRquest(RequestFilter filter){
-		mQueue.cancelAll(filter);
+	public void cancelVolleyRquest(RequestFilter filter){
+		mVolleyQueue.cancelAll(filter);
 	}
-	public void cancelRquestByObject(final Object obj){
-		mQueue.cancelAll(new RequestFilter() {
+	public void cancelVolleyRquestByObject(final Object obj){
+		mVolleyQueue.cancelAll(new RequestFilter() {
 			@Override
 			public boolean apply(Request<?> request) {
 				if(request.getTag()!=null && request.getTag() instanceof VolleyTag ){
@@ -74,8 +78,8 @@ public class EggTaskCentral {
 			}
 		});
 	}
-	public void cancelRquestAll(){
-		mQueue.cancelAll(new RequestFilter() {
+	public void cancelVolleyRquestAll(){
+		mVolleyQueue.cancelAll(new RequestFilter() {
 			@Override
 			public boolean apply(Request<?> request) {
 				return true;
@@ -106,6 +110,19 @@ public class EggTaskCentral {
 //
 //	}
 
+	private void startTask(){
+		mQueue.start();
+	}
+	private void stopTask(){
+		mQueue.stop();
+	}
+
+
+	public void addTask(EggTask<?,?> task){
+		mQueue.add(task);
+	}
+
+
 	public void addVolleyRequestByObject(Request<?> request, Object obj){
 		if(request == null) return ;
 
@@ -113,7 +130,7 @@ public class EggTaskCentral {
 		tag.object = obj;
 		request.setTag(tag);
 
-		mQueue.add(request);
+		mVolleyQueue.add(request);
 
 	}
 

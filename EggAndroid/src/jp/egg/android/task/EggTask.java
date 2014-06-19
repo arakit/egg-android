@@ -1,11 +1,17 @@
 package jp.egg.android.task;
 
+
 public abstract class EggTask <S, E extends EggTaskError> {
 
 	private boolean mIsCanceled = false;
 	private boolean mIsStarted = false;
 	private boolean mIsRunning = false;
 	private boolean mIsError = false;
+
+
+
+//  /** An event log tracing the lifetime of this request; for debugging. */
+//  private final MarkerLog mEventLog = MarkerLog.ENABLED ? new MarkerLog() : null;
 
 
 	public final void cancel(){
@@ -68,6 +74,18 @@ public abstract class EggTask <S, E extends EggTaskError> {
 	}
 
 
+	//その他
+    /**
+     * Adds an event to this request's event log; for debugging.
+     */
+    public void addMarker(String tag) {
+//        if (MarkerLog.ENABLED) {
+//            mEventLog.add(tag, Thread.currentThread().getId());
+//        } else if (mRequestBirthTime == 0) {
+//            mRequestBirthTime = SystemClock.elapsedRealtime();
+//        }
+    }
+
 
 
 	//イベント系
@@ -104,5 +122,8 @@ public abstract class EggTask <S, E extends EggTaskError> {
 	 *
 	 */
 	protected abstract void onError(E result);
+
+
+
 
 }

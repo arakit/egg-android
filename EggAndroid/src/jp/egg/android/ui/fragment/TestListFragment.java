@@ -1,11 +1,15 @@
 package jp.egg.android.ui.fragment;
 
 import jp.egg.android.R;
+import jp.egg.android.app.EggApplication;
+import jp.egg.android.request.EggSimpleJacksonRequest;
+import jp.egg.android.task.central.EggTaskCentral;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 public class TestListFragment extends EggBaseFragment{
@@ -23,6 +27,8 @@ public class TestListFragment extends EggBaseFragment{
 		// TODO 自動生成されたコンストラクター・スタブ
 	}
 
+
+	EggApplication mApp;
 
 	private String mRequestUrl;
 
@@ -55,6 +61,14 @@ public class TestListFragment extends EggBaseFragment{
 			}
 		});
 
+		listView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				EggSimpleJacksonRequest r = EggSimpleJacksonRequest.newGetRequest(mRequestUrl);
+				EggTaskCentral.getInstance().addTask(r);
+			}
+		});
+
         return v;
     }
 
@@ -62,6 +76,8 @@ public class TestListFragment extends EggBaseFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		mApp = (EggApplication) getActivity().getApplication();
 
 		mRequestUrl = "http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=sky";
 
@@ -74,6 +90,38 @@ public class TestListFragment extends EggBaseFragment{
 	}
 
 
+
+
+
+
+	private class ListViewAdapter extends BaseAdapter{
+
+		@Override
+		public int getCount() {
+
+			return 0;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO 自動生成されたメソッド・スタブ
+			return null;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO 自動生成されたメソッド・スタブ
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO 自動生成されたメソッド・スタブ
+			return null;
+		}
+
+
+	}
 
 
 
