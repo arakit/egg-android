@@ -21,7 +21,7 @@ import com.android.volley.Response.Listener;
 /**
  * APIリクエスト基底クラス。
  */
-public class BaseVolleyRequest<T> extends Request<T> {
+public class VolleyBaseRequest<T> extends Request<T> {
 
     /** Charset for request. */
     private static final String PROTOCOL_CHARSET = "utf-8";
@@ -56,7 +56,7 @@ public class BaseVolleyRequest<T> extends Request<T> {
 	 * @param listener
 	 *            {@link HttpResponseListener}
 	 */
-	public BaseVolleyRequest(
+	public VolleyBaseRequest(
 			EggRequestBody requestBody, EggResponseBody<T> responseBody,
 			Listener<T> response, ErrorListener error) {
 		super(requestBody.getMethod(), requestBody.getUrl(), error);

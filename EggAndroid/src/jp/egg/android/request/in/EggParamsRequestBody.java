@@ -12,14 +12,14 @@ public abstract class EggParamsRequestBody extends EggRequestBody{
     /**
      * Default encoding for POST or PUT parameters. See {@link #getParamsEncoding()}.
      */
-    private static final String DEFAULT_PARAMS_ENCODING = "UTF-8";
+    protected static final String DEFAULT_PARAMS_ENCODING = "UTF-8";
 
 
 
 
 
 
-	private Map<String, String> mDefaultParams;
+	//private Map<String, String> mDefaultParams;
 
 
 	public EggParamsRequestBody(int method, String url) {
@@ -73,6 +73,7 @@ public abstract class EggParamsRequestBody extends EggRequestBody{
 
 	@Override
 	protected String onPrepareUrl(String url) {
+
 		return url;
 	}
 

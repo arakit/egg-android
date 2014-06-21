@@ -12,7 +12,8 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	private enum ResultState{
 		none,
 		success,
-		error
+		error,
+		cancel,
 	}
 
 	private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -41,6 +42,9 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	}
 
 
+	public final void requestCancel(){
+		onRequestCancel();
+	}
 
 	public final void cancel(){
 		if(mIsCanceled) return ;
@@ -199,20 +203,26 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	 * この中でキャンセル処理してください
 	 *
 	 */
-	protected abstract void onCancel() throws FailedCancelExeption;
+	protected void onCancel() throws FailedCancelExeption{
+
+	}
 
 	/**
 	 * 処理を開始してください。
 	 *
 	 */
-	protected abstract void onStart() throws FailedStartExeption;
+	protected void onStart() throws FailedStartExeption{
+
+	}
 
 	/**
 	 * 処理は終了します。
 	 * onSucsess か onErroeの後
 	 *
 	 */
-	protected abstract void onStop();
+	protected void onStop(){
+
+	}
 
 	/**
 	 *
@@ -224,13 +234,17 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	 *
 	 *
 	 */
-	protected abstract void onSuccess(S result);
+	protected void onSuccess(S result){
+
+	}
 
 	/**
 	 *
 	 *
 	 */
-	protected abstract void onError(E result);
+	protected void onError(E result){
+
+	}
 
 
 
@@ -238,6 +252,10 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 		mSequence = SystemClock.uptimeMillis();
 	}
 
+
+	protected void onRequestCancel(){
+
+	}
 
 
     /**

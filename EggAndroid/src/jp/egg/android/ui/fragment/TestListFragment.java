@@ -1,25 +1,34 @@
 package jp.egg.android.ui.fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jp.egg.android.R;
 import jp.egg.android.app.EggApplication;
-import jp.egg.android.request.EggRequestError;
-import jp.egg.android.request.EggSimpleJsonNodeRequest;
+import jp.egg.android.request.EggRequestUtil;
+import jp.egg.android.request.in.EggDefaultParamsRequestBody;
+import jp.egg.android.request.out.EggDefaultJsonNodeResponseBody;
+import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskError;
-import jp.egg.android.task.EggTaskListener;
 import jp.egg.android.task.central.EggTaskCentral;
+import jp.egg.android.ui.adapter.EggDefaultListAdapter;
 import jp.egg.android.util.DUtil;
+import jp.egg.android.util.HandlerUtil;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.android.volley.Request.Method;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestListFragment extends EggBaseFragment{
 
@@ -41,6 +50,7 @@ public class TestListFragment extends EggBaseFragment{
 
 	private String mRequestUrl;
 
+	private LayoutInflater mLayoutInflater;
 
     /*
      * (non-Javadoc)
@@ -82,22 +92,26 @@ public class TestListFragment extends EggBaseFragment{
 		btn1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				EggSimpleJsonNodeRequest r = EggSimpleJsonNodeRequest.newInstance(
-						Method.GET, mRequestUrl, null);
-				r.setOnListener(new EggTaskListener<JsonNode, EggRequestError>() {
-					@Override
-					public void onSucess(JsonNode response) {
-						DUtil.d("test", "success = "+response);
-					}
-					@Override
-					public void onError(EggTaskError error) {
-						DUtil.d("test", "error = "+error);
-					}
-				});
-				EggTaskCentral.getInstance().addTask(r);
+//				EggSimpleJsonNodeRequest r = EggSimpleJsonNodeRequest.newInstance(
+//						Method.GET, mRequestUrl, null);
+//				r.setOnListener(new EggTaskListener<JsonNode, EggRequestError>() {
+//					@Override
+//					public void onSucess(JsonNode response) {
+//						DUtil.d("test", "TestListFragment success = "+response);
+//					}
+//					@Override
+//					public void onError(EggTaskError error) {
+//						DUtil.d("test", "TestListFragment error = "+error);
+//					}
+//				});
+				TestTask tt = new TestTask();
+				EggTaskCentral.getInstance().addTask(tt);
 
 			}
 		});
+
+		listView.setAdapter(mAdapter);
+		mAdapter.notifyDataSetChanged();
 
         return v;
     }
@@ -109,7 +123,9 @@ public class TestListFragment extends EggBaseFragment{
 
 		mApp = (EggApplication) getActivity().getApplication();
 
-		mRequestUrl = "http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=sky";
+		mLayoutInflater = getLayoutInflater(savedInstanceState);
+
+		mRequestUrl = "http://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&safe=off&q=hatsune";
 
 	}
 
@@ -120,34 +136,127 @@ public class TestListFragment extends EggBaseFragment{
 	}
 
 
+	private class TestData{
+		List<Result> results;
+	}
+
+	@JsonIgnoreProperties(ignoreUnknown=true)
+	public static class Result{
+		public String GsearchResultClass;
+		public String content;
+		public String contentNoFormatting;
+		public Integer height;
+		public String imageId;
+		public String originalContextUrl;
+		public Integer tbHeight;
+		public String tbUrl;
+		public Integer tbWidth;
+		public String title;
+		public String titleNoFormatting;
+		public String unescapedUrl;
+		public String url;
+		public String visibleUrl;
+		public Integer width;
+	}
 
 
 
+	private static class Holder{
 
-	private class ListViewAdapter extends BaseAdapter{
+		ImageView icon1;
+		TextView text1;
+		TextView text2;
 
-		@Override
-		public int getCount() {
+	}
 
-			return 0;
-		}
+	private class ListViewAdapter extends EggDefaultListAdapter<Result>{
 
-		@Override
-		public Object getItem(int position) {
-			// TODO 自動生成されたメソッド・スタブ
-			return null;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			// TODO 自動生成されたメソッド・スタブ
-			return 0;
-		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			// TODO 自動生成されたメソッド・スタブ
-			return null;
+
+			Holder holder;
+			if(convertView == null){
+				holder = new Holder();
+				convertView = mLayoutInflater.inflate(R.layout.item_test_list, null);
+				convertView.setTag(holder);
+
+				holder.text1 = (TextView) convertView.findViewById(R.id.text_1);
+				holder.text2 = (TextView)  convertView.findViewById(R.id.text_2);
+				holder.icon1 = (ImageView)  convertView.findViewById(R.id.icon_1);
+
+			}else{
+				holder = (Holder) convertView.getTag();
+			}
+
+			Result item = getItem(position);
+
+			holder.text1.setText(item.url);
+			holder.text2.setText(""+item.height);
+
+			EggRequestUtil.displayImage( holder.icon1, item.url, R.drawable.ic_launcher);
+
+			return convertView;
+		}
+
+
+
+
+	}
+
+	private final ListViewAdapter mAdapter = new ListViewAdapter();
+
+
+	private class TestTask extends EggTask<TestData, EggTaskError>{
+
+
+		@Override
+		protected void onDoInBackground() {
+
+			//super.onDoInBackground();
+				try{
+
+				TestData ret = new TestData();
+				JsonNode jn = EggRequestUtil.get(
+						new EggDefaultParamsRequestBody(Method.GET, mRequestUrl, null) ,
+						new EggDefaultJsonNodeResponseBody()
+						);
+
+				DUtil.d("test", "onDoinBackgroung : "+jn);
+
+				ObjectMapper om = new ObjectMapper();
+				JsonNode results = jn.get("responseData"). get("results");
+				ret.results = new ArrayList<Result>();
+				for(int i=0;i<results.size();i++){
+					DUtil.d("test", "i = "+results.get(i));
+					Result r = om.treeToValue(results.get(i) , Result.class);
+					ret.results.add(r);
+				}
+
+				setSucces(ret);
+
+			}catch(Exception ex){
+				ex.printStackTrace();
+				setError(null);
+			}
+
+		}
+
+		@Override
+		protected void onSuccess(final TestData result) {
+			//super.onSuccess(result);
+
+			HandlerUtil.post(new Runnable() {
+				@Override
+				public void run() {
+					DUtil.d("test", "onSuccess run "+result.results);
+
+					//mAdapter.clearItem();
+					mAdapter.addItems(mAdapter.getCount(), result.results);
+				}
+			});
+
+
 		}
 
 

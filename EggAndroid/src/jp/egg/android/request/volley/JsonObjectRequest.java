@@ -32,7 +32,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
  * A request for retrieving a {@link JSONObject} response body at a given URL, allowing for an
  * optional {@link JSONObject} to be passed in as part of the request body.
  */
-public class JsonObjectRequest extends BaseVolleyRequest<JSONObject> {
+public class JsonObjectRequest extends VolleyBaseRequest<JSONObject> {
 
     /**
      * Creates a new request.

@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutionException;
 
 import jp.egg.android.request.in.EggRequestBody;
 import jp.egg.android.request.out.EggResponseBody;
-import jp.egg.android.request.volley.BaseVolleyRequest;
+import jp.egg.android.request.volley.VolleyBaseRequest;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.central.EggTaskCentral;
 
@@ -12,48 +12,39 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue.RequestFilter;
 import com.android.volley.toolbox.RequestFuture;
 
-public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError>{
+public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError> {
 
-
-
-
-
-
-
-
-	//private boolean mIsSetUped = false;
-
+	// private boolean mIsSetUped = false;
 
 	private Request<?> mVollayRequest;
 
 	private EggRequestBody mRequestBody;
 	private EggResponseBody<O> mResponseBody;
 
-
-
 	protected EggRequest() {
 
 	}
+
 	protected EggRequest(EggRequestBody reqBody, EggResponseBody<O> resBody) {
 		mRequestBody = reqBody;
 		mResponseBody = resBody;
 	}
 
-
-	//ベース系
-	public final void setRequestBody(EggRequestBody reqBody){
+	// ベース系
+	public final void setRequestBody(EggRequestBody reqBody) {
 		mRequestBody = reqBody;
 	}
-	public final void setResponseBody(EggResponseBody<O> resBody){
+
+	public final void setResponseBody(EggResponseBody<O> resBody) {
 		mResponseBody = resBody;
 	}
 
-
-	//その他スーパイベント
+	// その他スーパイベント
 
 	@Override
 	protected void onCancel() {
-		if( mVollayRequest == null ) return ;
+		if (mVollayRequest == null)
+			return;
 		final EggTaskCentral c = EggTaskCentral.getInstance();
 		c.cancelVolleyRquest(new RequestFilter() {
 			@Override
@@ -65,27 +56,20 @@ public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError>{
 
 	@Override
 	protected void onStart() {
-//		if(!mIsSetUped){
-//			setError(null);
-//			return ;
-//		}
+		// if(!mIsSetUped){
+		// setError(null);
+		// return ;
+		// }
 
 	}
-
-
-
 
 	@Override
 	protected void onDoInBackground() {
 		final EggTaskCentral c = EggTaskCentral.getInstance();
 
 		RequestFuture<O> future = RequestFuture.newFuture();
-		BaseVolleyRequest<O> request = new BaseVolleyRequest<O>(
-				mRequestBody,
-				mResponseBody,
-				future,
-				future
-		);
+		VolleyBaseRequest<O> request = new VolleyBaseRequest<O>(mRequestBody,
+				mResponseBody, future, future);
 		mVollayRequest = request;
 
 		c.addVolleyRequestByObject(request, null);
@@ -95,7 +79,7 @@ public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError>{
 
 			setSucces(response);
 
-			return ;
+			return;
 
 		} catch (InterruptedException e) {
 
@@ -104,9 +88,6 @@ public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError>{
 		}
 		setError(null);
 	}
-
-
-
 
 	@Override
 	protected void onSuccess(O result) {
@@ -122,10 +103,5 @@ public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError>{
 	protected void onStop() {
 
 	}
-
-
-
-
-
 
 }

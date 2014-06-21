@@ -1,5 +1,6 @@
 package jp.egg.android.task.central;
 
+import jp.egg.android.request.BitmapLruCache;
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
 import jp.egg.android.task.EggTask;
@@ -8,6 +9,9 @@ import android.content.Context;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RequestQueue.RequestFilter;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 
 public class EggTaskCentral {
 
@@ -38,6 +42,7 @@ public class EggTaskCentral {
 	private Context mContext;
 	private RequestQueue mVolleyQueue;
 	private EggTaskQueue mQueue;
+	private ImageLoader mImageLoader;
 
 
 	private EggTaskCentral() {
@@ -49,6 +54,7 @@ public class EggTaskCentral {
 		mContext = context.getApplicationContext();
 		mVolleyQueue = EggVolley.newRequestQueue(mContext, 5 * 1024 * 1024);
 		mQueue = new EggTaskQueue();
+		mImageLoader = new ImageLoader(mVolleyQueue, new BitmapLruCache());
 		startTask();
 		startVolleyRequest();
 	}
@@ -65,6 +71,9 @@ public class EggTaskCentral {
 	private void stopVolleyRquest(){
 		mVolleyQueue.stop();
 	}
+
+
+
 	public void cancelVolleyRquest(RequestFilter filter){
 		mVolleyQueue.cancelAll(filter);
 	}
@@ -133,6 +142,28 @@ public class EggTaskCentral {
 
 		mVolleyQueue.add(request);
 
+	}
+
+
+
+	public static final class LoadImageContainer{
+
+		final ImageContainer ic;
+
+		LoadImageContainer(ImageContainer ic) {
+			this.ic = ic;
+		}
+
+		public void cancelRequest(){
+			ic.cancelRequest();
+		}
+	}
+
+	public LoadImageContainer getLoadImage(String url, ImageListener listener, int maxWidth, int maxHeight){
+
+		ImageContainer ic = mImageLoader.get(url, listener, maxWidth, maxHeight);
+
+		return new LoadImageContainer(ic);
 	}
 
 

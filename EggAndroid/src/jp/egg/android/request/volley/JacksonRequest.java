@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * A request for retrieving a {@link JSONObject} response body at a given URL, allowing for an
  * optional {@link JSONObject} to be passed in as part of the request body.
  */
-public class JacksonRequest extends BaseVolleyRequest<JsonNode> {
+public class JacksonRequest extends VolleyBaseRequest<JsonNode> {
 
     /**
      * Creates a new request.

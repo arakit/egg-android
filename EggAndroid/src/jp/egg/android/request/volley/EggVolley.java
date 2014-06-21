@@ -92,4 +92,18 @@ public class EggVolley {
     public static RequestQueue newRequestQueue(Context context, int cacheSizeInBytes) {
         return newRequestQueue(context, null, cacheSizeInBytes);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
