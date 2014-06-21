@@ -14,6 +14,7 @@ public class EggApplication extends Application{
 		EggTaskCentral.initialize(getApplicationContext());
 
 
+
 	}
 
 	@Override

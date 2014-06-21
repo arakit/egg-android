@@ -1,19 +1,34 @@
 package jp.egg.android.task.central;
 
-import jp.egg.android.request.BitmapLruCache;
+import java.io.File;
+
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
 import jp.egg.android.task.EggTask;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RequestQueue.RequestFilter;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
+import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiscCache;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 
 public class EggTaskCentral {
+
+	private static final int DEFAULT_VOLLEY_CACHE_SIZE = 4 * 1024 * 1024;
+	private static final int DEFAULT_IMAGE_CACHE_SIZE = 4 * 1024 * 1024;
+	private static final int DEFAULT_IMAGE_DISC_CACHE_SIZE = 32 * 1024 * 1024;
+
 
 	public static EggTaskCentral sInstance = null;
 
@@ -42,7 +57,8 @@ public class EggTaskCentral {
 	private Context mContext;
 	private RequestQueue mVolleyQueue;
 	private EggTaskQueue mQueue;
-	private ImageLoader mImageLoader;
+	//private ImageLoader mVolleyImageLoader;
+	private com.nostra13.universalimageloader.core.ImageLoader mUnivImageLoader;
 
 
 	private EggTaskCentral() {
@@ -52,9 +68,23 @@ public class EggTaskCentral {
 
 	private void onInitialize(Context context){
 		mContext = context.getApplicationContext();
-		mVolleyQueue = EggVolley.newRequestQueue(mContext, 5 * 1024 * 1024);
+		mVolleyQueue = EggVolley.newRequestQueue(mContext, DEFAULT_VOLLEY_CACHE_SIZE);
 		mQueue = new EggTaskQueue();
-		mImageLoader = new ImageLoader(mVolleyQueue, new BitmapLruCache());
+		//mVolleyImageLoader = new ImageLoader(mVolleyQueue, new BitmapLruCache(DEFAULT_IMAGE_CACHE_SIZE));
+
+		 File cacheDir = StorageUtils.getCacheDirectory(mContext);
+
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mContext)
+        .memoryCache(new LruMemoryCache(DEFAULT_IMAGE_CACHE_SIZE))
+        //.memoryCacheSize(DEFAULT_IMAGE_CACHE_SIZE)
+        .diskCache(new LimitedAgeDiscCache(cacheDir, DEFAULT_IMAGE_DISC_CACHE_SIZE))
+        //.diskCacheSize(DEFAULT_IMAGE_DISC_CACHE_SIZE)
+        .build();
+
+		mUnivImageLoader = com.nostra13.universalimageloader.core.ImageLoader.getInstance();
+		mUnivImageLoader.init(config);
+
+
 		startTask();
 		startVolleyRequest();
 	}
@@ -63,6 +93,9 @@ public class EggTaskCentral {
 		cancelVolleyRquestAll();
 		stopVolleyRquest();
 		stopTask();
+
+		mUnivImageLoader.stop();
+		mUnivImageLoader.destroy();
 	}
 
 	private void startVolleyRequest(){
@@ -98,27 +131,6 @@ public class EggTaskCentral {
 	}
 
 
-//	public void addVolleyRequestByActivity(Request<?> request, Activity activity){
-//		if(request == null) return ;
-//
-//		VolleyTag tag = new VolleyTag();
-//		tag.activity = activity;
-//		request.setTag(tag);
-//
-//		mQueue.add(request);
-//
-//	}
-//
-//	public void addVolleyRequestByFragment(Request<?> request, Fragment fragment){
-//		if(request == null) return ;
-//
-//		VolleyTag tag = new VolleyTag();
-//		tag.fragment = fragment;
-//		request.setTag(tag);
-//
-//		mQueue.add(request);
-//
-//	}
 
 	private void startTask(){
 		mQueue.start();
@@ -146,24 +158,103 @@ public class EggTaskCentral {
 
 
 
-	public static final class LoadImageContainer{
+	public static class LoadImageContainer{
 
-		final ImageContainer ic;
-
-		LoadImageContainer(ImageContainer ic) {
-			this.ic = ic;
-		}
+//		final ImageContainer ic;
+//
+//		LoadImageContainer(ImageContainer ic) {
+//			this.ic = ic;
+//		}
 
 		public void cancelRequest(){
-			ic.cancelRequest();
+			//ic.cancelRequest();
 		}
 	}
 
-	public LoadImageContainer getLoadImage(String url, ImageListener listener, int maxWidth, int maxHeight){
+	public interface LoadImageListener{
+		//public
+		public void onLoaded(Bitmap bmp);
+		public void onError();
+	}
 
-		ImageContainer ic = mImageLoader.get(url, listener, maxWidth, maxHeight);
+	public LoadImageContainer displayImage(final ImageView view, String url, final LoadImageListener listener, int maxWidth, int maxHeight){
 
-		return new LoadImageContainer(ic);
+		DisplayImageOptions option = new DisplayImageOptions.Builder()
+		.bitmapConfig(Bitmap.Config.RGB_565)
+		.cacheInMemory(true)
+		.cacheOnDisk(true)
+		.imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+		.build()
+		;
+
+		mUnivImageLoader.displayImage(
+				url,
+				view,
+				option,
+				new ImageLoadingListener() {
+
+					@Override
+					public void onLoadingStarted(String imageUri, View view) {
+					}
+
+					@Override
+					public void onLoadingFailed(String imageUri, View view,
+							FailReason failReason) {
+						listener.onError();
+					}
+
+					@Override
+					public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+						listener.onLoaded(loadedImage);
+					}
+
+					@Override
+					public void onLoadingCancelled(String imageUri, View view) {
+					}
+				}
+				);
+
+		//ImageContainer ic = mVolleyImageLoader.get(url, listener, maxWidth, maxHeight);
+
+		return new LoadImageContainer(){
+			@Override
+			public void cancelRequest() {
+				super.cancelRequest();
+				mUnivImageLoader.cancelDisplayTask(view);
+			}
+		};
+	}
+
+
+	public void loadImage(String url, final LoadImageListener listener, int maxWidth, int maxHeight){
+
+
+		mUnivImageLoader.loadImage(
+				url,
+				new ImageSize(maxWidth, maxHeight),
+				new ImageLoadingListener() {
+					@Override
+					public void onLoadingStarted(String imageUri, View view) {
+					}
+
+					@Override
+					public void onLoadingFailed(String imageUri, View view,
+							FailReason failReason) {
+						listener.onError();
+					}
+
+					@Override
+					public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+						listener.onLoaded(loadedImage);
+					}
+
+					@Override
+					public void onLoadingCancelled(String imageUri, View view) {
+
+					}
+				}
+			);
+
 	}
 
 

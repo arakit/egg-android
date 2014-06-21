@@ -7,13 +7,11 @@ import jp.egg.android.request.out.EggResponseBody;
 import jp.egg.android.request.volley.VolleyBaseRequest;
 import jp.egg.android.task.central.EggTaskCentral;
 import jp.egg.android.task.central.EggTaskCentral.LoadImageContainer;
+import jp.egg.android.task.central.EggTaskCentral.LoadImageListener;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.android.volley.toolbox.RequestFuture;
 
 public class EggRequestUtil {
@@ -96,26 +94,28 @@ public class EggRequestUtil {
 		//final int defaultImageResId = 0;
 
 
-		ImageLoader.ImageListener lis  = new ImageListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                 view.setImageResource(errorImageResId);
-            }
+		LoadImageListener lis  = new LoadImageListener() {
 
-            @Override
-            public void onResponse(ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null) {
-                    view.setImageBitmap(response.getBitmap());
-                } else {
-                    view.setImageResource(defaultImageResId);
-                }
-            }
+			@Override
+			public void onLoaded(Bitmap bmp) {
+//                if (response.getBitmap() != null) {
+//                    view.setImageBitmap(response.getBitmap());
+//                } else {
+//                    view.setImageResource(defaultImageResId);
+//                }
+			}
+
+			@Override
+			public void onError() {
+				//view.setImageResource(errorImageResId);
+			}
         };
-
 
         view.setImageResource(defaultImageResId);
 
-        LoadImageContainer ic = c.getLoadImage(url, lis, maxWidth, maxHeight);
+        LoadImageContainer ic = c.displayImage(view, url, lis, maxWidth, maxHeight);
+
+        //LoadImageContainer ic = c.loadImage(url, lis, maxWidth, maxHeight);
         view.setTag(ic);
 
 		//c.addVolleyRequestByObject(new Imag, null);
