@@ -1,10 +1,12 @@
-package jp.egg.android.ui.fragment;
+package jp.egg.android.app.fragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jp.egg.android.R;
 import jp.egg.android.app.EggApplication;
+import jp.egg.android.app.model.entities.TestResult;
+import jp.egg.android.db.EggDB;
 import jp.egg.android.request.EggRequestUtil;
 import jp.egg.android.request.in.EggDefaultParamsRequestBody;
 import jp.egg.android.request.out.EggDefaultJsonNodeResponseBody;
@@ -12,6 +14,7 @@ import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskError;
 import jp.egg.android.task.central.EggTaskCentral;
 import jp.egg.android.ui.adapter.EggDefaultListAdapter;
+import jp.egg.android.ui.fragment.EggBaseFragment;
 import jp.egg.android.util.DUtil;
 import jp.egg.android.util.HandlerUtil;
 import android.os.Bundle;
@@ -26,7 +29,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.Request.Method;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -137,27 +139,27 @@ public class TestListFragment extends EggBaseFragment{
 
 
 	private class TestData{
-		List<Result> results;
+		List<TestResult> results;
 	}
 
-	@JsonIgnoreProperties(ignoreUnknown=true)
-	public static class Result{
-		public String GsearchResultClass;
-		public String content;
-		public String contentNoFormatting;
-		public Integer height;
-		public String imageId;
-		public String originalContextUrl;
-		public Integer tbHeight;
-		public String tbUrl;
-		public Integer tbWidth;
-		public String title;
-		public String titleNoFormatting;
-		public String unescapedUrl;
-		public String url;
-		public String visibleUrl;
-		public Integer width;
-	}
+//	@JsonIgnoreProperties(ignoreUnknown=true)
+//	public static class Result{
+//		public String GsearchResultClass;
+//		public String content;
+//		public String contentNoFormatting;
+//		public Integer height;
+//		public String imageId;
+//		public String originalContextUrl;
+//		public Integer tbHeight;
+//		public String tbUrl;
+//		public Integer tbWidth;
+//		public String title;
+//		public String titleNoFormatting;
+//		public String unescapedUrl;
+//		public String url;
+//		public String visibleUrl;
+//		public Integer width;
+//	}
 
 
 
@@ -169,7 +171,7 @@ public class TestListFragment extends EggBaseFragment{
 
 	}
 
-	private class ListViewAdapter extends EggDefaultListAdapter<Result>{
+	private class ListViewAdapter extends EggDefaultListAdapter<TestResult>{
 
 
 		@Override
@@ -189,7 +191,7 @@ public class TestListFragment extends EggBaseFragment{
 				holder = (Holder) convertView.getTag();
 			}
 
-			Result item = getItem(position);
+			TestResult item = getItem(position);
 
 			holder.text1.setText(item.url);
 			holder.text2.setText(""+item.height);
@@ -212,9 +214,10 @@ public class TestListFragment extends EggBaseFragment{
 
 		@Override
 		protected void onDoInBackground() {
+			super.onDoInBackground();
 
-			//super.onDoInBackground();
-				try{
+			try{
+
 
 				TestData ret = new TestData();
 				JsonNode jn = EggRequestUtil.get(
@@ -226,12 +229,24 @@ public class TestListFragment extends EggBaseFragment{
 
 				ObjectMapper om = new ObjectMapper();
 				JsonNode results = jn.get("responseData"). get("results");
-				ret.results = new ArrayList<Result>();
+				ret.results = new ArrayList<TestResult>();
 				for(int i=0;i<results.size();i++){
 					DUtil.d("test", "i = "+results.get(i));
-					Result r = om.treeToValue(results.get(i) , Result.class);
+					TestResult r = om.treeToValue(results.get(i) , TestResult.class);
 					ret.results.add(r);
 				}
+
+				EggDB.beginTransaction();
+				try{
+					for(TestResult e : ret.results){
+						e.save();
+					}
+
+					EggDB.setTransactionSuccessful();
+				}finally{
+					EggDB.endTransaction();
+				}
+
 
 				setSucces(ret);
 

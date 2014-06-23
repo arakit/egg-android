@@ -227,7 +227,9 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	/**
 	 *
 	 */
-	protected abstract void onDoInBackground();
+	protected void onDoInBackground(){
+
+	}
 
 
 	/**

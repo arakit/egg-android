@@ -1,5 +1,6 @@
 package jp.egg.android.app;
 
+import jp.egg.android.db.EggDB;
 import jp.egg.android.task.central.EggTaskCentral;
 import android.app.Application;
 
@@ -12,7 +13,7 @@ public class EggApplication extends Application{
 		super.onCreate();
 
 		EggTaskCentral.initialize(getApplicationContext());
-
+		EggDB.initialize(getApplicationContext());
 
 
 	}
@@ -22,7 +23,10 @@ public class EggApplication extends Application{
 		super.onTerminate();
 
 
+		EggDB.dispose();
 		EggTaskCentral.destroy();
+
+
 	}
 
 

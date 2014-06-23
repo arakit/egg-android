@@ -1,4 +1,4 @@
-package jp.egg.android.ui.fragment;
+package jp.egg.android.app.fragment;
 
 import java.util.ArrayList;
 

@@ -24,13 +24,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import jp.egg.android.db.annotation.Column;
+import jp.egg.android.db.annotation.Table;
 import jp.egg.android.db.model.Model;
+import jp.egg.android.db.util.ReflectionUtils;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
-import com.activeandroid.util.ReflectionUtils;
 
 public final class TableInfo {
 	//////////////////////////////////////////////////////////////////////////////////////

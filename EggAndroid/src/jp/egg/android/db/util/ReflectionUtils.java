@@ -24,13 +24,13 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import jp.egg.android.db.annotation.Column;
+import jp.egg.android.db.model.Model;
+import jp.egg.android.db.serializer.TypeSerializer;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.serializer.TypeSerializer;
 
 public final class ReflectionUtils {
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -63,13 +63,13 @@ public final class ReflectionUtils {
 
 		return null;
 	}
-	
+
 	public static Set<Field> getDeclaredColumnFields(Class<?> type) {
 		Set<Field> declaredColumnFields = Collections.emptySet();
-		
+
 		if (ReflectionUtils.isSubclassOf(type, Model.class) || Model.class.equals(type)) {
 			declaredColumnFields = new LinkedHashSet<Field>();
-			
+
 			Field[] fields = type.getDeclaredFields();
 			Arrays.sort(fields, new Comparator<Field>() {
 				@Override
@@ -82,14 +82,14 @@ public final class ReflectionUtils {
 					declaredColumnFields.add(field);
 				}
 			}
-	
+
 			Class<?> parentType = type.getSuperclass();
 			if (parentType != null) {
 				declaredColumnFields.addAll(getDeclaredColumnFields(parentType));
 			}
 		}
-		
-		return declaredColumnFields;		
+
+		return declaredColumnFields;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////

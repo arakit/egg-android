@@ -1,12 +1,13 @@
-package jp.egg.android.ui.activity;
+package jp.egg.android.app.activity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jp.egg.android.R;
-import jp.egg.android.ui.fragment.NavigationDrawerFragment;
+import jp.egg.android.app.fragment.NavigationDrawerFragment;
+import jp.egg.android.app.fragment.TestListFragment;
+import jp.egg.android.app.fragment.TestMainFragment;
 import jp.egg.android.ui.fragment.PlaceholderFragment;
-import jp.egg.android.ui.fragment.TestListFragment;
 import jp.egg.android.util.DUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -50,8 +51,9 @@ public class MainActivity extends ActionBarActivity implements
 	private List<FragmentItem> getFragments(){
 		if(mFragments==null){
 			mFragments = new ArrayList<MainActivity.FragmentItem>();
-			mFragments.add(new FragmentItem("item0", PlaceholderFragment.newInstance(0)));
-			mFragments.add(new FragmentItem("testList", TestListFragment.newInstance()));
+			mFragments.add(new FragmentItem("TestListFragment", TestListFragment.newInstance()));
+			mFragments.add(new FragmentItem("TestMainFragment", TestMainFragment.newInstance()));
+			mFragments.add(new FragmentItem("PlaceholderFragment", PlaceholderFragment.newInstance(0)));
 		}
 		return mFragments;
 	}
