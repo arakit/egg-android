@@ -51,9 +51,9 @@ public class MainActivity extends ActionBarActivity implements
 	private List<FragmentItem> getFragments(){
 		if(mFragments==null){
 			mFragments = new ArrayList<MainActivity.FragmentItem>();
-			mFragments.add(new FragmentItem("TestListFragment", TestListFragment.newInstance()));
 			mFragments.add(new FragmentItem("TestMainFragment", TestMainFragment.newInstance()));
-			mFragments.add(new FragmentItem("PlaceholderFragment", PlaceholderFragment.newInstance(0)));
+			mFragments.add(new FragmentItem("TestListFragment", TestListFragment.newInstance()));
+			mFragments.add(new FragmentItem("PlaceholderFragment", PlaceholderFragment.newInstance(2)));
 		}
 		return mFragments;
 	}

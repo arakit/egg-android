@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#999999"
     tools:context="jp.egg.android.ui.activity.DatabaseViewerActivity" >
 
     <!--
@@ -15,18 +16,6 @@
          android:fitsSystemWindows.
     -->
 
-	<android.support.v4.view.ViewPager
-	    android:id="@+id/pager"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    >
-
-
-
-	</android.support.v4.view.ViewPager>
-
-
-	<!--
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -38,11 +27,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-
+            <TextView
+                android:id="@+id/fragment_databasedummy_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:keepScreenOn="true"
+                android:text="@string/dummy_content"
+                android:textColor="#f0f0f0"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </ScrollView>
-
-    -->
 
 </FrameLayout>
