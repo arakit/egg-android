@@ -23,7 +23,7 @@ public class DatabaseStructureAdapter extends ArrayAdapter<DatabaseStructureAdap
 	}
 
 
-	public static final int LAYOUT_ID = R.layout.item_test_list;
+	public static final int LAYOUT_ID = R.layout.item_database_structure;
 
 	private LayoutInflater mLayoutInflater;
 

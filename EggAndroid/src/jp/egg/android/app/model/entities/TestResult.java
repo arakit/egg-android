@@ -1,9 +1,10 @@
 package jp.egg.android.app.model.entities;
 
+import jp.egg.android.db.annotation.Column;
+import jp.egg.android.db.annotation.JsonParams;
 import jp.egg.android.db.annotation.Table;
 import jp.egg.android.db.model.Model;
 
-import com.activeandroid.annotation.Column;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
@@ -12,9 +13,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class TestResult extends Model{
 
 
+	@JsonParams()
 	@Column(unique = true)
 	public String imageId;
 
+	@Column(notNull=true)
 	public String url;
 	public String unescapedUrl;
 	public String visibleUrl;

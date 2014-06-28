@@ -24,7 +24,7 @@ public class DatabaseListAdapter extends ArrayAdapter<DatabaseListAdapter.Item>{
 	}
 
 
-	public static final int LAYOUT_ID = R.layout.item_test_list;
+	public static final int LAYOUT_ID = R.layout.item_database_list;
 
 	private LayoutInflater mLayoutInflater;
 
