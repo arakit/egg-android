@@ -1,7 +1,6 @@
 package jp.egg.android.app;
 
-import jp.egg.android.db.EggDB;
-import jp.egg.android.task.EggTaskCentral;
+import jp.egg.android.EggAndroid;
 import android.app.Application;
 
 public class EggApplication extends Application{
@@ -12,20 +11,14 @@ public class EggApplication extends Application{
 	public void onCreate() {
 		super.onCreate();
 
-		EggTaskCentral.initialize(getApplicationContext());
-		EggDB.initialize(getApplicationContext());
-
-
+		EggAndroid.initialize(EggApplication.this);
 	}
 
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
 
-
-		EggDB.dispose();
-		EggTaskCentral.destroy();
-
+		EggAndroid.terminate();
 
 	}
 

@@ -39,7 +39,7 @@ public class DatabaseViewerActivity extends FragmentActivity {
 	/**
 	 * The flags to pass to {@link SystemUiHider#getInstance}.
 	 */
-	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+	private static final int HIDER_FLAGS = SystemUiHider.FLAG_LAYOUT_IN_SCREEN_OLDER_DEVICES;
 
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.

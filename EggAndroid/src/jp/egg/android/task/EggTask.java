@@ -18,6 +18,9 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 
 	private Handler mHandler = new Handler(Looper.getMainLooper());
 
+	private Thread mExecutingThreaad = null;
+
+
 	private boolean mIsCanceled = false;
 	private boolean mIsStarted = false;
 	private boolean mIsRunning = false;
@@ -43,10 +46,11 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	}
 
 
-//	public final void requestCancel(){
-//		mIsCanceled = true;
-//		onRequestCancel();
-//	}
+	public final void requestCancel(){
+		if(mIsCanceled) return ;
+		mIsCanceled = true;
+		onRequestCancel();
+	}
 
 //	public final void cancel(){
 //		if(mIsCanceled) return ;
@@ -96,6 +100,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	public final void execute(){
 		if(!mIsStarted || mIsStoped) return ;
 		DUtil.d("test", "execute");
+		mExecutingThreaad = Thread.currentThread();
 		try{
 			mIsStarted = true;
 			mIsRunning = true;
@@ -311,7 +316,9 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 
 
 	protected void onRequestCancel(){
-
+		if( mExecutingThreaad!=null ){
+			mExecutingThreaad.interrupt();
+		}
 	}
 
 

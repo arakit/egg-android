@@ -4,12 +4,16 @@
 
 package jp.egg.android.ui.fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jp.egg.android.R;
 import jp.egg.android.db.EggDB;
+import jp.egg.android.db.util.Log;
+import jp.egg.android.ui.adapter.DatabaseListAdapter;
 import jp.egg.android.util.StringUtil;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +33,8 @@ public class DatabaseListFragment extends EggBaseFragment {
 
 
 	private View mView;
+	private DatabaseListAdapter mAdapter;
+
 
 	private class ViewHolder{
 		ListView listView;
@@ -45,7 +51,7 @@ public class DatabaseListFragment extends EggBaseFragment {
         ViewHolder holder = new ViewHolder();
 
         holder.listView= (ListView) v.findViewById(R.id.fragment_databaselist_list);
-
+        holder.listView.setAdapter(mAdapter);
 
         v.setTag(holder);
         mView = v;
@@ -59,6 +65,7 @@ public class DatabaseListFragment extends EggBaseFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		mAdapter = new DatabaseListAdapter(getActivity(), getLayoutInflater(savedInstanceState));
 	}
 
 
@@ -74,15 +81,24 @@ public class DatabaseListFragment extends EggBaseFragment {
 
 	private void executeList(){
 
+		Log.d("test", "executeList");
+
 		ViewHolder holder = (ViewHolder) mView.getTag();
+
+		List<DatabaseListAdapter.Item> items = new ArrayList<DatabaseListAdapter.Item>();
 
 		Cursor c = EggDB.getDatabase().rawQuery("SELECT * FROM sqlite_master WHERE type='table' ", null);
         Log.d("test", "table num = " + String.valueOf(c.getCount()));
 		StringBuilder sb = new StringBuilder();
 		if(c.moveToFirst()){
 			String[] colmns = c.getColumnNames();
-			 sb.append("colmns = "+	StringUtil.makeDivideString(colmns, ", "));
-			 sb.append('\n');
+			int colmn_name = c.getColumnIndex("name");
+			int colmn_tbl_name = c.getColumnIndex("tbl_name");
+			int colmn_type = c.getColumnIndex("type");
+			int colmn_rootpage = c.getColumnIndex("rootpage");
+			int colmn_sql = c.getColumnIndex("sql");
+			 //sb.append("colmns = "+	StringUtil.makeDivideString(colmns, ", "));
+			 //sb.append('\n');
 
 			while(c.moveToNext()){
 				String[] values = new String[colmns.length];
@@ -91,9 +107,23 @@ public class DatabaseListFragment extends EggBaseFragment {
 				}
 				 sb.append("values = "+	StringUtil.makeDivideString(values, ", "));
 				 sb.append('\n');
+
+				DatabaseListAdapter.Item item = new DatabaseListAdapter.Item();
+				item.name = c.getString(colmn_name) ;
+				item.tbl_name  = c.getString(colmn_tbl_name);
+				item.type  = c.getString(colmn_type);
+				item.rootpage  = c.getString(colmn_rootpage);
+				item.sql  = c.getString(colmn_sql);
+				items.add(item);
 			}
+
 		}
 		c.close();
+
+		Log.d("data = "+sb.toString());
+
+		mAdapter.addAll(items);
+		mAdapter.notifyDataSetChanged();
 
 		//TODO
 		//holder.listView.setText(sb.toString());
