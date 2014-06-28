@@ -1,9 +1,7 @@
-package jp.egg.android.task.central;
+package jp.egg.android.task;
 
 import java.util.ArrayList;
 import java.util.concurrent.PriorityBlockingQueue;
-
-import jp.egg.android.task.EggTask;
 
 public class EggTaskQueue {
 
@@ -32,8 +30,9 @@ public class EggTaskQueue {
 
 
 		public void add(EggTask<?, ?> task){
-			task.onQueue();
-			mQueue.put(task);
+			task.setSequence();
+			task.start();
+			mQueue.put(task);			
 		}
 
 

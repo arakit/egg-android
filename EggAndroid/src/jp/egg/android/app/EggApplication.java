@@ -1,7 +1,7 @@
 package jp.egg.android.app;
 
 import jp.egg.android.db.EggDB;
-import jp.egg.android.task.central.EggTaskCentral;
+import jp.egg.android.task.EggTaskCentral;
 import android.app.Application;
 
 public class EggApplication extends Application{

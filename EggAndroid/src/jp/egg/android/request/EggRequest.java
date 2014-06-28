@@ -6,7 +6,7 @@ import jp.egg.android.request.in.EggRequestBody;
 import jp.egg.android.request.out.EggResponseBody;
 import jp.egg.android.request.volley.VolleyBaseRequest;
 import jp.egg.android.task.EggTask;
-import jp.egg.android.task.central.EggTaskCentral;
+import jp.egg.android.task.EggTaskCentral;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue.RequestFilter;
@@ -54,14 +54,14 @@ public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError> {
 		});
 	}
 
-	@Override
-	protected void onStart() {
-		// if(!mIsSetUped){
-		// setError(null);
-		// return ;
-		// }
-
-	}
+//	@Override
+//	protected void onStart() {
+//		// if(!mIsSetUped){
+//		// setError(null);
+//		// return ;
+//		// }
+//
+//	}
 
 	@Override
 	protected void onDoInBackground() {
@@ -100,7 +100,7 @@ public abstract class EggRequest<I, O> extends EggTask<O, EggRequestError> {
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onStopTask() {
 
 	}
 

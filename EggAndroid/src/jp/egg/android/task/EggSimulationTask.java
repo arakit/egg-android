@@ -7,10 +7,10 @@ public class EggSimulationTask extends EggTask<String, EggTaskError>{
 
 	}
 
-	@Override
-	protected void onStart() {
-
-	}
+//	@Override
+//	protected void onStart() {
+//
+//	}
 
 	@Override
 	protected void onSuccess(String result) {
@@ -23,7 +23,7 @@ public class EggSimulationTask extends EggTask<String, EggTaskError>{
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onStopTask() {
 		// TODO 自動生成されたメソッド・スタブ
 
 	}

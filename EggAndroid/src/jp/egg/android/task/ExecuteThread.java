@@ -1,6 +1,5 @@
-package jp.egg.android.task.central;
+package jp.egg.android.task;
 
-import jp.egg.android.task.EggTask;
 import android.annotation.TargetApi;
 import android.net.TrafficStats;
 import android.os.Build;
@@ -133,6 +132,9 @@ public class ExecuteThread extends Thread{
      * <p>Also dumps all events from this request's event log; for debugging.</p>
      */
     private void finishRequest(EggTask<?, ?> task, final String tag) {
+
+    	task.postStop();
+
 //        if (mQueue != null) {
 //            mQueue.finish(this);
 //        }

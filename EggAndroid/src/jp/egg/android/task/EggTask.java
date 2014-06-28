@@ -21,6 +21,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	private boolean mIsCanceled = false;
 	private boolean mIsStarted = false;
 	private boolean mIsRunning = false;
+	private boolean mIsStoped = false;
 
 	private ResultState mResultState = ResultState.none;
 	private S mSuccess;
@@ -42,29 +43,62 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	}
 
 
-	public final void requestCancel(){
-		onRequestCancel();
+//	public final void requestCancel(){
+//		mIsCanceled = true;
+//		onRequestCancel();
+//	}
+
+//	public final void cancel(){
+//		if(mIsCanceled) return ;
+//		try{
+//			mIsCanceled = true;
+//			onCancel();
+//		}catch(Exception ex){
+//			mIsCanceled = false;
+//		}
+//	}
+
+
+	final void setSequence(){
+		mSequence = SystemClock.uptimeMillis();
 	}
 
-	public final void cancel(){
-		if(mIsCanceled) return ;
-		try{
-			mIsCanceled = true;
-			onCancel();
-		}catch(Exception ex){
-			mIsCanceled = false;
-		}
+	final void start(){
+		if(mIsStarted || mIsStoped) return ;
+		mIsStarted = true;
+		onStartTask();
 	}
+	final void stop(){
+		if(!mIsStarted || mIsStoped) return ;
+		mIsStoped = true;
+		onStopTask();
+	}
+
+	final void postStart(){
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				onStopTask();
+			}
+		});
+	}
+
+	final void postStop(){
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				onStopTask();
+			}
+		});
+	}
+
+
 	public final void execute(){
-		if(mIsStarted) return ;
+		if(!mIsStarted || mIsStoped) return ;
 		DUtil.d("test", "execute");
 		try{
 			mIsStarted = true;
 			mIsRunning = true;
-			DUtil.d("test", "onStart");
-			onStart();
-			if( finishIfError() ) return ;
-			DUtil.d("test", "onDoInBackground");
 			onDoInBackground();
 			finish();
 			return ;
@@ -84,11 +118,10 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 		switch(mResultState){
 		case success : {
 			final S success = mSuccess;
-			onSuccess(success);
-			onStop();
 			mHandler.post(new Runnable() {
 				@Override
 				public void run() {
+					onSuccess(success);
 					if(mListener!=null){
 						mListener.onSucess(success);
 					}
@@ -97,31 +130,41 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 		}
 		case error : {
 			final E error = mError;
-			onError(error);
-			onStop();
 			mHandler.post(new Runnable() {
 				@Override
 				public void run() {
+					onError(error);
 					if(mListener!=null){
 						mListener.onError(error);
 					}
 				}
 			});
 		}
+		case cancel : {
+			mHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					onCancel();
+					if(mListener!=null){
+						mListener.onCancel();
+					}
+				}
+			});
+		}
 		default: {
-			onStop();
+			//
 		}
 		}
 
 
 	}
-	private final boolean finishIfError(){
-		if( isError() ){
-			finish();
-			return true;
-		}
-		return false;
-	}
+//	private final boolean finishIfError(){
+//		if( isError() ){
+//			finish();
+//			return true;
+//		}
+//		return false;
+//	}
 	private final void errorFinish(E error){
 		setError(error);
 		finish();
@@ -144,6 +187,9 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	protected final void setError(E error){
 		mResultState = ResultState.error;
 		mError = error;
+	}
+	protected final void setCancel(){
+		mResultState = ResultState.cancel;
 	}
 
 
@@ -181,6 +227,15 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 		return mSuccess;
 	}
 
+	public final EggTaskResult<S, E> getResult(){
+		if(isSuccess()){
+			return new EggTaskResult<S, E>(getSuccess());
+		}else if(isError()){
+			return new EggTaskResult<S, E>(getError());
+		}
+		return null;
+	}
+
 
 	//その他
     /**
@@ -203,7 +258,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	 * この中でキャンセル処理してください
 	 *
 	 */
-	protected void onCancel() throws FailedCancelExeption{
+	protected void onCancel(){
 
 	}
 
@@ -211,7 +266,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	 * 処理を開始してください。
 	 *
 	 */
-	protected void onStart() throws FailedStartExeption{
+	protected void onStartTask() {
 
 	}
 
@@ -220,7 +275,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	 * onSucsess か onErroeの後
 	 *
 	 */
-	protected void onStop(){
+	protected void onStopTask(){
 
 	}
 
@@ -250,9 +305,9 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 
 
 
-	public void onQueue(){
-		mSequence = SystemClock.uptimeMillis();
-	}
+//	public void onQueue(){
+//		mSequence = SystemClock.uptimeMillis();
+//	}
 
 
 	protected void onRequestCancel(){

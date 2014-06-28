@@ -1,10 +1,9 @@
-package jp.egg.android.task.central;
+package jp.egg.android.task;
 
 import java.io.File;
 
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
-import jp.egg.android.task.EggTask;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.View;
