@@ -18,6 +18,7 @@ public class GoogleImageSearchResult extends Model{
 	@Column(unique = true, onUniqueConflict = ConflictAction.REPLACE)
 	public String imageId;
 
+	@Column()
 	public String url;
 
 	public String unescapedUrl;

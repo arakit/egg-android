@@ -2,7 +2,7 @@ package jp.egg.android.app.fragment;
 
 import jp.egg.android.R;
 import jp.egg.android.app.EggApplication;
-import jp.egg.android.app.api.TestGoogleImageSearchApi;
+import jp.egg.android.app.api.GoogleImageSearchApi;
 import jp.egg.android.app.model.GoogleImageSearchModel;
 import jp.egg.android.app.model.entities.GoogleImageSearchResult;
 import jp.egg.android.request.EggRequestError;
@@ -84,7 +84,7 @@ public class TestListFragment extends EggBaseFragment{
 		btn1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				TestGoogleImageSearchApi tt = TestGoogleImageSearchApi.newInstance("hatsune");
+				GoogleImageSearchApi tt = GoogleImageSearchApi.newInstance("hatsune");
 				tt.setOnListener(new EggTaskListener<GoogleImageSearchModel, EggRequestError>() {
 					@Override
 					public void onSucess(GoogleImageSearchModel response) {

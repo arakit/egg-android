@@ -3,6 +3,7 @@ package jp.egg.android.request;
 import java.util.Map;
 
 import jp.egg.android.db.EggDB;
+import jp.egg.android.model.Omelet;
 import jp.egg.android.request.in.EggDefaultParamsRequestBody;
 import jp.egg.android.request.in.EggRequestBody;
 import jp.egg.android.request.out.EggDefaultJsonNodeResponseBody;
@@ -62,15 +63,20 @@ public abstract class EggApiRequest<I1, I2, O1, O2> extends EggTask<O2, EggReque
 		////////
 
 		try{
+			if( isCanceled() ) return ;
 			I2 requestData = onRequestData(mDefaultInputData);
+			if( isCanceled() ) return ;
 			O1 response = onRequest(requestData);
+
 			if( isCanceled() ) return ;
 			if(response == null) throw new FaildRequestExeprion("");
+			if( isCanceled() ) return ;
 
 			O2 parseed = onParseResponse(response);
 			if( isCanceled() ) return ;
 			if(parseed == null) throw new FaildRequestExeprion("");
 
+			if( isCanceled() ) return ;
 			boolean success_save = save(parseed);
 			if( isCanceled() ) return ;
 			if(!success_save) throw new FaildSaveExeprion("");
@@ -126,6 +132,7 @@ public abstract class EggApiRequest<I1, I2, O1, O2> extends EggTask<O2, EggReque
 		}
 	}
 	protected boolean onSave(O2 data){
+		Omelet.saveEggAll(data);
 		return true;
 	}
 

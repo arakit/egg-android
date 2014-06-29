@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jp.egg.android.app.model.GoogleImageSearchModel;
-import jp.egg.android.app.model.entities.GoogleImageSearchResult;
 import jp.egg.android.request.EggParamsToJsonNodeApi;
 import jp.egg.android.util.Json;
+import android.util.Log;
 
 import com.android.volley.Request.Method;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * <request data, response data, save model>
  */
-public class TestGoogleImageSearchApi extends EggParamsToJsonNodeApi<String , GoogleImageSearchModel>{
+public class GoogleImageSearchApi extends EggParamsToJsonNodeApi<String , GoogleImageSearchModel>{
 
 
 	public static final String URL = "http://ajax.googleapis.com/ajax/services/search/images";
@@ -26,13 +26,13 @@ public class TestGoogleImageSearchApi extends EggParamsToJsonNodeApi<String , Go
 
 	//v=1.0&rsz=8&safe=off&q=hatsune
 
-	public static final TestGoogleImageSearchApi newInstance(String q){
-		TestGoogleImageSearchApi api = new TestGoogleImageSearchApi();
+	public static final GoogleImageSearchApi newInstance(String q){
+		GoogleImageSearchApi api = new GoogleImageSearchApi();
 		api.setupInput(q);
 		return api;
 	}
 
-	private TestGoogleImageSearchApi() {
+	private GoogleImageSearchApi() {
 //		setup(
 //				inputParams(Method.GET, URL),
 //				outputJsonNode()
@@ -71,11 +71,13 @@ public class TestGoogleImageSearchApi extends EggParamsToJsonNodeApi<String , Go
 
 	@Override
 	protected boolean onSave(GoogleImageSearchModel data) {
-		GoogleImageSearchResult[] items = data.responseData.results;
-		for(int i=0;i<items.length;i++){
-			items[i].save();
-		}
-		return true;
+		Log.d("test","onSave");
+		return super.onSave(data);
+//		GoogleImageSearchResult[] items = data.responseData.results;
+//		for(int i=0;i<items.length;i++){
+//			items[i].save();
+//		}
+//		return true;
 	}
 
 
