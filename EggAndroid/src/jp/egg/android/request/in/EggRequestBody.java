@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
-public abstract class EggRequestBody {
+public abstract class EggRequestBody<I> {
 
 
 
@@ -13,6 +13,7 @@ public abstract class EggRequestBody {
 
 	private int mMethod;
 	private String mUrl;
+	private I mInputData;
 
 	public EggRequestBody(int method, String url) {
 		mMethod = method;
@@ -41,6 +42,15 @@ public abstract class EggRequestBody {
 	public void setMethod(int method){
 		mMethod = method;
 	}
+
+	public void setData(I input){
+		mInputData = input;
+	}
+
+	protected I getData(){
+		return mInputData;
+	}
+
 
 	//ベース処理系
 	protected final int prepareMethod(){

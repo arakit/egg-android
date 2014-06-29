@@ -336,7 +336,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
     /**
      * Returns the {@link Priority} of this request; {@link Priority#NORMAL} by default.
      */
-    public Priority getPriority() {
+    public final Priority getPriority() {
         return Priority.NORMAL;
     }
 

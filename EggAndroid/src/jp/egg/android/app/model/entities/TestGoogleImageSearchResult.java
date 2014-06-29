@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 @Table(name = "TestResult")
-public class TestResult extends Model{
+public class TestGoogleImageSearchResult extends Model{
 
 
 	@JsonParams()

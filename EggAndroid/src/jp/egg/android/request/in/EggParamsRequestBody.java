@@ -4,10 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import android.net.Uri;
 
 import com.android.volley.Request.Method;
 
-public abstract class EggParamsRequestBody extends EggRequestBody{
+public abstract class EggParamsRequestBody extends EggRequestBody<Map<String, Object>>{
 
     /**
      * Default encoding for POST or PUT parameters. See {@link #getParamsEncoding()}.
@@ -36,6 +39,12 @@ public abstract class EggParamsRequestBody extends EggRequestBody{
 	//ベース処理系
 	protected final Map<String, String> prepareParams(){
 		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> data = getData();
+		if(data!=null){
+			for(Entry<String, Object> e : data.entrySet()){
+				params.put(e.getKey(), e.getValue()!=null?e.getValue().toString() : null);
+			}
+		}
 		return onPrepareParams(params);
 	}
 
@@ -73,8 +82,17 @@ public abstract class EggParamsRequestBody extends EggRequestBody{
 
 	@Override
 	protected String onPrepareUrl(String url) {
-
-		return url;
+		Uri uri = Uri.parse(url);
+		if(prepareMethod() == Method.GET){
+			Uri.Builder builder = uri.buildUpon();
+			Map<String, String> params = prepareParams();
+			for(Entry<String, String> e : params.entrySet()){
+				builder.appendQueryParameter(e.getKey(), e.getValue());
+			}
+			return builder.build().toString();
+		}else{
+			return uri.toString();
+		}
 	}
 
 

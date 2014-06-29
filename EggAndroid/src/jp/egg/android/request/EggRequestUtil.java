@@ -27,7 +27,24 @@ public class EggRequestUtil {
 	}
 
 
+	public static <O> EggRequestFuture<O> getFuture(EggRequestBody in, EggResponseBody<O> out){
 
+		final EggTaskCentral c = EggTaskCentral.getInstance();
+
+		RequestFuture<O> future = RequestFuture.newFuture();
+		VolleyBaseRequest<O> request = new VolleyBaseRequest<O>(
+				in,
+				out,
+				future,
+				future
+		);
+		//Request<O>  = request;
+
+		c.addVolleyRequestByObject(request, null);
+
+		return EggRequestFuture.make( future );
+
+	}
 
 	public static <O> O get(EggRequestBody in, EggResponseBody<O> out){
 
@@ -90,7 +107,7 @@ public class EggRequestUtil {
 
 		final EggTaskCentral c = EggTaskCentral.getInstance();
 
-		final int errorImageResId = 0;
+		//final int errorImageResId = 0;
 		//final int defaultImageResId = 0;
 
 

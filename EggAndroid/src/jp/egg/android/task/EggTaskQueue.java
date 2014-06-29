@@ -1,6 +1,7 @@
 package jp.egg.android.task;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class EggTaskQueue {
@@ -32,7 +33,7 @@ public class EggTaskQueue {
 		public void add(EggTask<?, ?> task){
 			task.setSequence();
 			task.start();
-			mQueue.put(task);			
+			mQueue.put(task);
 		}
 
 
@@ -41,7 +42,8 @@ public class EggTaskQueue {
 			if(mIsRunning) return ;
 			mIsRunning = true;
 
-			for(int i=0;i<1;i++){
+			int num_thread = 4;
+			for(int i=0;i<num_thread;i++){
 				ExecuteThread t = new ExecuteThread(this);
 				mThreads.add(t);
 				t.start();
@@ -53,10 +55,11 @@ public class EggTaskQueue {
 			if(!mIsRunning) return ;
 			mIsRunning = false;
 
-			for(int i=0;i<mThreads.size();i++){
-				ExecuteThread t = mThreads.get(i);
+			List<ExecuteThread> ts = mThreads;
+			for(int i=0;i<ts.size();i++){
+				ExecuteThread t = ts.get(i);
 				t.quit();
-				mThreads.remove(t);
+				ts.remove(t);
 			}
 
 		}
