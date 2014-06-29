@@ -5,6 +5,8 @@
 package jp.egg.android.ui.fragment;
 
 
+import jp.egg.android.task.EggTask;
+import jp.egg.android.task.EggTaskCentral;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -60,6 +62,18 @@ public abstract class EggBaseFragment extends Fragment {
 	}
 
 
-	
+
+	public void addTask(EggTask<?,?> task){
+		EggTaskCentral.getInstance().addTask(task);
+	}
+
+	public void addTaskInFragment(EggTask<?,?> task){
+		EggTaskCentral.getInstance().addTask(task);
+	}
+
+
+	public void cancelTaskInFragment(){
+		//TODO
+	}
 
 }

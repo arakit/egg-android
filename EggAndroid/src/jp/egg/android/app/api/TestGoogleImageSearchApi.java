@@ -1,11 +1,10 @@
 package jp.egg.android.app.api;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import jp.egg.android.app.model.entities.TestGoogleImageSearchResult;
+import jp.egg.android.app.model.GoogleImageSearchModel;
+import jp.egg.android.app.model.entities.GoogleImageSearchResult;
 import jp.egg.android.request.EggParamsToJsonNodeApi;
 import jp.egg.android.util.Json;
 
@@ -18,10 +17,12 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * <request data, response data, save model>
  */
-public class TestGoogleImageSearchApi extends EggParamsToJsonNodeApi<String , List<TestGoogleImageSearchResult>>{
+public class TestGoogleImageSearchApi extends EggParamsToJsonNodeApi<String , GoogleImageSearchModel>{
 
 
 	public static final String URL = "http://ajax.googleapis.com/ajax/services/search/images";
+
+	//http://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&safe=off&q=hatsune
 
 	//v=1.0&rsz=8&safe=off&q=hatsune
 
@@ -55,19 +56,24 @@ public class TestGoogleImageSearchApi extends EggParamsToJsonNodeApi<String , Li
 
 
 	@Override
-	protected List<TestGoogleImageSearchResult> onParseResponse(JsonNode response) {
-		JsonNode results = response.get("responseData"). get("results");
-		List<TestGoogleImageSearchResult> ret = new ArrayList<TestGoogleImageSearchResult>();
-		for(int i=0;i<results.size();i++){
-			ret.add( Json.fromJson(results.get(i), TestGoogleImageSearchResult.class) );
-		}
-		return ret;
+	protected GoogleImageSearchModel onParseResponse(JsonNode response) {
+
+		GoogleImageSearchModel model = Json.fromJson(response, GoogleImageSearchModel.class);
+
+//		JsonNode results = response.get("responseData"). get("results");
+//		List<GoogleImageSearchResult> ret = new ArrayList<GoogleImageSearchResult>();
+//		for(int i=0;i<results.size();i++){
+//			ret.add( Json.fromJson(results.get(i), GoogleImageSearchResult.class) );
+//		}
+//		return Arrays.asList( model.responseData.results );
+		return model;
 	}
 
 	@Override
-	protected boolean onSave(List<TestGoogleImageSearchResult> data) {
-		for(int i=0;i<data.size();i++){
-			data.get(i).save();
+	protected boolean onSave(GoogleImageSearchModel data) {
+		GoogleImageSearchResult[] items = data.responseData.results;
+		for(int i=0;i<items.length;i++){
+			items[i].save();
 		}
 		return true;
 	}

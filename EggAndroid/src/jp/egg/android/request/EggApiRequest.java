@@ -170,9 +170,14 @@ public abstract class EggApiRequest<I1, I2, O1, O2> extends EggTask<O2, EggReque
 
 
 
-
-
-
+//	public static class Config{
+//		public String url;
+//		public int method;
+//		private EggRequestBody<?> input;
+//		private EggResponseBody<?> output;
+//	}
+//
+//
 //	public static class Builder{
 //
 //		private String mUrl;
@@ -180,7 +185,7 @@ public abstract class EggApiRequest<I1, I2, O1, O2> extends EggTask<O2, EggReque
 //
 //		private Map<String, Object> mParams;
 //
-//		private EggRequestBody mRequestInput;
+//		private EggRequestBody<?> mRequestInput;
 //		private EggResponseBody<?> mRequestOutput;
 //
 //
@@ -216,10 +221,10 @@ public abstract class EggApiRequest<I1, I2, O1, O2> extends EggTask<O2, EggReque
 //
 //
 //
-////		public EggApiRequest<Object, Model> build(){
-////			//EggApiRequest<O1, Model>
-////			return null;
-////		}
+//		public EggApiRequest<Object, Model> build(){
+//			//EggApiRequest<O1, Model>
+//			return null;
+//		}
 //
 //
 //

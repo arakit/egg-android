@@ -1,6 +1,7 @@
 package jp.egg.android.ui.adapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.view.View;
@@ -29,6 +30,9 @@ public class EggDefaultListAdapter<I> extends EggBaseListAdapter<I> {
 	public void addItems(int index, List<I> items){
 		mList.addAll(index, items);
 		notifyDataSetChanged();
+	}
+	public void addItems(int index, I[] items){
+		addItems(index, Arrays.asList(items));
 	}
 
 

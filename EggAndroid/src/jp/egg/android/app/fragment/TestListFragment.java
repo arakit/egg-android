@@ -1,14 +1,12 @@
 package jp.egg.android.app.fragment;
 
-import java.util.List;
-
 import jp.egg.android.R;
 import jp.egg.android.app.EggApplication;
 import jp.egg.android.app.api.TestGoogleImageSearchApi;
-import jp.egg.android.app.model.entities.TestGoogleImageSearchResult;
+import jp.egg.android.app.model.GoogleImageSearchModel;
+import jp.egg.android.app.model.entities.GoogleImageSearchResult;
 import jp.egg.android.request.EggRequestError;
 import jp.egg.android.request.EggRequestUtil;
-import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.task.EggTaskError;
 import jp.egg.android.task.EggTaskListener;
 import jp.egg.android.ui.adapter.EggDefaultListAdapter;
@@ -87,10 +85,10 @@ public class TestListFragment extends EggBaseFragment{
 			@Override
 			public void onClick(View v) {
 				TestGoogleImageSearchApi tt = TestGoogleImageSearchApi.newInstance("hatsune");
-				tt.setOnListener(new EggTaskListener<List<TestGoogleImageSearchResult>, EggRequestError>() {
+				tt.setOnListener(new EggTaskListener<GoogleImageSearchModel, EggRequestError>() {
 					@Override
-					public void onSucess(List<TestGoogleImageSearchResult> response) {
-						mAdapter.addItems(mAdapter.getCount(), response);
+					public void onSucess(GoogleImageSearchModel response) {
+						mAdapter.addItems(mAdapter.getCount(), response.responseData.results);
 					}
 					@Override
 					public void onError(EggTaskError error) {
@@ -101,8 +99,7 @@ public class TestListFragment extends EggBaseFragment{
 
 					}
 				});
-				EggTaskCentral.getInstance().addTask(tt);
-
+				addTask(tt);
 			}
 		});
 
@@ -165,7 +162,7 @@ public class TestListFragment extends EggBaseFragment{
 
 	}
 
-	private class ListViewAdapter extends EggDefaultListAdapter<TestGoogleImageSearchResult>{
+	private class ListViewAdapter extends EggDefaultListAdapter<GoogleImageSearchResult>{
 
 
 		@Override
@@ -185,7 +182,7 @@ public class TestListFragment extends EggBaseFragment{
 				holder = (Holder) convertView.getTag();
 			}
 
-			TestGoogleImageSearchResult item = getItem(position);
+			GoogleImageSearchResult item = getItem(position);
 
 			holder.text1.setText(item.url);
 			holder.text2.setText(""+item.height);
