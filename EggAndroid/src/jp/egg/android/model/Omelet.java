@@ -37,7 +37,7 @@ public class Omelet {
 	}
 
 
-	public static Set<Field> getEggDeclaredFields(Class<?> type) {
+	public static Set<Field> getDeclaredFields(Class<?> type) {
 		Set<Field> declaredColumnFields = Collections.emptySet();
 
 		if (true) {
@@ -51,20 +51,20 @@ public class Omelet {
 				}
 			});
 			for (Field field : fields) {
-				Log.d("test", "name = "+field.getName()+";");
-				if (field.isAnnotationPresent(Egg.class)) {
-					declaredColumnFields.add(field);
-				}
+//				if (field.isAnnotationPresent(Egg.class)) {
+//					declaredColumnFields.add(field);
+//				}
+				declaredColumnFields.add(field);
 			}
 
 			Class<?> parentType = type.getSuperclass();
 			if (parentType != null) {
-				declaredColumnFields.addAll(getEggDeclaredFields(parentType));
+				declaredColumnFields.addAll(getDeclaredFields(parentType));
 			}
 
-			for (Field field : fields) {
-				declaredColumnFields.addAll(getEggDeclaredFields(field.getType()));
-			}
+//			for (Field field : fields) {
+//				declaredColumnFields.addAll(getEggDeclaredFields(field.getType()));
+//			}
 		}
 
 		return declaredColumnFields;
@@ -84,6 +84,7 @@ public class Omelet {
 				 for(int i=0;i<num;i++){
 					Object a = Array.get(e, i);
 					if( a instanceof Model){
+						Log.d("Omelet", ""+e.getClass().getSimpleName()+".save() on saveEggAll.");
 						((Model) a).save();
 					}
 				 }
@@ -94,6 +95,7 @@ public class Omelet {
 				 for(int i=0;i<num;i++){
 					Object a = l.get(i);
 					if( a instanceof Model){
+						Log.d("Omelet", ""+e.getClass().getSimpleName()+".save() on saveEggAll.");
 						((Model) a).save();
 					}
 				 }
@@ -102,30 +104,57 @@ public class Omelet {
 		}
 	}
 
+	/**
+	 * Egg Anotaitionのあるフィールドのオブジェクト
+	 * @param obj
+	 * @return
+	 */
 	public static final Set<Object> listEggAnotationFieldObject(Object obj){
 		Set<Object> list = new LinkedHashSet<Object>();
 		if(obj == null) return list;
 
-		Set<Field> fields = getEggDeclaredFields(obj.getClass());
-		for(Field e : fields){
+		Class<?> type = obj.getClass();
+		Set<Field> fields = getDeclaredFields(type);
+		for(Field field : fields){
+			Class<?> field_type = field.getType();
+
 			Object field_value;
 			try {
-				e.setAccessible(true);
-				field_value = e.get(obj); //TODO 保有オブジェクトを！！
+				field.setAccessible(true);
+				if(!field_type.isPrimitive()) field_value = field.get(obj);
+				else field_value = null;
 			} catch (Exception e1) {
 				e1.printStackTrace();
 				field_value = null;
 			}
 
+
 			if(field_value!=null){
-				if(e.isAnnotationPresent(Egg.class)){
+				Log.d("test", ""+field.getType().getSimpleName()+" "+field.getName()+" = "+field_value);
+
+				if(field.isAnnotationPresent(Egg.class)){
 					list.add(field_value);
 				}
-				list.addAll( listEggAnotationFieldObject(field_value) );
+				if(!field_type.isPrimitive() && !field_type.isArray() &&
+						!field_type.isEnum() && !(field_value instanceof Model) &&
+						!isWrapperClass(field_type)
+						){
+					list.addAll( listEggAnotationFieldObject(field_value) );
+				}
 			}
 		}
 
 		return list;
+	}
+
+
+	public static final boolean isWrapperClass(Class<?> type){
+		return  type.equals(Integer.class) ||
+				type.equals(Long.class) ||
+				type.equals(String.class) ||
+				type.equals(Double.class) ||
+				type.equals(Character.class)
+				;
 	}
 
 }
