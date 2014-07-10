@@ -17,6 +17,8 @@
 package jp.egg.android.request.volley;
 
 import java.io.File;
+import java.net.CookieManager;
+import java.net.CookieStore;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -31,6 +33,8 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpClientStack;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 public class EggVolley {
 
@@ -44,7 +48,7 @@ public class EggVolley {
      * @param stack An {@link HttpStack} to use for the network, or null for default.
      * @return A started {@link RequestQueue} instance.
      */
-    public static RequestQueue newRequestQueue(Context context, HttpStack stack, int cacheSizeInBytes) {
+    protected static RequestQueue newRequestQueue(Context context, HttpStack stack, int cacheSizeInBytes) {
         File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
 
         String userAgent = "volley/0";
@@ -90,7 +94,11 @@ public class EggVolley {
      * @return A started {@link RequestQueue} instance.
      */
     public static RequestQueue newRequestQueue(Context context, int cacheSizeInBytes) {
-        return newRequestQueue(context, null, cacheSizeInBytes);
+        DefaultHttpClient client = new DefaultHttpClient();
+        BasicCookieStore store = new BasicCookieStore();
+        client.setCookieStore(store);
+        HttpClientStack stack = new HttpClientStack(client);
+        return newRequestQueue(context, stack, cacheSizeInBytes);
     }
 
 
