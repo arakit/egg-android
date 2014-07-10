@@ -30,4 +30,24 @@ public class DUtil {
 		Log.d("request", "url = "+url + " "+params);
 	}
 
+
+
+
+    public static final String toStringMap(Map map, boolean ln){
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for(Object eo : map.entrySet()){
+            Map.Entry e = (Map.Entry)eo;
+            String key = "" + e.getKey();
+            String value = "" + e.getValue();
+            if(!first){
+                sb.append(", ");
+                if(ln) sb.append("\n");
+            }else{
+                first = false;
+            }
+            sb.append(key+"="+value);
+        }
+       return  sb.toString();
+    }
 }
