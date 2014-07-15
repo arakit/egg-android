@@ -2,6 +2,7 @@ package jp.egg.android.task;
 
 import java.io.File;
 
+import jp.egg.android.R;
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
 import android.content.Context;
@@ -176,6 +177,10 @@ public class EggTaskCentral {
 		public void onError();
 	}
 
+    public LoadImageContainer displayImage(final ImageView view, String url){
+        return displayImage(view, url, null, 0,0);
+    }
+
 	public LoadImageContainer displayImage(final ImageView view, String url, final LoadImageListener listener, int maxWidth, int maxHeight){
 
 		DisplayImageOptions option = new DisplayImageOptions.Builder()
@@ -183,6 +188,9 @@ public class EggTaskCentral {
 		.cacheInMemory(true)
 		.cacheOnDisk(true)
 		.imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+        .showImageOnLoading(R.drawable.ic_launcher)
+        .showImageOnFail(R.drawable.ic_launcher)
+        .showImageOnLoading(R.drawable.ic_launcher)
 		.build()
 		;
 
@@ -199,12 +207,12 @@ public class EggTaskCentral {
 					@Override
 					public void onLoadingFailed(String imageUri, View view,
 							FailReason failReason) {
-						listener.onError();
+                        if(listener!=null) listener.onError();
 					}
 
 					@Override
 					public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-						listener.onLoaded(loadedImage);
+						if(listener!=null) listener.onLoaded(loadedImage);
 					}
 
 					@Override

@@ -94,11 +94,12 @@ public class EggVolley {
      * @return A started {@link RequestQueue} instance.
      */
     public static RequestQueue newRequestQueue(Context context, int cacheSizeInBytes) {
-        DefaultHttpClient client = new DefaultHttpClient();
-        BasicCookieStore store = new BasicCookieStore();
-        client.setCookieStore(store);
-        HttpClientStack stack = new HttpClientStack(client);
-        return newRequestQueue(context, stack, cacheSizeInBytes);
+//        DefaultHttpClient client = new DefaultHttpClient();
+//        BasicCookieStore store = new BasicCookieStore();
+//        client.setCookieStore(store);
+//        HttpClientStack stack = new HttpClientStack(client);
+//        return newRequestQueue(context, stack, cacheSizeInBytes);
+        return newRequestQueue(context, null, cacheSizeInBytes);
     }
 
 
