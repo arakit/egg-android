@@ -13,7 +13,7 @@ import android.widget.TextView;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PlaceholderFragment extends Fragment {
+public class PlaceholderFragment extends EggBaseFragment {
 	/**
 	 * The fragment argument representing the section number for this
 	 * fragment.
