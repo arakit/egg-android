@@ -105,6 +105,13 @@ public class EggTaskCentral {
 		mVolleyQueue.stop();
 	}
 
+    public void resetVolley(){
+        cancelVolleyRquestAll();
+        stopVolleyRquest();
+        mVolleyQueue = EggVolley.newRequestQueue(mContext, DEFAULT_VOLLEY_CACHE_SIZE);
+        startVolleyRequest();
+    }
+
 
 
 	public void cancelVolleyRquest(RequestFilter filter){
@@ -153,8 +160,12 @@ public class EggTaskCentral {
 		request.setTag(tag);
 
 		mVolleyQueue.add(request);
-
 	}
+
+    public void clearVolleyCache(){
+        mVolleyQueue.getCache();
+    }
+
 
 
 
