@@ -5,6 +5,7 @@
 package jp.egg.android.ui.fragment;
 
 
+import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import android.os.Bundle;
@@ -31,11 +32,11 @@ public abstract class EggBaseFragment extends Fragment {
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
-	@Override
-	public void onDestroy() {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onDestroy();
-	}
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cancelVolleyRequestInFragment();
+    }
 
 	@Override
 	public void onPause() {
@@ -75,5 +76,18 @@ public abstract class EggBaseFragment extends Fragment {
 	public void cancelTaskInFragment(){
 		//TODO
 	}
+
+    public void addVolleyRequest(Request request){
+        EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
+    }
+
+    public void addVolleyRequestInFragment(Request request){
+        EggTaskCentral.getInstance().addVolleyRequestByObject(request, EggBaseFragment.this);
+    }
+
+    public void cancelVolleyRequestInFragment(){
+        EggTaskCentral.getInstance().cancelVolleyRquestByObject(EggBaseFragment.this);
+    }
+
 
 }
