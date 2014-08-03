@@ -5,6 +5,8 @@
 package jp.egg.android.ui.fragment;
 
 
+import android.app.Activity;
+import android.content.Intent;
 import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
@@ -13,11 +15,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import jp.egg.android.ui.activity.EggBaseActivity;
 
 /**
  * フラグメント共通基底クラス。
  */
 public abstract class EggBaseFragment extends Fragment {
+
+    private boolean mIsStarted = false;
+    private boolean mIsStopped = false;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,17 +57,19 @@ public abstract class EggBaseFragment extends Fragment {
 		super.onResume();
 	}
 
-	@Override
-	public void onStart() {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onStart();
-	}
+    @Override
+    public void onStart() {
+        super.onStart();
+        mIsStarted = true;
+        mIsStopped = false;
+    }
 
-	@Override
-	public void onStop() {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onStop();
-	}
+    @Override
+    public void onStop() {
+        super.onStop();
+        mIsStopped = true;
+        mIsStarted = false;
+    }
 
 
 
@@ -89,5 +98,40 @@ public abstract class EggBaseFragment extends Fragment {
         EggTaskCentral.getInstance().cancelVolleyRquestByObject(EggBaseFragment.this);
     }
 
+    public String getDefaultTitle(){
+        return null;
+    }
+
+
+    protected boolean isStarted(){
+        return mIsStarted;
+    }
+    protected boolean isStopped(){
+        return mIsStopped;
+    }
+
+
+    public void refreshActionBarBackground(){
+        EggBaseActivity.refreshActionBarBackground(getActivity());
+    }
+
+    public void finishActivity(){
+        Activity activity = getActivity();
+        if(activity == null) return;
+        activity.finish();
+    }
+
+    public void finishActivityResultOK(Intent data){
+        Activity activity = getActivity();
+        if(activity == null) return;
+        activity.setResult(Activity.RESULT_OK, data);
+        activity.finish();
+    }
+    public void finishActivityResultCanceled(Intent data){
+        Activity activity = getActivity();
+        if(activity == null) return;
+        activity.setResult(Activity.RESULT_CANCELED, data);
+        activity.finish();
+    }
 
 }
