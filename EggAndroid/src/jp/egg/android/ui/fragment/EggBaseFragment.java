@@ -7,6 +7,7 @@ package jp.egg.android.ui.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
@@ -133,5 +134,19 @@ public abstract class EggBaseFragment extends Fragment {
         activity.setResult(Activity.RESULT_CANCELED, data);
         activity.finish();
     }
+
+    public void startActivityFromFragment(Intent intent, int requestCode){
+        FragmentActivity activity = getActivity();
+        if(activity == null) return;
+        activity.startActivityFromFragment(EggBaseFragment.this, intent, requestCode);
+    }
+
+    public void startActivityFromFragment(Class clazz){
+        FragmentActivity activity = getActivity();
+        if(activity == null) return;
+        Intent intent = new Intent(activity, clazz);
+        activity.startActivityFromFragment(EggBaseFragment.this, intent, 0);
+    }
+
 
 }
