@@ -141,6 +141,14 @@ public abstract class EggBaseFragment extends Fragment {
         activity.startActivityFromFragment(EggBaseFragment.this, intent, requestCode);
     }
 
+    public void startActivityFromFragment(Class clazz, Bundle data, int requestCode){
+        FragmentActivity activity = getActivity();
+        if(activity == null) return;
+        Intent intent = new Intent(activity, clazz);
+        intent.putExtras(data);
+        activity.startActivityFromFragment(EggBaseFragment.this, intent, requestCode);
+    }
+
     public void startActivityFromFragment(Class clazz){
         FragmentActivity activity = getActivity();
         if(activity == null) return;
