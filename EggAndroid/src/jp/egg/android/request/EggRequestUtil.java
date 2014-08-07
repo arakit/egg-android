@@ -128,9 +128,9 @@ public class EggRequestUtil {
 			}
         };
 
-        view.setImageResource(defaultImageResId);
+        //view.setImageResource(defaultImageResId);
 
-        LoadImageContainer ic = c.displayImage(view, url, lis, maxWidth, maxHeight);
+        LoadImageContainer ic = c.displayImage(view, url, defaultImageResId, lis);
 
         //LoadImageContainer ic = c.loadImage(url, lis, maxWidth, maxHeight);
         view.setTag(ic);

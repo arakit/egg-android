@@ -14,11 +14,63 @@ import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by chikara on 2014/07/10.
  */
 public class EggBaseActivity extends FragmentActivity{
 
+    private final Set<OnAutoHideActionBarListener> mAutoHideActionBarListeners = new HashSet<OnAutoHideActionBarListener>();
+
+    public interface OnAutoHideActionBarListener{
+        public void onShowAutoHideActionBar();
+        public void onHideAutoHideActionBar();
+    }
+
+    public void addAutoHideActionBarListener(OnAutoHideActionBarListener listener){
+        mAutoHideActionBarListeners.add(listener);
+    }
+    public void removeAutoHideActionBarListener(OnAutoHideActionBarListener listener){
+        mAutoHideActionBarListeners.remove(listener);
+    }
+
+    protected void notifyShowAutoHideActionBr(boolean visible){
+        if(visible){
+            for( OnAutoHideActionBarListener listener : mAutoHideActionBarListeners ){
+                listener.onShowAutoHideActionBar();
+            }
+        }else{
+            for( OnAutoHideActionBarListener listener : mAutoHideActionBarListeners ){
+                listener.onHideAutoHideActionBar();
+            }
+        }
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void showAutoHideActionBar(){
+        if(Build.VERSION.SDK_INT < 11) return;
+        if( isShowingAutoHideActionBar() ) return;
+
+        getActionBar().show();
+        notifyShowAutoHideActionBr(true);
+    }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void hideAutoHideActionBar(){
+        if(Build.VERSION.SDK_INT < 11) return;
+        if( !isShowingAutoHideActionBar() ) return;
+
+        getActionBar().hide();
+        notifyShowAutoHideActionBr(false);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public boolean isShowingAutoHideActionBar(){
+        if(Build.VERSION.SDK_INT < 11) return false;
+        return getActionBar().isShowing();
+    }
 
 
     public void addTask(EggTask<?,?> task){
@@ -61,6 +113,7 @@ public class EggBaseActivity extends FragmentActivity{
         refreshActionBarBackground(this);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static void refreshActionBarBackground(FragmentActivity activity){
         if(activity == null) return;
         Resources.Theme theme = activity.getTheme();

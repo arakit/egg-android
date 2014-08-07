@@ -188,20 +188,20 @@ public class EggTaskCentral {
 		public void onError();
 	}
 
-    public LoadImageContainer displayImage(final ImageView view, String url){
-        return displayImage(view, url, null, 0,0);
+    public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes){
+        return displayImage(view, url, loadingRes, null);
     }
 
-	public LoadImageContainer displayImage(final ImageView view, String url, final LoadImageListener listener, int maxWidth, int maxHeight){
+	public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes, final LoadImageListener listener){
 
 		DisplayImageOptions option = new DisplayImageOptions.Builder()
 		.bitmapConfig(Bitmap.Config.RGB_565)
 		.cacheInMemory(true)
 		.cacheOnDisk(true)
 		.imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
-        .showImageOnLoading(R.drawable.ic_launcher)
-        .showImageOnFail(R.drawable.ic_launcher)
-        .showImageOnLoading(R.drawable.ic_launcher)
+        .showImageOnLoading(loadingRes)
+        .showImageOnFail(loadingRes)
+        .showImageForEmptyUri(loadingRes)
 		.build()
 		;
 
