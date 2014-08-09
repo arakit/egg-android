@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
 import com.android.volley.Request;
@@ -103,6 +104,11 @@ public class EggBaseActivity extends FragmentActivity{
     }
     public void startActivity(Class clazz, int requestCode){
         Intent intent = new Intent(this, clazz);
+        startActivityForResult(intent, requestCode);
+    }
+    public void startActivity(Class clazz, Bundle data, int requestCode){
+        Intent intent = new Intent(this, clazz);
+        if(data!=null) intent.putExtras(data);
         startActivityForResult(intent, requestCode);
     }
 
