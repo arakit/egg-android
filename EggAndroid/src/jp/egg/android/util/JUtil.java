@@ -89,4 +89,11 @@ public class JUtil {
     }
 
 
+
+    public static final Class<?> getClass(Object obj){
+        if(obj == null) return null;
+        return obj.getClass();
+    }
+
+
 }
