@@ -87,7 +87,7 @@ public class TestListFragment extends EggBaseFragment{
 				GoogleImageSearchApi tt = GoogleImageSearchApi.newInstance("hatsune");
 				tt.setOnListener(new EggTaskListener<GoogleImageSearchModel, EggRequestError>() {
 					@Override
-					public void onSucess(GoogleImageSearchModel response) {
+					public void onSuccess(GoogleImageSearchModel response) {
 						mAdapter.addItems(mAdapter.getCount(), response.responseData.results);
 					}
 					@Override

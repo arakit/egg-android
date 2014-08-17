@@ -128,7 +128,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 				public void run() {
 					onSuccess(success);
 					if(mListener!=null){
-						mListener.onSucess(success);
+						mListener.onSuccess(success);
 					}
 				}
 			});
