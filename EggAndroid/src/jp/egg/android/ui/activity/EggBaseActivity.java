@@ -9,11 +9,14 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
 import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
+import jp.egg.android.ui.fragment.EggBaseFragment;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,11 +26,28 @@ import java.util.Set;
  */
 public class EggBaseActivity extends FragmentActivity{
 
+    private class CustomHandler extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            deliveryCustomAction(msg);
+        }
+    }
+
+    private CustomHandler mCustomHandler = new CustomHandler();
+
     private final Set<OnAutoHideActionBarListener> mAutoHideActionBarListeners = new HashSet<OnAutoHideActionBarListener>();
+    private final Set<OnCustomActionListener> mCustomActionListeners = new HashSet<OnCustomActionListener>();
+
 
     public interface OnAutoHideActionBarListener{
         public void onShowAutoHideActionBar();
         public void onHideAutoHideActionBar();
+    }
+
+    public interface OnCustomActionListener{
+        public void onCustomAction(EggBaseActivity activity, Message message);
     }
 
     public void addAutoHideActionBarListener(OnAutoHideActionBarListener listener){
@@ -35,6 +55,13 @@ public class EggBaseActivity extends FragmentActivity{
     }
     public void removeAutoHideActionBarListener(OnAutoHideActionBarListener listener){
         mAutoHideActionBarListeners.remove(listener);
+    }
+
+    public void addCustomActionListener(OnCustomActionListener listener){
+        mCustomActionListeners.add(listener);
+    }
+    public void removeCustomActionListener(OnCustomActionListener listener){
+        mCustomActionListeners.remove(listener);
     }
 
     protected void notifyShowAutoHideActionBr(boolean visible){
@@ -47,6 +74,20 @@ public class EggBaseActivity extends FragmentActivity{
                 listener.onHideAutoHideActionBar();
             }
         }
+    }
+
+    protected void deliveryCustomAction(Message msg){
+        for( OnCustomActionListener listener : mCustomActionListeners ){
+            listener.onCustomAction(this, msg);
+        }
+    }
+
+    public final void sendCustomAction(Message msg){
+        mCustomHandler.sendMessage(msg);
+    }
+    public final void sendCustomAction(int what, int arg1, int arg2, Object obj){
+        mCustomHandler.sendMessage(
+                mCustomHandler.obtainMessage(what, arg1, arg2, obj) );
     }
 
 

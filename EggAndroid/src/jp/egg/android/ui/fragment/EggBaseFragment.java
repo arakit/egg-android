@@ -157,4 +157,5 @@ public abstract class EggBaseFragment extends Fragment {
     }
 
 
+
 }

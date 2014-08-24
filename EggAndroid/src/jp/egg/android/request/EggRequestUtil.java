@@ -114,7 +114,7 @@ public class EggRequestUtil {
 		LoadImageListener lis  = new LoadImageListener() {
 
 			@Override
-			public void onLoaded(Bitmap bmp) {
+			public void onLoaded(Bitmap bmp, ImageView view) {
 //                if (response.getBitmap() != null) {
 //                    view.setImageBitmap(response.getBitmap());
 //                } else {

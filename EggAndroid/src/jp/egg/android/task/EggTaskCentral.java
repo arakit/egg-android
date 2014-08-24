@@ -184,7 +184,7 @@ public class EggTaskCentral {
 
 	public interface LoadImageListener{
 		//public
-		public void onLoaded(Bitmap bmp);
+		public void onLoaded(Bitmap bmp, ImageView view);
 		public void onError();
 	}
 
@@ -223,7 +223,7 @@ public class EggTaskCentral {
 
 					@Override
 					public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-						if(listener!=null) listener.onLoaded(loadedImage);
+						if(listener!=null) listener.onLoaded(loadedImage, (ImageView)view);
 					}
 
 					@Override
@@ -263,7 +263,7 @@ public class EggTaskCentral {
 
 					@Override
 					public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-						listener.onLoaded(loadedImage);
+						listener.onLoaded(loadedImage, (ImageView)view);
 					}
 
 					@Override
