@@ -18,13 +18,13 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 
 	private Handler mHandler = new Handler(Looper.getMainLooper());
 
-	private Thread mExecutingThreaad = null;
+	private Thread mExecutingThread = null;
 
 
 	private boolean mIsCanceled = false;
 	private boolean mIsStarted = false;
 	private boolean mIsRunning = false;
-	private boolean mIsStoped = false;
+	private boolean mIsStopped = false;
 
 	private ResultState mResultState = ResultState.none;
 	private S mSuccess;
@@ -68,13 +68,13 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 	}
 
 	final void start(){
-		if(mIsStarted || mIsStoped) return ;
+		if(mIsStarted || mIsStopped) return ;
 		mIsStarted = true;
 		onStartTask();
 	}
 	final void stop(){
-		if(!mIsStarted || mIsStoped) return ;
-		mIsStoped = true;
+		if(!mIsStarted || mIsStopped) return ;
+		mIsStopped = true;
 		onStopTask();
 	}
 
@@ -98,9 +98,9 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 
 
 	public final void execute(){
-		if(!mIsStarted || mIsStoped) return ;
+		if(!mIsStarted || mIsStopped) return ;
 		DUtil.d("test", "execute");
-		mExecutingThreaad = Thread.currentThread();
+		mExecutingThread = Thread.currentThread();
 		try{
 			mIsStarted = true;
 			mIsRunning = true;
@@ -132,7 +132,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 					}
 				}
 			});
-		}
+		} break;
 		case error : {
 			final E error = mError;
 			mHandler.post(new Runnable() {
@@ -144,7 +144,7 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 					}
 				}
 			});
-		}
+		} break;
 		case cancel : {
 			mHandler.post(new Runnable() {
 				@Override
@@ -155,10 +155,10 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 					}
 				}
 			});
-		}
+		} break;
 		default: {
 			//
-		}
+		} break;
 		}
 
 
@@ -316,8 +316,8 @@ public abstract class EggTask <S, E extends EggTaskError> implements Comparable<
 
 
 	protected void onRequestCancel(){
-		if( mExecutingThreaad!=null ){
-			mExecutingThreaad.interrupt();
+		if( mExecutingThread!=null ){
+			mExecutingThread.interrupt();
 		}
 	}
 
