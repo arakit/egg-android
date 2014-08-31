@@ -4,25 +4,18 @@ import java.io.*;
 
 public class JUtil {
 
-	public static final boolean isEmpty(String str){
-		if(str==null) return true;
-		if(str.length()==0) return true;
-		return false;
-	}
+    public static final boolean isEmpty(String str){
+        if(str==null) return true;
+        if(str.length()==0) return true;
+        return false;
+    }
 
-	public static final boolean equals(Object o1, Object o2){
-		if(o1 == o2) return true;
-		if(o1 == null || o2 == null) return false;
-		return o1.equals(o2);
-	}
+    public static final boolean equals(Object o1, Object o2){
+        if(o1 == o2) return true;
+        if(o1 == null || o2 == null) return false;
+        return o1.equals(o2);
+    }
 
-
-//	public static final String makeRandomAlphabetString(int num){
-//
-//		String str = RandomStringUtils.randomAlphabetic(num);
-//
-//		return str;
-//	}
 
     public static final String toStringFromFile(File file){
         try {

@@ -15,7 +15,7 @@ public class EggDB {
 //		builder.setDatabaseName(databaseName);
 		builder.setDatabaseName("app.db");
 		builder.setDatabaseVersion(1);
-		initialize(builder.create(), true);
+		initialize(builder.create(), false);
 	}
 
 

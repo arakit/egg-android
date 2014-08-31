@@ -7,20 +7,20 @@ public class EggApplication extends Application{
 
 
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
-		EggAndroid.initialize(EggApplication.this);
-	}
+        EggAndroid.initialize(EggApplication.this, true);
+    }
 
-	@Override
-	public void onTerminate() {
-		super.onTerminate();
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
 
-		EggAndroid.terminate();
+        EggAndroid.terminate();
 
-	}
+    }
 
 
 

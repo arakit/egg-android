@@ -14,17 +14,20 @@ import java.security.NoSuchAlgorithmException;
 public class EggAndroid {
 
 
+    private static boolean sIsEnableDb = false;
 
-	public static final void initialize(Context context){
-		Context appContext = context.getApplicationContext();
-		EggTaskCentral.initialize(appContext);
-		EggDB.initialize(appContext);
-	}
+    public static final void initialize(Context context, boolean enableDb){
+        Context appContext = context.getApplicationContext();
+        sIsEnableDb = enableDb;
+        EggTaskCentral.initialize(appContext);
+        if(sIsEnableDb) EggDB.initialize(appContext);
+    }
 
-	public static final void terminate(){
-		EggDB.dispose();
-		EggTaskCentral.destroy();
-	}
+
+    public static final void terminate(){
+        if(sIsEnableDb) EggDB.dispose();
+        EggTaskCentral.destroy();
+    }
 
 
 
