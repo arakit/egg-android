@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Environment;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -19,6 +21,7 @@ import android.view.View;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,6 +142,39 @@ public class AUtil {
         deleteAppFiles(context);
         deleteSharedPreferences(context);
 
+    }
+
+
+    public static final boolean checkImageAndSize(Context context, Uri uri,long bytes){
+        if(uri==null) return false;
+
+        try {
+            InputStream is = context.getContentResolver().openInputStream(uri);
+            BitmapFactory.Options imageOptions = new BitmapFactory.Options();
+            imageOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(is, null, imageOptions);
+            //android.util.Log.d("test77", "Original Image Size: " + imageOptions.outWidth + " x " + imageOptions.outHeight);
+            is.close();
+            if(imageOptions.outWidth <= 0 || imageOptions.outHeight<=0 ){
+                return false;
+            }
+            is = context.getContentResolver().openInputStream(uri);
+            long fileSizeCounter = 0;
+            long size;
+            byte[] buf = new byte[8192];
+            while( (size = is.read(buf, 0 , buf.length)) != -1 ){
+                //android.util.Log.d("test77", "size="+size);
+                fileSizeCounter += size;
+            }
+            is.close();
+            if( fileSizeCounter > bytes ){
+                return false;
+            }
+            return true;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return false;
+        }
     }
 
 }
