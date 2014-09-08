@@ -26,6 +26,7 @@ public abstract class EggBaseFragment extends Fragment {
     private boolean mIsStarted = false;
     private boolean mIsStopped = false;
 
+    private boolean mIsDestroyed = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,9 +41,14 @@ public abstract class EggBaseFragment extends Fragment {
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
+    public boolean isDestroyed(){
+        return mIsDestroyed;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mIsDestroyed = true;
         cancelVolleyRequestInFragment();
     }
 
