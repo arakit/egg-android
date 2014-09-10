@@ -3,6 +3,7 @@ package jp.egg.android.task;
 import java.io.File;
 
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import jp.egg.android.R;
@@ -205,22 +206,59 @@ public class EggTaskCentral {
         }
     }
 
+
+    public LoadImageContainer displayImageThumbOrDetail(final ImageView view, String url, String detailUrl, int defRes, boolean isDetail){
+
+        String curLoadUrl = (String) view.getTag(R.id.tag_loading_image);
+
+//        boolean hasDetail = false;
+//        if( mUnivImageLoader.getMemoryCache().get(detailUrl)!=null ||
+//                mUnivImageLoader.getDiskCache().get(detailUrl)!=null ){
+//            hasDetail = true;
+//        }
+
+        boolean reset = true;
+        if(!TextUtils.isEmpty(curLoadUrl) && (curLoadUrl.equals(url) || curLoadUrl.equals(detailUrl)) ){
+            reset = false;
+        }
+
+        DisplayImageOptions.Builder bo = new DisplayImageOptions.Builder();
+        bo
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+                .showImageOnFail(defRes)
+                .showImageForEmptyUri(defRes);
+
+        if ( reset ) {
+            bo
+                .showImageOnLoading(defRes)
+                .displayer(new FadeInBitmapDisplayer(250, true, true, false));
+
+        }
+
+        if( isDetail ) {
+            view.setTag(R.id.tag_loading_image, detailUrl);
+            return displayImage(view, detailUrl, bo.build(), null);
+        }else{
+            view.setTag(R.id.tag_loading_image, url);
+            return displayImage(view, url, bo.build(), null);
+        }
+
+    }
+
     public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes){
         return displayImage(view, url, loadingRes, null);
     }
 
     public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes, final LoadImageListener listener){
 
-//        BitmapFactory.Options decode = new BitmapFactory.Options();
-//        decode.inSampleSize = 8;
-
-
-        DisplayImageOptions option = new DisplayImageOptions.Builder()
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
-                //.decodingOptions(decode)
                 .displayer(new FadeInBitmapDisplayer(250, true, true, false))
                 .showImageOnLoading(loadingRes)
                 .showImageOnFail(loadingRes)
@@ -228,10 +266,15 @@ public class EggTaskCentral {
                 .build()
                 ;
 
+        return displayImage(view, url, options, listener);
+    }
+
+    public LoadImageContainer displayImage(final ImageView view, String url, DisplayImageOptions options, final LoadImageListener listener){
+
         mUnivImageLoader.displayImage(
                 url,
                 view,
-                option,
+                options,
                 new ImageLoadingListener() {
 
                     @Override
@@ -246,14 +289,6 @@ public class EggTaskCentral {
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-//                        if (loadedImage.getHeight() > GL10.GL_MAX_TEXTURE_SIZE) {
-//                            float scale = (float) loadedImage.getWidth() / visibleWidth;
-//                            //Logger.d(TAG, "onLoadingComplete :: scale = " + scale);
-//                            Bitmap bitmap = Bitmap.createBitmap(loadedImage, 0, 0,
-//                                    loadedImage.getWidth(),
-//                                    (int) (GL10.GL_MAX_TEXTURE_SIZE * scale));
-//                            item.mContentsItemImage.setImageBitmap(bitmap);
-//                        }
                         if(listener!=null) listener.onLoaded(loadedImage, (ImageView)view);
                     }
 
