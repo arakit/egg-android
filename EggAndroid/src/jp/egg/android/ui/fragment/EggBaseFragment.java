@@ -218,10 +218,10 @@ public abstract class EggBaseFragment extends Fragment {
 
 
 
-    protected int mActionBarHeight;
-    protected int mParallaxHeaderHeight;
-    protected Drawable mActionBarBackgroundDrawable;
-    protected View mParallaxHeaderView;
+    private int mActionBarHeight;
+    private int mParallaxHeaderHeight;
+    private Drawable mActionBarBackgroundDrawable;
+    private View mParallaxHeaderView;
 
     private void updateParallax(int scrollPosition){
 
