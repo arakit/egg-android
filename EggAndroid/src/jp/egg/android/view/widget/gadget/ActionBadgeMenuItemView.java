@@ -23,6 +23,9 @@ public class ActionBadgeMenuItemView extends FrameLayout{
 
     private CharSequence mTitle;
 
+    private OnClickListener mOnClickListener;
+    private OnLongClickListener mOnLongClickListener;
+
     public ActionBadgeMenuItemView(Context context) {
         super(context);
         init(context);
@@ -44,12 +47,21 @@ public class ActionBadgeMenuItemView extends FrameLayout{
         getIconView().setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if(mOnClickListener!=null){
+                    mOnClickListener.onClick(ActionBadgeMenuItemView.this);
+                }
             }
         });
         getIconView().setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                boolean ret = false;
+                if(mOnLongClickListener!=null){
+                    ret = mOnLongClickListener.onLongClick(ActionBadgeMenuItemView.this);
+                }
+                if( ret ){
+                    return true;
+                }
                 CharSequence title = mTitle;
                 if(!TextUtils.isEmpty(title)) {
                     CharSequence badgeText = getBadgeText();
@@ -109,11 +121,22 @@ public class ActionBadgeMenuItemView extends FrameLayout{
         }
     }
 
+    public void setTitle(CharSequence title){
+        mTitle = title;
+    }
+
     public void setUpActionView(MenuItem item){
         setImageDrawable(item.getIcon());
         setBadgeText(null);
-        mTitle = item.getTitle();
+        setTitle(item.getTitle());
         //item.setCheckable(true);
+    }
+
+    public void setOnClickListener(OnClickListener listener){
+        mOnClickListener = listener;
+    }
+    public void setOnLongClickListener(OnLongClickListener listener){
+        mOnLongClickListener = listener;
     }
 
 }
