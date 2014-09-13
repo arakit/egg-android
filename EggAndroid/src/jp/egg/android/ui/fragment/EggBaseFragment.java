@@ -18,28 +18,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import jp.egg.android.ui.activity.EggBaseActivity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * フラグメント共通基底クラス。
  */
 public abstract class EggBaseFragment extends Fragment {
+
+    private Set<Object> mRefreshRequest = new HashSet<Object>();
+
+
 
     private boolean mIsStarted = false;
     private boolean mIsStopped = false;
 
     private boolean mIsDestroyed = false;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onCreate(savedInstanceState);
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		// TODO 自動生成されたメソッド・スタブ
-		return super.onCreateView(inflater, container, savedInstanceState);
-	}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 
     public boolean isDestroyed(){
         return mIsDestroyed;
@@ -52,17 +57,15 @@ public abstract class EggBaseFragment extends Fragment {
         cancelVolleyRequestInFragment();
     }
 
-	@Override
-	public void onPause() {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onPause();
-	}
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 
-	@Override
-	public void onResume() {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onResume();
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     @Override
     public void onStart() {
@@ -80,18 +83,18 @@ public abstract class EggBaseFragment extends Fragment {
 
 
 
-	public void addTask(EggTask<?,?> task){
-		EggTaskCentral.getInstance().addTask(task);
-	}
+    public void addTask(EggTask<?,?> task){
+        EggTaskCentral.getInstance().addTask(task);
+    }
 
-	public void addTaskInFragment(EggTask<?,?> task){
-		EggTaskCentral.getInstance().addTask(task);
-	}
+    public void addTaskInFragment(EggTask<?,?> task){
+        EggTaskCentral.getInstance().addTask(task);
+    }
 
 
-	public void cancelTaskInFragment(){
-		//TODO
-	}
+    public void cancelTaskInFragment(){
+        //TODO
+    }
 
     public void addVolleyRequest(Request request){
         EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
@@ -163,5 +166,41 @@ public abstract class EggBaseFragment extends Fragment {
     }
 
 
+
+
+
+    protected void updateRefreshRequest() {
+        if( mRefreshRequest.size() > 0 ){
+            startRefresh();
+        }else{
+            finishedRefresh();
+        }
+    }
+
+    public Object newStartRefreshRequest() {
+        Object tag = new Object();
+        startRefreshRequest(tag);
+        return tag;
+    }
+    public void startRefreshRequest(Object request) {
+        mRefreshRequest.add(request);
+        updateRefreshRequest();
+    }
+    public void finishRefreshRequest(Object request) {
+        mRefreshRequest.remove(request);
+        updateRefreshRequest();
+    }
+
+    protected void startRefresh(){
+        onRefreshStateUpdate(true);
+    }
+
+    protected void finishedRefresh(){
+        onRefreshStateUpdate(false);
+    }
+
+    protected void onRefreshStateUpdate(boolean refreshing){
+
+    }
 
 }

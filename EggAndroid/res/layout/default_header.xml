@@ -34,7 +34,7 @@
 
     </FrameLayout>
 
-    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+    <jp.egg.android.view.widget.smoothprogressbar.SmoothProgressBar
         android:id="@id/ptr_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

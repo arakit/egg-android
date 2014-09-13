@@ -17,6 +17,7 @@ import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.fragment.EggBaseFragment;
+import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,6 +35,9 @@ public class EggBaseActivity extends FragmentActivity{
             deliveryCustomAction(msg);
         }
     }
+
+    private Set<Object> mRefreshRequest = new HashSet<Object>();
+
 
     private CustomHandler mCustomHandler = new CustomHandler();
 
@@ -179,4 +183,41 @@ public class EggBaseActivity extends FragmentActivity{
         super.onDestroy();
         cancelVolleyRequestInActivity();
     }
+
+
+    protected void updateRefreshRequest() {
+        if( mRefreshRequest.size() > 0 ){
+            startRefresh();
+        }else{
+            finishedRefresh();
+        }
+    }
+
+    protected Object newStartRefreshRequest() {
+        Object tag = new Object();
+        mRefreshRequest.add(tag);
+        updateRefreshRequest();
+        return tag;
+    }
+    protected void startRefreshRequest(Object request) {
+        mRefreshRequest.add(request);
+        updateRefreshRequest();
+    }
+    protected void finishRefreshRequest(Object request) {
+        mRefreshRequest.remove(request);
+        updateRefreshRequest();
+    }
+
+    protected void startRefresh(){
+        onRefreshStateUpdate(true);
+    }
+
+    protected void finishedRefresh(){
+        onRefreshStateUpdate(false);
+    }
+
+    protected void onRefreshStateUpdate(boolean refreshing){
+
+    }
+
 }

@@ -217,33 +217,34 @@ public class EggTaskCentral {
 //            hasDetail = true;
 //        }
 
+        boolean curIsDetail = false;
         boolean reset = true;
         if(!TextUtils.isEmpty(curLoadUrl) && (curLoadUrl.equals(url) || curLoadUrl.equals(detailUrl)) ){
             reset = false;
+            curIsDetail = curLoadUrl.equals(detailUrl);
         }
 
-        DisplayImageOptions.Builder bo = new DisplayImageOptions.Builder();
-        bo
+        DisplayImageOptions.Builder options = new DisplayImageOptions.Builder();
+        options
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
-                .showImageOnFail(defRes)
                 .showImageForEmptyUri(defRes);
 
         if ( reset ) {
-            bo
+            options
                 .showImageOnLoading(defRes)
                 .displayer(new FadeInBitmapDisplayer(250, true, true, false));
 
         }
 
-        if( isDetail ) {
-            view.setTag(R.id.tag_loading_image, detailUrl);
-            return displayImage(view, detailUrl, bo.build(), null);
+        if( isDetail || curIsDetail) {
+            //bo.cacheInMemory(false);
+            return displayImage(view, detailUrl, options.build(), null);
         }else{
-            view.setTag(R.id.tag_loading_image, url);
-            return displayImage(view, url, bo.build(), null);
+            options.showImageOnFail(defRes);
+            return displayImage(view, url, options.build(), null);
         }
 
     }
@@ -254,22 +255,33 @@ public class EggTaskCentral {
 
     public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes, final LoadImageListener listener){
 
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
+        String curLoadUrl = (String) view.getTag(R.id.tag_loading_image);
+
+        boolean reset = true;
+        if(!TextUtils.isEmpty(curLoadUrl) && curLoadUrl.equals(url) ){
+            reset = false;
+        }
+
+        DisplayImageOptions.Builder options = new DisplayImageOptions.Builder()
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
-                .displayer(new FadeInBitmapDisplayer(250, true, true, false))
-                .showImageOnLoading(loadingRes)
+                .displayer(new FadeInBitmapDisplayer(250, true, false, false))
                 .showImageOnFail(loadingRes)
                 .showImageForEmptyUri(loadingRes)
-                .build()
                 ;
 
-        return displayImage(view, url, options, listener);
+        if(reset){
+            options.showImageOnLoading(loadingRes);
+        }
+
+        return displayImage(view, url, options.build(), listener);
     }
 
     public LoadImageContainer displayImage(final ImageView view, String url, DisplayImageOptions options, final LoadImageListener listener){
+
+        view.setTag(R.id.tag_loading_image, url);
 
         mUnivImageLoader.displayImage(
                 url,
