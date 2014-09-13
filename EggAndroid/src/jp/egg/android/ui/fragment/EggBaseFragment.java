@@ -7,7 +7,10 @@ package jp.egg.android.ui.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.app.FragmentActivity;
+import android.widget.AbsListView;
 import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
@@ -17,6 +20,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import jp.egg.android.ui.activity.EggBaseActivity;
+import jp.egg.android.view.widget.layout.ParallaxListViewEx;
+import uk.co.chrisjenx.paralloid.OnScrollChangedListener;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -202,5 +207,108 @@ public abstract class EggBaseFragment extends Fragment {
     protected void onRefreshStateUpdate(boolean refreshing){
 
     }
+
+
+
+
+    ////
+
+
+
+
+
+
+    protected int mActionBarHeight;
+    protected int mParallaxHeaderHeight;
+    protected Drawable mActionBarBackgroundDrawable;
+    protected View mParallaxHeaderView;
+
+    private void updateParallax(int scrollPosition){
+
+        int headerHeight = mParallaxHeaderHeight - mActionBarHeight;
+        double ratio = Math.min(Math.max(scrollPosition, 0), headerHeight) / (double)headerHeight;
+        int newAlpha = (int) (ratio * 255);
+        mActionBarBackgroundDrawable.setAlpha(newAlpha);
+        if(mParallaxHeaderView!=null) {
+            if (ratio < 1.0) {
+                mParallaxHeaderView.setVisibility(View.VISIBLE);
+            } else {
+                mParallaxHeaderView.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+    protected void setUpParallax(int abHeight, int parallaxHeaderHeight, ParallaxListViewEx listView, View headerView, final AbsListView.OnScrollListener listener){
+
+        mActionBarHeight = abHeight;
+        mParallaxHeaderHeight = parallaxHeaderHeight;
+        mParallaxHeaderView = headerView;
+
+        listView.parallaxViewBy(headerView, 0.5f);
+
+        listView.setOnScrollChangeListener(new OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged(Object who, int l, int t, int oldl, int oldt) {
+                updateParallax(t);
+            }
+        });
+
+        listView.addOnScrollLister(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (listener != null) {
+                    listener.onScrollStateChanged(view, scrollState);
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                //updateParallax(view.getSc);
+                if (listener != null) {
+                    listener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+                }
+            }
+
+        });
+
+
+    }
+
+    protected void initFadingActionBar(Activity activity, int abDrawable) {
+
+        if (mActionBarBackgroundDrawable == null) {
+            mActionBarBackgroundDrawable = activity.getResources().getDrawable(abDrawable);
+        }
+        setActionBarBackgroundDrawable(activity, mActionBarBackgroundDrawable);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+            mActionBarBackgroundDrawable.setCallback(mDrawableCallback);
+        }
+        mActionBarBackgroundDrawable.setAlpha(0);
+    }
+
+    protected void releaseFadingActionBar(){
+
+    }
+
+    private void setActionBarBackgroundDrawable(Activity activity, Drawable drawable){
+        activity.getActionBar().setBackgroundDrawable(drawable);
+    }
+
+
+    private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            setActionBarBackgroundDrawable(getActivity(), who);
+        }
+
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+        }
+    };
+
 
 }

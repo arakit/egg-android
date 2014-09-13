@@ -41,6 +41,8 @@ public class ActionBadgeMenuItemView extends FrameLayout{
         init(context);
     }
 
+
+
     private void init(Context context){
         View child = LayoutInflater.from(context).inflate(R.layout.ab_action_menu_layout, this, true);
 
@@ -78,6 +80,12 @@ public class ActionBadgeMenuItemView extends FrameLayout{
 
     }
 
+    public void setColor(int badgeBackgroundResource, int textColor){
+        TextView view = getBadgeTextView();
+        view.setBackgroundResource(badgeBackgroundResource);
+        view.setTextColor(textColor);
+    }
+
     public CharSequence getBadgeText(){
         return getBadgeTextView().getText();
     }
@@ -112,8 +120,8 @@ public class ActionBadgeMenuItemView extends FrameLayout{
     }
 
     public void setBadgeForNumber(int num){
-        if( num >= 100 ) {
-            setBadgeText("99+");
+        if( num >= 1000 ) {
+            setBadgeText("999+");
         }else if( num > 0 ) {
             setBadgeText(Integer.toString(num));
         }else{
@@ -132,11 +140,30 @@ public class ActionBadgeMenuItemView extends FrameLayout{
         //item.setCheckable(true);
     }
 
-    public void setOnClickListener(OnClickListener listener){
+    public void setUpActionView(MenuItem item, final OnClickListener listener){
+        setUpActionView(item);
+        setOnMenuClickListener(listener);
+        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if(listener!=null) listener.onClick(ActionBadgeMenuItemView.this);
+                return true;
+            }
+        });
+    }
+
+    public void setOnMenuClickListener(OnClickListener listener){
         mOnClickListener = listener;
     }
-    public void setOnLongClickListener(OnLongClickListener listener){
+    public void setOnMenuLongClickListener(OnLongClickListener listener){
         mOnLongClickListener = listener;
     }
 
+
+
+    @Deprecated
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        super.setOnClickListener(l);
+    }
 }
