@@ -60,7 +60,7 @@ public class ToastUtil {
         if (midy < displayFrame.height()) {
             // Show along the top; follow action buttons
             cheatSheet.setGravity(Gravity.TOP | Gravity.RIGHT,
-                    screenWidth - screenPos[0] - width / 2, height);
+                    screenWidth - screenPos[0] - width / 2, screenPos[1] + height );
         } else {
             // Show along the bottom center
             cheatSheet.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, height);
