@@ -13,11 +13,15 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
+import android.view.View;
 import com.android.volley.Request;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.fragment.EggBaseFragment;
+import jp.egg.android.view.widget.actionbarpulltorefresh.ActionBarPullToRefresh;
+import jp.egg.android.view.widget.actionbarpulltorefresh.Options;
 import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
+import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.OnRefreshListener;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +42,7 @@ public class EggBaseActivity extends FragmentActivity{
 
     private Set<Object> mRefreshRequest = new HashSet<Object>();
 
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     private CustomHandler mCustomHandler = new CustomHandler();
 
@@ -216,8 +221,49 @@ public class EggBaseActivity extends FragmentActivity{
         onRefreshStateUpdate(false);
     }
 
-    protected void onRefreshStateUpdate(boolean refreshing){
+
+    protected void onRefreshStateUpdate(boolean refreshing) {
+        if(mPullToRefreshLayout!=null) {
+            mPullToRefreshLayout.setRefreshing(refreshing);
+        }
+    }
+
+
+    protected void setPullToRefreshLayout(PullToRefreshLayout layout){
+        mPullToRefreshLayout = layout;
+        setUpRefreshBar(mPullToRefreshLayout, new Runnable() {
+            @Override
+            public void run() {
+                onPullToRefresh();
+            }
+        });
+    }
+    protected void onPullToRefresh(){
 
     }
+
+    public void setUpRefreshBar(PullToRefreshLayout layout, final Runnable refreshListener){
+
+        ActionBarPullToRefresh.from(this)
+                .allChildrenArePullable()
+                .listener(new OnRefreshListener() {
+                    @Override
+                    public void onRefreshStarted(View view) {
+                        if (refreshListener != null) {
+                            refreshListener.run();
+                        }
+                    }
+                })
+                .options(
+                        new Options.Builder()
+                                .scrollDistance(0.3f)
+                                .build()
+                )
+                .setup(layout);
+
+    }
+
+
+
 
 }

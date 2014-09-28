@@ -5,23 +5,30 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.TextAppearanceSpan;
+import android.util.Pair;
 import android.view.View;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -176,5 +183,77 @@ public class AUtil {
             return false;
         }
     }
+
+    public static final Bitmap getBitmapFromUri(Context context, Uri uri) {
+        if (uri == null) return null;
+        try {
+            InputStream is = context.getContentResolver().openInputStream(uri);
+            BitmapFactory.Options imageOptions = new BitmapFactory.Options();
+            Bitmap bmp = BitmapFactory.decodeStream(is, null, imageOptions);
+            return bmp;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static final Bitmap getBitmapFromUri(Context context, Uri uri, int maxWidth, int maxHeight) {
+        if (uri == null) return null;
+        try {
+            InputStream is = context.getContentResolver().openInputStream(uri);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            // Set height and width in options, does not return an image and no resource taken
+            BitmapFactory.decodeStream(is, null, options);
+            int pow = 0;
+            while (options.outHeight >> pow > maxHeight || options.outWidth >> pow > maxWidth) {
+                pow += 1;
+            }
+            is.close();
+            is = context.getContentResolver().openInputStream(uri);
+            options.inSampleSize = 1 << pow;
+            options.inJustDecodeBounds = false;
+            Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
+
+            return bmp;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+
+
+    public static File makeTmpFile(Context context, String prefix, String suffix){
+        File tmpOutFile = null;
+        try {
+//            File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File dir = ContextCompat.getExternalCacheDirs(context)[0];
+            tmpOutFile = File.createTempFile(prefix , suffix, dir);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return tmpOutFile;
+    }
+
+    /**
+     * Converts <code>params</code> into an application/x-www-form-urlencoded encoded string.
+     */
+    private String encodeParameters(List<Pair<String, String>> params, String paramsEncoding) {
+        StringBuilder encodedParams = new StringBuilder();
+        try {
+            for (Pair<String, String> entry : params) {
+                encodedParams.append(URLEncoder.encode(entry.first, paramsEncoding));
+                encodedParams.append('=');
+                encodedParams.append(URLEncoder.encode(entry.second, paramsEncoding));
+                encodedParams.append('&');
+            }
+            return encodedParams.toString();
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
+        }
+    }
+
 
 }

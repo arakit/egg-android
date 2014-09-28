@@ -28,12 +28,30 @@ public class ToastUtil {
         toast.setDuration(Toast.LENGTH_SHORT);
         toast.show();
     }
+    public static final void postShortMessage(final Context context, final String message){
+        HandlerUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                shortMessage(context, message);
+            }
+        });
+    }
+
     public static final void longMessage(Context context, String message){
         Toast toast = toast(context);
         toast.setText(message);
         toast.setDuration(Toast.LENGTH_LONG);
         toast.show();
     }
+    public static final void postLongMessage(final Context context, final String message){
+        HandlerUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                longMessage(context, message);
+            }
+        });
+    }
+
 
     public static final void todo(Context context, String message){
         Toast toast = toast(context);

@@ -1,6 +1,10 @@
 package jp.egg.android.util;
 
+import android.util.Pair;
+
 import java.io.*;
+import java.net.URLEncoder;
+import java.util.List;
 
 public class JUtil {
 
@@ -83,10 +87,14 @@ public class JUtil {
 
 
 
-    public static final Class<?> getClass(Object obj){
+    public static final <T> Class<? extends T> getClass(T obj){
         if(obj == null) return null;
-        return obj.getClass();
+        return (Class<? extends T>) obj.getClass();
     }
+
+
+
+
 
 
 }

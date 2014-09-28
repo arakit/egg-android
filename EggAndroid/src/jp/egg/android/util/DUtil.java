@@ -1,8 +1,10 @@
 package jp.egg.android.util;
 
+import java.util.List;
 import java.util.Map;
 
 import android.util.Log;
+import android.util.Pair;
 
 public class DUtil {
 
@@ -50,4 +52,22 @@ public class DUtil {
         }
        return  sb.toString();
     }
+
+    public static final String toStringPairList(List<Pair> list, boolean ln){
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for(Pair e : list){
+            String key = "" + e.first;
+            String value = "" + e.second;
+            if(!first){
+                sb.append(", ");
+                if(ln) sb.append("\n");
+            }else{
+                first = false;
+            }
+            sb.append(key+"="+value);
+        }
+        return  sb.toString();
+    }
+
 }

@@ -20,6 +20,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import jp.egg.android.ui.activity.EggBaseActivity;
+import jp.egg.android.view.widget.actionbarpulltorefresh.ActionBarPullToRefresh;
+import jp.egg.android.view.widget.actionbarpulltorefresh.Options;
+import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
+import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.OnRefreshListener;
 import jp.egg.android.view.widget.layout.ParallaxListViewEx;
 import uk.co.chrisjenx.paralloid.OnScrollChangedListener;
 
@@ -33,6 +37,7 @@ public abstract class EggBaseFragment extends Fragment {
 
     private Set<Object> mRefreshRequest = new HashSet<Object>();
 
+    private PullToRefreshLayout mPullToRefreshLayout;
 
 
     private boolean mIsStarted = false;
@@ -170,6 +175,15 @@ public abstract class EggBaseFragment extends Fragment {
         activity.startActivityFromFragment(EggBaseFragment.this, intent, 0);
     }
 
+    public EggBaseActivity getEggActivity(){
+        FragmentActivity fragmentActivity = getActivity();
+        if(fragmentActivity instanceof EggBaseActivity){
+            return (EggBaseActivity) fragmentActivity;
+        }else{
+            return null;
+        }
+    }
+
 
 
 
@@ -204,9 +218,30 @@ public abstract class EggBaseFragment extends Fragment {
         onRefreshStateUpdate(false);
     }
 
-    protected void onRefreshStateUpdate(boolean refreshing){
+    protected void onRefreshStateUpdate(boolean refreshing) {
+        if(mPullToRefreshLayout!=null) {
+            mPullToRefreshLayout.setRefreshing(refreshing);
+        }
+    }
+
+
+    protected void setPullToRefreshLayout(PullToRefreshLayout layout){
+        mPullToRefreshLayout = layout;
+        getEggActivity().setUpRefreshBar(mPullToRefreshLayout, new Runnable() {
+            @Override
+            public void run() {
+                onPullToRefresh();
+            }
+        });
+    }
+    protected void onPullToRefresh(){
 
     }
+
+
+
+
+
 
 
 
