@@ -11,6 +11,7 @@ import jp.egg.android.util.*;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
@@ -49,7 +50,26 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         mDeNormalizedUrl = url;
         //Log.d("request",""+HairUrl.methodUrl(hairMethod));
         Type[] types = ((ParameterizedType)JUtil.getClass(BaseVolleyRequest.this).getGenericSuperclass()).getActualTypeArguments();
-        mBackedOutputType = (Class) types[1];
+        if( types[1] instanceof Class ){
+            mBackedOutputType = (Class) types[1];
+        } else if( types[1] instanceof GenericArrayType ) {
+            GenericArrayType genericArrayType = (GenericArrayType) types[1];
+            Class c1 = (Class) genericArrayType.getGenericComponentType();
+            Class c2;
+            try {
+                String cn = "[L"+c1.getName()+";";
+                //Log.d("test23", "b="+cn);
+                c2 = Class.forName(cn);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                throw new IllegalArgumentException("can not use type "+types[1]);
+            }
+            //Log.d("test23", "a="+c2);
+            mBackedOutputType = c2;
+        } else {
+            throw new IllegalArgumentException("can not use type "+types[1]);
+        }
+
 
         setListeners(successListener, errorListener);
     }
