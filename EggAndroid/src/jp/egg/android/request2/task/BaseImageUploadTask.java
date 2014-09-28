@@ -78,9 +78,16 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
 
     protected abstract O getOutput(JsonNode node);
 
-    protected String getCookie(){
+    protected final String getCookie(){
+        String strCookie = onSendCookie();
+        return strCookie;
+    }
+
+    protected String onSendCookie(){
         return null;
     }
+
+
 
     @Override
     protected final void onDoInBackground() {

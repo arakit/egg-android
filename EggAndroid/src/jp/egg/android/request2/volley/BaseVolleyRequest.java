@@ -252,10 +252,11 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     protected abstract O getOutput(JsonNode jn);
 
 
-    protected void parseCookie(NetworkResponse response){
+    protected final void parseCookie(NetworkResponse response){
         Map<String, String> headers = response.headers;
         if (headers.containsKey(SET_COOKIE)) {
             String cookie = headers.get(SET_COOKIE);
+            onReceivedCookie(cookie);
 
 //            AccountPreference.putCookies(mContext, cookie);
 //            mContext.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
@@ -265,6 +266,10 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 //            if(Config.isDebug()) Log.d("cookie", "received cookie = "+ cookie);
 //            if(Config.isDebug()) Log.d("request-response-cookie", "received cookie = "+ cookie +"; "+mDeNormalizedUrl);
         }
+    }
+
+    protected void onReceivedCookie(String strCookie){
+
     }
 
     @Override
@@ -306,11 +311,16 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
             mErrorListener.onErrorResponse(error);
         }
     }
-    protected String getCookie(){
+    protected final String getCookie(){
 //        String cookieStr = mContext.getSharedPreferences(PREFERENCE_NAME,
 //                Context.MODE_PRIVATE).getString(PREFERENCE_KEY_COOKIE, "");
 //        String cookieStr = AccountPreference.getCookies(mContext);
 //        return cookieStr;
+        String strCookie = onSendCookie();
+        return strCookie;
+    }
+
+    protected String onSendCookie(){
         return null;
     }
 
