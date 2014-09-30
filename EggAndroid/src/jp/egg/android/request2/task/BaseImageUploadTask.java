@@ -11,7 +11,6 @@ import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskError;
 import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Json;
-import jp.egg.android.util.Log;
 import org.apache.http.Header;
 
 import java.lang.reflect.ParameterizedType;
