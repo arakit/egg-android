@@ -223,6 +223,19 @@ public class AUtil {
         }
     }
 
+    public static final Bitmap getBitmapFromRaw(Context context, int resId) {
+        if (resId <= 0) return null;
+        try {
+            InputStream is = context.getResources().openRawResource(resId);
+            BitmapFactory.Options imageOptions = new BitmapFactory.Options();
+            Bitmap bmp = BitmapFactory.decodeStream(is, null, imageOptions);
+            return bmp;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
 
 
     public static File makeTmpFile(Context context, String prefix, String suffix){

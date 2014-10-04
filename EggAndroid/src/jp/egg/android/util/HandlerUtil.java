@@ -20,6 +20,16 @@ public class HandlerUtil {
         getHandler().postDelayed(run, delayMills);
     }
 
+    public static void postBackgroundAndUi(final Runnable background1, final Runnable ui2){
+        postBackground(new Runnable() {
+            @Override
+            public void run() {
+                if (background1!=null) background1.run();
+                if (ui2!=null) post(ui2);
+            }
+        });
+    }
+
 
     public static void postBackground(final Runnable run){
         postBackgroundDelayed(run, 0);
