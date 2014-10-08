@@ -8,6 +8,16 @@ import java.util.List;
 
 public class JUtil {
 
+    public static final double clamp(double value, double min, double max){
+        return Math.min( Math.max(value, min), max);
+    }
+    public static final float clamp(float value, float min, float max){
+        return Math.min( Math.max(value, min), max);
+    }
+    public static final int clamp(int value, int min, int max){
+        return Math.min( Math.max(value, min), max);
+    }
+
     public static final boolean isEmpty(String str){
         if(str==null) return true;
         if(str.length()==0) return true;
