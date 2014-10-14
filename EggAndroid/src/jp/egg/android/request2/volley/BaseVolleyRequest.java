@@ -10,10 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jp.egg.android.util.*;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -198,6 +195,10 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
                 new ReflectionUtils.FieldFilter() {
                     @Override
                     public boolean accept(Field field) {
+                        int modifiers = field.getModifiers();
+                        if( Modifier.isStatic( modifiers ) ) return false;
+                        if( Modifier.isPrivate( modifiers ) ) return false;
+                        if( Modifier.isProtected( modifiers ) ) return false;
                         return true;
                     }
                 },
