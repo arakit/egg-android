@@ -5,10 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
+import android.graphics.*;
 import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -313,6 +310,34 @@ public class AUtil {
         } catch (UnsupportedEncodingException uee) {
             throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
         }
+    }
+
+
+    public static final Bitmap newBitmapSquareCenterCrop (Bitmap bitmap) {
+
+        if ( bitmap == null ) {
+            return null;
+        }
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int left, top, right, bottom;
+
+        if ( width < height ) {
+            int cropSize = width;
+            left = 0;
+            right = cropSize;
+            top = height / 2 - cropSize / 2;
+            bottom = top + cropSize;
+        } else {
+            int cropSize = height;
+            top = 0;
+            bottom = cropSize;
+            left = width / 2 - cropSize / 2;
+            right = left + cropSize;
+        }
+
+        return Bitmap.createBitmap(bitmap, left, top, right-left, bottom-top);
     }
 
 
