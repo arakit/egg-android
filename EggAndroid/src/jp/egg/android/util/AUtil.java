@@ -341,4 +341,26 @@ public class AUtil {
     }
 
 
+
+    public static void drawVerticalCenterText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
+        Paint.FontMetrics fm = textPaint.getFontMetrics();
+        // フォントの高さを求める
+        float fh = fm.descent - fm.ascent;
+        // センター合わせにしたあと、Baselineの位置を求めるためにdescentを引く
+        float ty = + (fh/2f) - fm.descent;
+        canvas.drawText(text, x, y + ty, textPaint);
+    }
+
+    public static void drawVerticalBottomText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
+        Paint.FontMetrics fm = textPaint.getFontMetrics();
+        float ty = - fm.descent;
+        canvas.drawText(text, x, y + ty, textPaint);
+    }
+
+    public static void drawVerticalTopText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
+        Paint.FontMetrics fm = textPaint.getFontMetrics();
+        float ty = - fm.ascent;
+        canvas.drawText(text, x, y + ty, textPaint);
+    }
+
 }

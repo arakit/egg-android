@@ -1,7 +1,9 @@
 package jp.egg.android.util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.Camera;
+import android.view.Display;
 import android.view.Surface;
 
 import java.util.List;
@@ -24,15 +26,15 @@ public class CameraUtil {
 
 
 
-    public static final boolean isDiffHorizontalVerticalOrientation(int rotate){
+    public static final boolean isDifferenceHorizontalVerticalOrientation(int rotate){
         return (rotate != 0 && rotate != 180);
     }
 
     public static final int getWidth(int rotate, Camera.Size size){
-        return (isDiffHorizontalVerticalOrientation(rotate)) ? size.width : size.height;
+        return (!isDifferenceHorizontalVerticalOrientation(rotate)) ? size.width : size.height;
     }
     public static final int getHeight(int rotate, Camera.Size size){
-        return (isDiffHorizontalVerticalOrientation(rotate)) ? size.height : size.width;
+        return (!isDifferenceHorizontalVerticalOrientation(rotate)) ? size.height : size.width;
     }
 
 
@@ -71,11 +73,20 @@ public class CameraUtil {
 
     public static int setCameraDisplayOrientation(Activity activity,
                                                   int cameraId, android.hardware.Camera camera) {
+        return setCameraDisplayOrientation(activity.getWindowManager().getDefaultDisplay(), cameraId, camera);
+    }
+    public static int setCameraDisplayOrientation(Display display,
+                                                  int cameraId, android.hardware.Camera camera) {
+        int result = calcCameraDisplayOrientation(display, cameraId, camera);
+        camera.setDisplayOrientation(result);
+        return result;
+    }
+    public static int calcCameraDisplayOrientation(Display display,
+                                                  int cameraId, android.hardware.Camera camera) {
         android.hardware.Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo(cameraId, info);
-        int rotation = activity.getWindowManager().getDefaultDisplay()
-                .getRotation();
+        int rotation = display.getRotation();
         int degrees = 0;
         switch (rotation) {
             case Surface.ROTATION_0: degrees = 0; break;
@@ -91,7 +102,6 @@ public class CameraUtil {
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
         }
-        camera.setDisplayOrientation(result);
         return result;
     }
 }

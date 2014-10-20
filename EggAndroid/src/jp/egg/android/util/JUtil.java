@@ -103,6 +103,15 @@ public class JUtil {
     }
 
 
+    public static final void sleep (long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Exception ex) {
+
+        }
+    }
+
+
 
 
 

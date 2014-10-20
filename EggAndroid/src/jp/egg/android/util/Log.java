@@ -19,6 +19,13 @@ public class Log {
         if(sIsDebug) android.util.Log.d(tag, msg, throwable);
     }
 
+    public static final void i(String tag, String msg){
+        if(sIsDebug) android.util.Log.i(tag, msg);
+    }
+    public static final void i(String tag, String msg, Throwable throwable){
+        if(sIsDebug) android.util.Log.i(tag, msg, throwable);
+    }
+
 
 
     public static final void e(String tag, String msg){
