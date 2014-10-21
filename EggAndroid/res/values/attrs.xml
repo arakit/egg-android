@@ -26,4 +26,8 @@
         <!--<attr name="faTabLabelTextSize" format="dimension"/>-->
     </declare-styleable>
 
+    <declare-styleable name="SquareLayout">
+        <attr name="slWeight" format="float"/>
+    </declare-styleable>
+
 </resources>
