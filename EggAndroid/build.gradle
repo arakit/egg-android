@@ -1,0 +1,45 @@
+apply plugin: 'android-library'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':appcompat_v7-eggandroid')
+    compile project(':volley-eggandroid')
+    compile project(':paralloid')
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.12.+'
+    }
+}
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.0.2"
+
+    sourceSets {
+        defaultConfig {
+            // testPackageName 'com.android.volley.tests'
+        }
+
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs            = ['src']
+            resources.srcDirs       = ['src']
+            aidl.srcDirs            = ['src']
+            renderscript.srcDirs    = ['src']
+            res.srcDirs             = ['res']
+            assets.srcDirs          = ['assets']
+            jniLibs.srcDirs         = ['libs']
+        }
+
+    }
+
+
+}
+
+
+
