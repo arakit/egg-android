@@ -2,7 +2,6 @@ package jp.egg.android.view.widget.gadget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;

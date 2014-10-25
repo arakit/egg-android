@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="true" inheritJdk="true">
+	<output-test url="file://$MODULE_DIR$/../../mymon-android/mymon-android/out/test/EggAndroid"/>
+	<exclude-output/>
+	<contentEntry url="file://$MODULE_DIR$"/>
+	<levels>
+		<level name="libs-eggandroid" value="project"/>
+		<level name="libs-appcompat" value="project"/>
+	</levels>
+</component>

@@ -14,7 +14,9 @@ import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import com.android.volley.Request;
+import jp.egg.android.manager.SystemBarTintManager;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.fragment.EggBaseFragment;
@@ -30,6 +32,16 @@ import java.util.Set;
  * Created by chikara on 2014/07/10.
  */
 public class EggBaseActivity extends FragmentActivity{
+
+
+    public interface OnAutoHideActionBarListener{
+        public void onShowAutoHideActionBar();
+        public void onHideAutoHideActionBar();
+    }
+
+    public interface OnCustomActionListener{
+        public void onCustomAction(EggBaseActivity activity, Message message);
+    }
 
     private class CustomHandler extends Handler{
         @Override
@@ -50,14 +62,79 @@ public class EggBaseActivity extends FragmentActivity{
     private final Set<OnCustomActionListener> mCustomActionListeners = new HashSet<OnCustomActionListener>();
 
 
-    public interface OnAutoHideActionBarListener{
-        public void onShowAutoHideActionBar();
-        public void onHideAutoHideActionBar();
+    private SystemBarTintManager mSystemBarTintManager;
+
+
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+        setupSystemBarTint();
     }
 
-    public interface OnCustomActionListener{
-        public void onCustomAction(EggBaseActivity activity, Message message);
+    @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        setupSystemBarTint();
     }
+
+    @Override
+    public void setContentView(View view, ViewGroup.LayoutParams params) {
+        super.setContentView(view, params);
+        setupSystemBarTint();
+    }
+
+    @Override
+    public void addContentView(View view, ViewGroup.LayoutParams params) {
+        super.addContentView(view, params);
+        setupSystemBarTint();
+    }
+
+
+    protected SystemBarTintManager setupSystemBarTint(){
+
+        if (mSystemBarTintManager != null) {
+            return mSystemBarTintManager;
+        }
+
+        // create our manager instance after the content view is set
+        SystemBarTintManager tintManager = new SystemBarTintManager(this);
+        // enable status bar tint
+        // tintManager.setStatusBarTintEnabled(true);
+        // enable navigation bar tint
+        // tintManager.setNavigationBarTintEnabled(true);
+
+        mSystemBarTintManager = tintManager;
+
+        return mSystemBarTintManager;
+    }
+
+    protected SystemBarTintManager getSystemBarTintManager () {
+        return mSystemBarTintManager;
+    }
+
+    protected int getInsetTop (boolean withActionBar) {
+        return mSystemBarTintManager.getConfig().getPixelInsetTop(withActionBar);
+    }
+    protected int getInsetBottom () {
+        return mSystemBarTintManager.getConfig().getPixelInsetBottom();
+    }
+    protected int getInsetLeft () {
+        return 0;
+    }
+    protected int getInsetRight () {
+        return mSystemBarTintManager.getConfig().getPixelInsetRight();
+    }
+
+    public void setInsetPadding (View view) {
+        view.setPadding (
+                getInsetLeft(),
+                getInsetTop(true),
+                getInsetRight(),
+                getInsetBottom()
+        );
+    }
+
 
     public void addAutoHideActionBarListener(OnAutoHideActionBarListener listener){
         mAutoHideActionBarListeners.add(listener);
