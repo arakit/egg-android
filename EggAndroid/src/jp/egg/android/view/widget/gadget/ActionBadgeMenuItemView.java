@@ -16,7 +16,7 @@ import jp.egg.android.util.ToastUtil;
 /**
  * Created by chikara on 2014/09/13.
  */
-public class ActionBadgeMenuItemView extends FrameLayout{
+public class ActionBadgeMenuItemView extends FrameLayout {
 
     //private View mContentView;
 

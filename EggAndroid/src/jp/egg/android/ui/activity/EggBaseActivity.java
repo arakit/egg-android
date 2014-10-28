@@ -12,10 +12,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import com.android.volley.Request;
+import jp.egg.android.R;
 import jp.egg.android.manager.SystemBarTintManager;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
@@ -31,13 +33,13 @@ import java.util.Set;
 /**
  * Created by chikara on 2014/07/10.
  */
-public class EggBaseActivity extends FragmentActivity{
+public class EggBaseActivity extends ActionBarActivity {
 
 
-    public interface OnAutoHideActionBarListener{
-        public void onShowAutoHideActionBar();
-        public void onHideAutoHideActionBar();
-    }
+//    public interface OnAutoHideActionBarListener{
+//        public void onShowAutoHideActionBar();
+//        public void onHideAutoHideActionBar();
+//    }
 
     public interface OnCustomActionListener{
         public void onCustomAction(EggBaseActivity activity, Message message);
@@ -58,7 +60,7 @@ public class EggBaseActivity extends FragmentActivity{
 
     private CustomHandler mCustomHandler = new CustomHandler();
 
-    private final Set<OnAutoHideActionBarListener> mAutoHideActionBarListeners = new HashSet<OnAutoHideActionBarListener>();
+    //private final Set<OnAutoHideActionBarListener> mAutoHideActionBarListeners = new HashSet<OnAutoHideActionBarListener>();
     private final Set<OnCustomActionListener> mCustomActionListeners = new HashSet<OnCustomActionListener>();
 
 
@@ -136,12 +138,12 @@ public class EggBaseActivity extends FragmentActivity{
     }
 
 
-    public void addAutoHideActionBarListener(OnAutoHideActionBarListener listener){
-        mAutoHideActionBarListeners.add(listener);
-    }
-    public void removeAutoHideActionBarListener(OnAutoHideActionBarListener listener){
-        mAutoHideActionBarListeners.remove(listener);
-    }
+//    public void addAutoHideActionBarListener(OnAutoHideActionBarListener listener){
+//        mAutoHideActionBarListeners.add(listener);
+//    }
+//    public void removeAutoHideActionBarListener(OnAutoHideActionBarListener listener){
+//        mAutoHideActionBarListeners.remove(listener);
+//    }
 
     public void addCustomActionListener(OnCustomActionListener listener){
         mCustomActionListeners.add(listener);
@@ -150,17 +152,17 @@ public class EggBaseActivity extends FragmentActivity{
         mCustomActionListeners.remove(listener);
     }
 
-    protected void notifyShowAutoHideActionBr(boolean visible){
-        if(visible){
-            for( OnAutoHideActionBarListener listener : mAutoHideActionBarListeners ){
-                listener.onShowAutoHideActionBar();
-            }
-        }else{
-            for( OnAutoHideActionBarListener listener : mAutoHideActionBarListeners ){
-                listener.onHideAutoHideActionBar();
-            }
-        }
-    }
+//    protected void notifyShowAutoHideActionBr(boolean visible){
+//        if(visible){
+//            for( OnAutoHideActionBarListener listener : mAutoHideActionBarListeners ){
+//                listener.onShowAutoHideActionBar();
+//            }
+//        }else{
+//            for( OnAutoHideActionBarListener listener : mAutoHideActionBarListeners ){
+//                listener.onHideAutoHideActionBar();
+//            }
+//        }
+//    }
 
     protected void deliveryCustomAction(Message msg){
         for( OnCustomActionListener listener : mCustomActionListeners ){
@@ -176,29 +178,29 @@ public class EggBaseActivity extends FragmentActivity{
                 mCustomHandler.obtainMessage(what, arg1, arg2, obj) );
     }
 
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void showAutoHideActionBar(){
-        if(Build.VERSION.SDK_INT < 11) return;
-        if( isShowingAutoHideActionBar() ) return;
-
-        getActionBar().show();
-        notifyShowAutoHideActionBr(true);
-    }
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void hideAutoHideActionBar(){
-        if(Build.VERSION.SDK_INT < 11) return;
-        if( !isShowingAutoHideActionBar() ) return;
-
-        getActionBar().hide();
-        notifyShowAutoHideActionBr(false);
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public boolean isShowingAutoHideActionBar(){
-        if(Build.VERSION.SDK_INT < 11) return false;
-        return getActionBar().isShowing();
-    }
+//
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public void showAutoHideActionBar(){
+//        if(Build.VERSION.SDK_INT < 11) return;
+//        if( isShowingAutoHideActionBar() ) return;
+//
+//        getSupportActionBar().show();
+//        notifyShowAutoHideActionBr(true);
+//    }
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public void hideAutoHideActionBar(){
+//        if(Build.VERSION.SDK_INT < 11) return;
+//        if( !isShowingAutoHideActionBar() ) return;
+//
+//        getSupportActionBar().hide();
+//        notifyShowAutoHideActionBr(false);
+//    }
+//
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public boolean isShowingAutoHideActionBar(){
+//        if(Build.VERSION.SDK_INT < 11) return false;
+//        return getSupportActionBar().isShowing();
+//    }
 
 
     public void addTask(EggTask<?,?> task){
@@ -247,13 +249,13 @@ public class EggBaseActivity extends FragmentActivity{
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static void refreshActionBarBackground(FragmentActivity activity){
+    public static void refreshActionBarBackground(EggBaseActivity activity){
         if(activity == null) return;
         Resources.Theme theme = activity.getTheme();
-        ActionBar actionBar = activity.getActionBar();
+        android.support.v7.app.ActionBar actionBar = activity.getSupportActionBar();
         TypedValue actionBarStyle = new TypedValue();
-        theme.resolveAttribute(android.R.attr.actionBarStyle, actionBarStyle, true);
-        TypedArray actionBarStyleAttributes = theme.obtainStyledAttributes(actionBarStyle.resourceId, new int[]{android.R.attr.background});
+        theme.resolveAttribute(R.attr.actionBarStyle, actionBarStyle, true);
+        TypedArray actionBarStyleAttributes = theme.obtainStyledAttributes(actionBarStyle.resourceId, new int[]{R.attr.background});
         Drawable actionBarBackground = actionBarStyleAttributes.getDrawable(0);
         actionBar.setBackgroundDrawable(actionBarBackground);
         actionBarStyleAttributes.recycle();

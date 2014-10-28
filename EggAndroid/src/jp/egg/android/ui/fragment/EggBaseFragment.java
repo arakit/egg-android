@@ -129,7 +129,7 @@ public abstract class EggBaseFragment extends Fragment {
 
 
     public void refreshActionBarBackground(){
-        EggBaseActivity.refreshActionBarBackground(getActivity());
+        EggBaseActivity.refreshActionBarBackground(getEggActivity());
     }
 
     public void finishActivity(){
@@ -306,7 +306,7 @@ public abstract class EggBaseFragment extends Fragment {
 
     }
 
-    protected void initFadingActionBar(Activity activity, int abDrawable) {
+    protected void initFadingActionBar(EggBaseActivity activity, int abDrawable) {
 
         if (mActionBarBackgroundDrawable == null) {
             mActionBarBackgroundDrawable = activity.getResources().getDrawable(abDrawable);
@@ -322,15 +322,15 @@ public abstract class EggBaseFragment extends Fragment {
 
     }
 
-    private void setActionBarBackgroundDrawable(Activity activity, Drawable drawable){
-        activity.getActionBar().setBackgroundDrawable(drawable);
+    private void setActionBarBackgroundDrawable(EggBaseActivity activity, Drawable drawable){
+        activity.getSupportActionBar().setBackgroundDrawable(drawable);
     }
 
 
     private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
         @Override
         public void invalidateDrawable(Drawable who) {
-            setActionBarBackgroundDrawable(getActivity(), who);
+            setActionBarBackgroundDrawable(getEggActivity(), who);
         }
 
         @Override
