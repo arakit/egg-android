@@ -138,6 +138,20 @@ public class EggBaseActivity extends ActionBarActivity {
     }
 
 
+    public int getInsetTopWithTopMaterialActionBar (boolean withActionBar) {
+        return mSystemBarTintManager.getConfig().getPixelInsetTop(false) +
+                (withActionBar ? (int)getResources().getDimension(R.dimen.abc_action_bar_default_height_material) : 0);
+    }
+
+    public void setInsetPaddingWithTopMaterialActionBar (View view, boolean withActionBar) {
+        view.setPadding (
+                getInsetLeft(),
+                getInsetTopWithTopMaterialActionBar(withActionBar),
+                getInsetRight(),
+                getInsetBottom()
+        );
+    }
+
 //    public void addAutoHideActionBarListener(OnAutoHideActionBarListener listener){
 //        mAutoHideActionBarListeners.add(listener);
 //    }

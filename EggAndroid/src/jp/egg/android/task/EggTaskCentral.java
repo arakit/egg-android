@@ -5,10 +5,14 @@ import java.io.File;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+
+import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import jp.egg.android.R;
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
+import jp.egg.android.request2.task.BaseFileDownloadTask;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.View;
@@ -350,6 +354,55 @@ public class EggTaskCentral {
                     }
                 }
         );
+
+    }
+
+    public interface OnDownloadFileListener {
+
+        public void onDownloadProgress(int bytesWritten, int totalSize);
+        public void onDownloadSuccess();
+        public void onDownloadFailed();
+    }
+
+
+    public void downloadFile (String url, File output, final OnDownloadFileListener listener) {
+
+        BaseFileDownloadTask task = new BaseFileDownloadTask(mContext, url, output) {
+            @Override
+            protected Object getInput() {
+                return null;
+            }
+
+            @Override
+            protected RequestParams getRequestParams(Object in) {
+                return new RequestParams();
+            }
+
+            @Override
+            protected void onDownloadProgress(int bytesWritten, int totalSize) {
+                super.onDownloadProgress(bytesWritten, totalSize);
+                if (listener!=null) listener.onDownloadProgress(bytesWritten, totalSize);
+            }
+        };
+        task.setOnListener(new EggTaskListener() {
+            @Override
+            public void onSuccess(Object response) {
+                if (listener!=null) listener.onDownloadSuccess();
+            }
+
+            @Override
+            public void onError(EggTaskError error) {
+                if (listener!=null) listener.onDownloadFailed();
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
+
+        addTask(task);
+
 
     }
 
