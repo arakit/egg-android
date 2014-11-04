@@ -322,6 +322,13 @@ public class EggBaseActivity extends ActionBarActivity {
     }
 
     public void setUpRefreshBar(PullToRefreshLayout layout, final Runnable refreshListener){
+        setUpRefreshBar(layout, refreshListener,
+                new Options.Builder()
+                        .scrollDistance(0.3f)
+                        .build()
+                );
+    }
+    public void setUpRefreshBar(PullToRefreshLayout layout, final Runnable refreshListener, Options options){
 
         ActionBarPullToRefresh.from(this)
                 .allChildrenArePullable()
@@ -334,9 +341,7 @@ public class EggBaseActivity extends ActionBarActivity {
                     }
                 })
                 .options(
-                        new Options.Builder()
-                                .scrollDistance(0.3f)
-                                .build()
+                        options
                 )
                 .setup(layout);
 

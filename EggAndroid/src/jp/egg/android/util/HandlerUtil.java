@@ -5,7 +5,7 @@ import android.os.Looper;
 
 public class HandlerUtil {
 
-	private static Handler sHandler;
+    private static Handler sHandler;
 
     public static Handler getHandler(){
         if(sHandler==null) sHandler = new Handler(Looper.getMainLooper());
