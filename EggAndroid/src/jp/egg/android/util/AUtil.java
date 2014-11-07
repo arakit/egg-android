@@ -280,6 +280,47 @@ public class AUtil {
         }
     }
 
+    public static class BitmapOutInfo {
+        /**
+         *
+         * <p>outWidth will be set to -1 if there is an error trying to decode.</p>
+         */
+        public int outWidth;
+
+        /**
+         *
+         * <p>outHeight will be set to -1 if there is an error trying to decode.</p>
+         */
+        public int outHeight;
+
+        /**
+         * If known, this string is set to the mimetype of the decoded image.
+         * If not know, or there is an error, it is set to null.
+         */
+        public String outMimeType;
+    }
+
+    public static final BitmapOutInfo getBitmapOutInfoFromUri(Context context, Uri uri) {
+        if (uri == null) return null;
+        try {
+            InputStream is = context.getContentResolver().openInputStream(uri);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            // Set height and width in options, does not return an image and no resource taken
+            BitmapFactory.decodeStream(is, null, options);
+
+            BitmapOutInfo result = new BitmapOutInfo();
+            result.outWidth = options.outWidth;
+            result.outHeight = options.outHeight;
+            result.outMimeType = options.outMimeType;
+            return result;
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
 
 
     public static File makeTmpFile(Context context, String prefix, String suffix){
