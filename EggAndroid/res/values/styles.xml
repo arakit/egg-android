@@ -38,4 +38,52 @@
 
     <style name="ButtonBarButton" />
 
+
+
+
+    <style name="B">
+
+    </style>
+    <style name="B.Button">
+        <item name="android:textColor">@color/text_light_1</item>
+        <item name="android:background">@drawable/bbuton_default</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <!-- Normal -->
+    <style name="B.Button.Primary" parent="B.Button">
+        <item name="android:textColor">@color/text_dark_1</item>
+        <item name="android:background">@drawable/bbuton_primary</item>
+    </style>
+
+
+    <!-- Rounded -->
+    <style name="B.Button.Rounded" parent="B.Button">
+        <item name="android:background">@drawable/bbuton_default_rounded</item>
+    </style>
+
+    <style name="B.Button.Rounded.Primary" parent="B.Button.Rounded">
+        <item name="android:textColor">@color/text_dark_1</item>
+        <item name="android:background">@drawable/bbuton_primary_rounded</item>
+    </style>
+
+    <style name="B.Button.Rounded.Info" parent="B.Button.Rounded">
+        <item name="android:textColor">@color/text_dark_1</item>
+        <item name="android:background">@drawable/bbuton_info_rounded</item>
+    </style>
+
+    <style name="B.Button.Rounded.Inverse" parent="B.Button.Rounded">
+        <item name="android:textColor">@color/text_dark_1</item>
+        <item name="android:background">@drawable/bbuton_inverse_rounded</item>
+    </style>
+
+    <!-- Inverse -->
+    <style name="B.Button.Inverse" parent="B.Button">
+        <item name="android:textColor">@color/text_light_1</item>
+        <item name="android:background">@drawable/bbuton_inverse</item>
+    </style>
+
 </resources>

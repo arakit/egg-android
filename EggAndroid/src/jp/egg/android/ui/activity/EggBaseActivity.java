@@ -115,16 +115,16 @@ public class EggBaseActivity extends ActionBarActivity {
         return mSystemBarTintManager;
     }
 
-    protected int getInsetTop (boolean withActionBar) {
+    public int getInsetTop (boolean withActionBar) {
         return mSystemBarTintManager.getConfig().getPixelInsetTop(withActionBar);
     }
-    protected int getInsetBottom () {
+    public int getInsetBottom () {
         return mSystemBarTintManager.getConfig().getPixelInsetBottom();
     }
-    protected int getInsetLeft () {
+    public int getInsetLeft () {
         return 0;
     }
-    protected int getInsetRight () {
+    public int getInsetRight () {
         return mSystemBarTintManager.getConfig().getPixelInsetRight();
     }
 
