@@ -1,15 +1,17 @@
 package jp.egg.android;
 
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.util.Base64;
-import jp.egg.android.db.EggDB;
-import jp.egg.android.task.EggTaskCentral;
-import android.content.Context;
+
+import com.activeandroid.ActiveAndroid;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import jp.egg.android.task.EggTaskCentral;
 
 public class EggAndroid {
 
@@ -20,12 +22,12 @@ public class EggAndroid {
         Context appContext = context.getApplicationContext();
         sIsEnableDb = enableDb;
         EggTaskCentral.initialize(appContext);
-        if(sIsEnableDb) EggDB.initialize(appContext);
+        if(sIsEnableDb) ActiveAndroid.initialize(appContext);
     }
 
 
     public static final void terminate(){
-        if(sIsEnableDb) EggDB.dispose();
+        if(sIsEnableDb) ActiveAndroid.dispose();
         EggTaskCentral.destroy();
     }
 

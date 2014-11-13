@@ -1,16 +1,5 @@
 package jp.egg.android.app.fragment;
 
-import jp.egg.android.R;
-import jp.egg.android.app.EggApplication;
-import jp.egg.android.app.api.GoogleImageSearchApi;
-import jp.egg.android.app.model.GoogleImageSearchModel;
-import jp.egg.android.app.model.entities.GoogleImageSearchResult;
-import jp.egg.android.request.EggRequestError;
-import jp.egg.android.request.EggRequestUtil;
-import jp.egg.android.task.EggTaskError;
-import jp.egg.android.task.EggTaskListener;
-import jp.egg.android.ui.adapter.EggDefaultListAdapter;
-import jp.egg.android.ui.fragment.EggBaseFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +10,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import jp.egg.android.R;
+import jp.egg.android.app.EggApplication;
+import jp.egg.android.app.model.entities.GoogleImageSearchResult;
+import jp.egg.android.task.EggTaskCentral;
+import jp.egg.android.ui.adapter.EggDefaultListAdapter;
+import jp.egg.android.ui.fragment.EggBaseFragment;
 
 public class TestListFragment extends EggBaseFragment{
 
@@ -81,27 +77,27 @@ public class TestListFragment extends EggBaseFragment{
 			}
 		});
 
-		btn1.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				GoogleImageSearchApi tt = GoogleImageSearchApi.newInstance("hatsune");
-				tt.setOnListener(new EggTaskListener<GoogleImageSearchModel, EggRequestError>() {
-					@Override
-					public void onSuccess(GoogleImageSearchModel response) {
-						mAdapter.addItems(mAdapter.getCount(), response.responseData.results);
-					}
-					@Override
-					public void onError(EggTaskError error) {
-
-					}
-					@Override
-					public void onCancel() {
-
-					}
-				});
-				addTask(tt);
-			}
-		});
+//		btn1.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				GoogleImageSearchApi tt = GoogleImageSearchApi.newInstance("hatsune");
+//				tt.setOnListener(new EggTaskListener<GoogleImageSearchModel, EggRequestError>() {
+//					@Override
+//					public void onSuccess(GoogleImageSearchModel response) {
+//						mAdapter.addItems(mAdapter.getCount(), response.responseData.results);
+//					}
+//					@Override
+//					public void onError(EggTaskError error) {
+//
+//					}
+//					@Override
+//					public void onCancel() {
+//
+//					}
+//				});
+//				addTask(tt);
+//			}
+//		});
 
 		listView.setAdapter(mAdapter);
 		mAdapter.notifyDataSetChanged();
@@ -187,7 +183,7 @@ public class TestListFragment extends EggBaseFragment{
 			holder.text1.setText(item.url);
 			holder.text2.setText(""+item.height);
 
-			EggRequestUtil.displayImage( holder.icon1, item.url, R.drawable.ic_launcher);
+			EggTaskCentral.getInstance().displayImage(holder.icon1, item.url, R.drawable.ic_launcher);
 
 			return convertView;
 		}
