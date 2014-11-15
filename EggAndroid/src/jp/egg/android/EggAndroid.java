@@ -7,11 +7,13 @@ import android.content.pm.Signature;
 import android.util.Base64;
 
 import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Configuration;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import jp.egg.android.task.EggTaskCentral;
+import jp.egg.android.util.Log;
 
 public class EggAndroid {
 
@@ -22,7 +24,18 @@ public class EggAndroid {
         Context appContext = context.getApplicationContext();
         sIsEnableDb = enableDb;
         EggTaskCentral.initialize(appContext);
-        if(sIsEnableDb) ActiveAndroid.initialize(appContext);
+        if (sIsEnableDb) {
+            ActiveAndroid.initialize(appContext);
+        }
+    }
+
+    public static final void initialize(Context context, Configuration aaConfiguration){
+        Context appContext = context.getApplicationContext();
+        sIsEnableDb = aaConfiguration!=null;
+        EggTaskCentral.initialize(appContext);
+        if(sIsEnableDb) {
+            ActiveAndroid.initialize(aaConfiguration);
+        }
     }
 
 
