@@ -54,7 +54,7 @@ public class EggBaseActivity extends ActionBarActivity {
         }
     }
 
-    private Set<Object> mRefreshRequest = new HashSet<Object>();
+    protected Set<Object> mRefreshRequest = new HashSet<Object>();
 
     private PullToRefreshLayout mPullToRefreshLayout;
 
@@ -319,6 +319,13 @@ public class EggBaseActivity extends ActionBarActivity {
         if(mPullToRefreshLayout!=null) {
             mPullToRefreshLayout.setRefreshing(refreshing);
         }
+    }
+
+    protected boolean isPullToRefreshing () {
+        if (mPullToRefreshLayout!=null) {
+            return mPullToRefreshLayout.isRefreshing();
+        }
+        return false;
     }
 
 
