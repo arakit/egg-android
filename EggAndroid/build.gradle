@@ -5,6 +5,9 @@ dependencies {
     compile project(':appcompat_v7-eggandroid')
     compile project(':volley-eggandroid')
     compile project(':paralloid')
+//    compile 'com.fasterxml.jackson.core:jackson-core:2.4.3'
+//    compile 'com.fasterxml.jackson.core:jackson-databind:2.4.3'
+//    compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.3'
 }
 
 buildscript {
