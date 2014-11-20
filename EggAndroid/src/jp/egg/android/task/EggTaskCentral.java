@@ -165,6 +165,10 @@ public class EggTaskCentral {
     }
 
 
+    public void addVolleyRequest(Request<?> request){
+        if(request == null) return ;
+        mVolleyQueue.add(request);
+    }
     public void addVolleyRequestByObject(Request<?> request, Object obj){
         if(request == null) return ;
 
