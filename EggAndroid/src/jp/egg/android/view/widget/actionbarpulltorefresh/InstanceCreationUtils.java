@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.AbsListViewDelegate;
+import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.RecyclerViewDelegate;
 import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.ScrollYDelegate;
 import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.ViewDelegate;
 import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.WebViewDelegate;
@@ -41,6 +42,7 @@ class InstanceCreationUtils {
     static {
         BUILT_IN_DELEGATES = new HashMap<Class, Class>();
         addBuiltinDelegates(AbsListViewDelegate.SUPPORTED_VIEW_CLASSES, AbsListViewDelegate.class);
+        addBuiltinDelegates(RecyclerViewDelegate.SUPPORTED_VIEW_CLASSES, RecyclerViewDelegate.class);
         addBuiltinDelegates(ScrollYDelegate.SUPPORTED_VIEW_CLASSES, ScrollYDelegate.class);
         addBuiltinDelegates(WebViewDelegate.SUPPORTED_VIEW_CLASSES, WebViewDelegate.class);
     }
