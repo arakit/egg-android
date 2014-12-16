@@ -184,6 +184,12 @@ public abstract class EggBaseFragment extends Fragment {
 
 
 
+    protected int getCurrentRefreshRequestCount () {
+        return mRefreshRequest.size();
+    }
+    protected boolean hasRefreshRequest () {
+        return getCurrentRefreshRequestCount() > 0;
+    }
 
     protected void updateRefreshRequest() {
         if( mRefreshRequest.size() > 0 ){
