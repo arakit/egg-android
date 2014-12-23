@@ -18,29 +18,29 @@ import jp.egg.android.util.Log;
 public class EggAndroid {
 
 
-    private static boolean sIsEnableDb = false;
+    //private static boolean sIsEnableDb = false;
 
-    public static final void initialize(Context context, boolean enableDb){
-        Context appContext = context.getApplicationContext();
-        sIsEnableDb = enableDb;
-        EggTaskCentral.initialize(appContext);
-        if (sIsEnableDb) {
-            ActiveAndroid.initialize(appContext);
-        }
-    }
+//    public static final void initialize(Context context){
+//        Context appContext = context.getApplicationContext();
+//        //sIsEnableDb = enableDb;
+//        EggTaskCentral.initialize(appContext);
+////        if (sIsEnableDb) {
+////            ActiveAndroid.initialize(appContext);
+////        }
+//    }
 
-    public static final void initialize(Context context, Configuration aaConfiguration){
+    public static final void initialize(Context context){
         Context appContext = context.getApplicationContext();
-        sIsEnableDb = aaConfiguration!=null;
+        //sIsEnableDb = aaConfiguration!=null;
         EggTaskCentral.initialize(appContext);
-        if(sIsEnableDb) {
-            ActiveAndroid.initialize(aaConfiguration);
-        }
+//        if(sIsEnableDb) {
+//            ActiveAndroid.initialize(aaConfiguration);
+//        }
     }
 
 
     public static final void terminate(){
-        if(sIsEnableDb) ActiveAndroid.dispose();
+        //if(sIsEnableDb) ActiveAndroid.dispose();
         EggTaskCentral.destroy();
     }
 

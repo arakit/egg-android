@@ -12,6 +12,10 @@ public class Log {
         sIsDebug = debug;
     }
 
+    public static boolean isDebug (){
+        return sIsDebug;
+    }
+
     public static final void d(String tag, String msg){
         if(sIsDebug) android.util.Log.d(tag, msg);
     }

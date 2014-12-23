@@ -11,7 +11,7 @@ public class EggApplication extends Application{
     public void onCreate() {
         super.onCreate();
 
-        EggAndroid.initialize(EggApplication.this, true);
+        EggAndroid.initialize(EggApplication.this);
     }
 
     @Override
