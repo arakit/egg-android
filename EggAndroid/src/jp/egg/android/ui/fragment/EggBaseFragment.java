@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -329,7 +330,12 @@ public abstract class EggBaseFragment extends Fragment {
     }
 
     private void setActionBarBackgroundDrawable(EggBaseActivity activity, Drawable drawable){
-        activity.getSupportActionBar().setBackgroundDrawable(drawable);
+        if (activity!=null) {
+            ActionBar actionBar = activity.getSupportActionBar();
+            if (actionBar!=null) {
+                actionBar.setBackgroundDrawable(drawable);
+            }
+        }
     }
 
 
