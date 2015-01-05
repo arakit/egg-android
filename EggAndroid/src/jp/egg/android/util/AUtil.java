@@ -23,7 +23,9 @@ import android.util.Pair;
 import android.view.View;
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -304,6 +306,28 @@ public class AUtil {
         if (uri == null) return null;
         try {
             InputStream is = context.getContentResolver().openInputStream(uri);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            // Set height and width in options, does not return an image and no resource taken
+            BitmapFactory.decodeStream(is, null, options);
+
+            BitmapOutInfo result = new BitmapOutInfo();
+            result.outWidth = options.outWidth;
+            result.outHeight = options.outHeight;
+            result.outMimeType = options.outMimeType;
+            return result;
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static final BitmapOutInfo getBitmapOutInfoFromFile(File file) {
+        if (file == null) return null;
+        try {
+            InputStream is = new BufferedInputStream(new FileInputStream(file));
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;

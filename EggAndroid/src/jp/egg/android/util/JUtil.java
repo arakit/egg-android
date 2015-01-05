@@ -113,7 +113,13 @@ public class JUtil {
 
 
 
-
+    public static final void transportInputStreamToOutputStream(InputStream is, OutputStream os) throws IOException {
+        int length;
+        byte[] buf = new byte[8192];
+        while ((length = is.read(buf, 0, buf.length)) != -1) {
+            os.write(buf, 0, length);
+        }
+    }
 
 
 }
