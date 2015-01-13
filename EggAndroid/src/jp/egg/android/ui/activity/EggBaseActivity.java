@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +67,7 @@ public class EggBaseActivity extends ActionBarActivity {
 
     private SystemBarTintManager mSystemBarTintManager;
 
+    private Toolbar mToolBar;
 
 
     @Override
@@ -329,27 +331,43 @@ public class EggBaseActivity extends ActionBarActivity {
     }
 
 
-    protected void setPullToRefreshLayout(PullToRefreshLayout layout){
+    protected void setPullToRefreshLayout(PullToRefreshLayout layout, Toolbar toolbar){
         mPullToRefreshLayout = layout;
-        setUpRefreshBar(mPullToRefreshLayout, new Runnable() {
-            @Override
-            public void run() {
-                onPullToRefresh();
-            }
-        });
+        setUpRefreshBar(
+                mPullToRefreshLayout,
+                toolbar,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        onPullToRefresh();
+                    }
+                },
+                null
+        );
     }
     protected void onPullToRefresh(){
 
     }
 
-    public void setUpRefreshBar(PullToRefreshLayout layout, final Runnable refreshListener){
-        setUpRefreshBar(layout, refreshListener,
-                new Options.Builder()
-                        .scrollDistance(0.3f)
-                        .build()
-                );
-    }
-    public void setUpRefreshBar(PullToRefreshLayout layout, final Runnable refreshListener, Options options){
+//    public void setUpRefreshBar(PullToRefreshLayout layout, Toolbar toolbar, final Runnable refreshListener){
+//        setUpRefreshBar(
+//                layout,
+//                refreshListener,
+//                new Options.Builder()
+//                        .scrollDistance(0.3f)
+//                        .build(),
+//                toolbar
+//        );
+//    }
+
+
+    public void setUpRefreshBar(PullToRefreshLayout layout, Toolbar toolBar, final Runnable refreshListener, Options options){
+
+        if (options == null) {
+            options = new Options.Builder()
+                    .scrollDistance(0.3f)
+                    .build();
+        }
 
         ActionBarPullToRefresh.from(this)
                 .allChildrenArePullable()
@@ -364,10 +382,20 @@ public class EggBaseActivity extends ActionBarActivity {
                 .options(
                         options
                 )
-                .setup(layout);
+                .setup(layout, toolBar);
 
     }
 
+
+    @Override
+    public void setSupportActionBar(Toolbar toolbar) {
+        super.setSupportActionBar(toolbar);
+        mToolBar = toolbar;
+    }
+
+    public Toolbar getToolBar() {
+        return mToolBar;
+    }
 
 
 

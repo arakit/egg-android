@@ -18,6 +18,7 @@ package jp.egg.android.view.widget.actionbarpulltorefresh;
 
 
 import android.app.Activity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -88,9 +89,9 @@ public class ActionBarPullToRefresh {
             return this;
         }
 
-        public void setup(PullToRefreshLayout pullToRefreshLayout) {
+        public void setup(PullToRefreshLayout pullToRefreshLayout, Toolbar toolbar) {
             PullToRefreshAttacher attacher = pullToRefreshLayout.createPullToRefreshAttacher(
-                    mActivity, mOptions);
+                    mActivity, mOptions, toolbar);
             attacher.setOnRefreshListener(mOnRefreshListener);
 
             if (mViewGroupToInsertInto != null) {

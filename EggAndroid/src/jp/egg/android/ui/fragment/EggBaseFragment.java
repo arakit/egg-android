@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -231,12 +232,18 @@ public abstract class EggBaseFragment extends Fragment {
 
     protected void setPullToRefreshLayout(PullToRefreshLayout layout){
         mPullToRefreshLayout = layout;
-        getEggActivity().setUpRefreshBar(mPullToRefreshLayout, new Runnable() {
-            @Override
-            public void run() {
-                onPullToRefresh();
-            }
-        });
+        EggBaseActivity activity = getEggActivity();
+        activity.setUpRefreshBar(
+                mPullToRefreshLayout,
+                activity.getToolBar(),
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        onPullToRefresh();
+                    }
+                },
+                null
+        );
     }
     protected void onPullToRefresh(){
 

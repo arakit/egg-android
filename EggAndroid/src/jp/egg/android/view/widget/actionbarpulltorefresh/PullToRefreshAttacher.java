@@ -24,6 +24,7 @@ import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -76,7 +77,10 @@ public class PullToRefreshAttacher {
 
     private final AddHeaderViewRunnable mAddHeaderViewRunnable;
 
-    protected PullToRefreshAttacher(Activity activity, Options options) {
+    private Toolbar mToolBar;
+
+
+    protected PullToRefreshAttacher(Activity activity, Options options, Toolbar toolBar) {
         if (activity == null) {
             throw new IllegalArgumentException("activity cannot be null");
         }
@@ -86,7 +90,12 @@ public class PullToRefreshAttacher {
         }
 
         mActivity = activity;
+        mToolBar = toolBar;
         mRefreshableViews = new WeakHashMap<View, ViewDelegate>();
+
+        // Get Window Decor View
+        final ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
+        final ViewGroup actionBarView = toolBar!=null ? toolBar : decorView;
 
         // Copy necessary values from options
         mRefreshScrollDistance = options.refreshScrollDistance;
@@ -107,13 +116,12 @@ public class PullToRefreshAttacher {
         // Get touch slop for use later
         mTouchSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
 
-        // Get Window Decor View
-        final ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
-
         // Create Header view and then add to Decor View
         mHeaderView = LayoutInflater.from(
                 mEnvironmentDelegate.getContextForInflater(activity)).inflate(
-                options.headerLayout, decorView, false);
+                    options.headerLayout,
+                     actionBarView,
+                    false);
         if (mHeaderView == null) {
             throw new IllegalArgumentException("Must supply valid layout id for header.");
         }
@@ -127,6 +135,13 @@ public class PullToRefreshAttacher {
         mAddHeaderViewRunnable = new AddHeaderViewRunnable();
         mAddHeaderViewRunnable.start();
     }
+
+
+    public ViewGroup getActionBarView () {
+        if (mToolBar!=null) return mToolBar;
+        return (ViewGroup) mActivity.getWindow().getDecorView();
+    }
+
 
     /**
      * Add a view which will be used to initiate refresh requests.
@@ -585,7 +600,7 @@ public class PullToRefreshAttacher {
 
     protected void addHeaderViewToActivity(View headerView) {
         // Get the Display Rect of the Decor View
-        mActivity.getWindow().getDecorView().getWindowVisibleDisplayFrame(mRect);
+        getActionBarView().getWindowVisibleDisplayFrame(mRect);
 
         // Honour the requested layout params
         int width = WindowManager.LayoutParams.MATCH_PARENT;

@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -217,8 +218,10 @@ public class PullToRefreshLayout extends FrameLayout {
     }
 
     protected PullToRefreshAttacher createPullToRefreshAttacher(Activity activity,
-            Options options) {
-        return new PullToRefreshAttacher(activity, options != null ? options : new Options());
+            Options options, Toolbar toolbar) {
+        return new PullToRefreshAttacher(activity,
+                options != null ? options : new Options(), toolbar
+                );
     }
 
     private void ensureAttacher() {
