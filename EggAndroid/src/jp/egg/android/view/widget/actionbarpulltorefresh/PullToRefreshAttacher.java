@@ -41,7 +41,7 @@ import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.OnRefreshList
 import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.ViewDelegate;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class PullToRefreshAttacher {
+public abstract class PullToRefreshAttacher {
 
     private static final boolean DEBUG = false;
     private static final String LOG_TAG = "PullToRefreshAttacher";
@@ -57,45 +57,55 @@ public class PullToRefreshAttacher {
     private View mHeaderView;
     private HeaderViewListener mHeaderViewListener;
 
-    private final int mTouchSlop;
-    private final float mRefreshScrollDistance;
+    private int mTouchSlop;
+    private float mRefreshScrollDistance;
 
     private float mInitialMotionY, mLastMotionY, mPullBeginY;
     private float mInitialMotionX;
     private boolean mIsBeingDragged, mIsRefreshing, mHandlingTouchEventFromDown;
     private View mViewBeingDragged;
 
-    private final WeakHashMap<View, ViewDelegate> mRefreshableViews;
+    private final WeakHashMap<View, ViewDelegate> mRefreshableViews = new WeakHashMap<View, ViewDelegate>();
 
-    private final boolean mRefreshOnUp;
-    private final int mRefreshMinimizeDelay;
-    private final boolean mRefreshMinimize;
+    private boolean mRefreshOnUp;
+    private int mRefreshMinimizeDelay;
+    private boolean mRefreshMinimize;
     private boolean mIsDestroyed = false;
 
     private final int[] mViewLocationResult = new int[2];
     private final Rect mRect = new Rect();
 
-    private final AddHeaderViewRunnable mAddHeaderViewRunnable;
+    private AddHeaderViewRunnable mAddHeaderViewRunnable;
 
-    private Toolbar mToolBar;
+    private boolean mInitializeCalled = false;
 
 
-    protected PullToRefreshAttacher(Activity activity, Options options, Toolbar toolBar) {
+    protected PullToRefreshAttacher(Activity activity) {
         if (activity == null) {
             throw new IllegalArgumentException("activity cannot be null");
         }
+        mActivity = activity;
+    }
+
+
+    protected void initialize (Options options) {
+
+        if (mInitializeCalled) {
+            throw new IllegalStateException("already initialized called.");
+        }
+
         if (options == null) {
             Log.i(LOG_TAG, "Given null options so using default options.");
             options = new Options();
         }
 
-        mActivity = activity;
-        mToolBar = toolBar;
-        mRefreshableViews = new WeakHashMap<View, ViewDelegate>();
+
+        Activity activity = mActivity;
+        mInitializeCalled = true;
 
         // Get Window Decor View
-        final ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
-        final ViewGroup actionBarView = toolBar!=null ? toolBar : decorView;
+        ViewGroup actionBarView = getActionBarContainer();
+
 
         // Copy necessary values from options
         mRefreshScrollDistance = options.refreshScrollDistance;
@@ -117,11 +127,13 @@ public class PullToRefreshAttacher {
         mTouchSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
 
         // Create Header view and then add to Decor View
-        mHeaderView = LayoutInflater.from(
-                mEnvironmentDelegate.getContextForInflater(activity)).inflate(
-                    options.headerLayout,
-                     actionBarView,
-                    false);
+        LayoutInflater layoutInflater = LayoutInflater.from(
+                mEnvironmentDelegate.getContextForInflater(activity));
+        mHeaderView = layoutInflater.inflate(
+                options.headerLayout,
+                actionBarView,
+                false);
+
         if (mHeaderView == null) {
             throw new IllegalArgumentException("Must supply valid layout id for header.");
         }
@@ -134,14 +146,14 @@ public class PullToRefreshAttacher {
         // Now HeaderView to Activity
         mAddHeaderViewRunnable = new AddHeaderViewRunnable();
         mAddHeaderViewRunnable.start();
+
     }
 
+    protected abstract ViewGroup getActionBarContainer () ;
 
-    public ViewGroup getActionBarView () {
-        if (mToolBar!=null) return mToolBar;
-        return (ViewGroup) mActivity.getWindow().getDecorView();
+    protected Rect getContainerVisibleRect () {
+        return mRect;
     }
-
 
     /**
      * Add a view which will be used to initiate refresh requests.
@@ -483,9 +495,9 @@ public class PullToRefreshAttacher {
         }
     }
 
-    protected final Activity getAttachedActivity() {
-        return mActivity;
-    }
+//    protected final Activity getAttachedActivity() {
+//        return mActivity;
+//    }
 
     protected EnvironmentDelegate createDefaultEnvironmentDelegate() {
         return new EnvironmentDelegate() {
@@ -598,58 +610,29 @@ public class PullToRefreshAttacher {
         return mIsDestroyed;
     }
 
-    protected void addHeaderViewToActivity(View headerView) {
+    protected final void addHeaderViewToActivity(View headerView) {
         // Get the Display Rect of the Decor View
-        getActionBarView().getWindowVisibleDisplayFrame(mRect);
+        getActionBarContainer().getWindowVisibleDisplayFrame(mRect);
 
-        // Honour the requested layout params
-        int width = WindowManager.LayoutParams.MATCH_PARENT;
-        int height = WindowManager.LayoutParams.WRAP_CONTENT;
-        ViewGroup.LayoutParams requestedLp = headerView.getLayoutParams();
-        if (requestedLp != null) {
-            width = requestedLp.width;
-            height = requestedLp.height;
-        }
-
-        // Create LayoutParams for adding the View as a panel
-        WindowManager.LayoutParams wlp = new WindowManager.LayoutParams(width, height,
-                WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT);
-        wlp.x = 0;
-        wlp.y = mRect.top;
-        wlp.gravity = Gravity.TOP;
-
-        // Workaround for Issue #182
-        headerView.setTag(wlp);
-        mActivity.getWindowManager().addView(headerView, wlp);
+        handleAddHeaderViewToActivity(headerView);
     }
 
-    protected void updateHeaderViewPosition(View headerView) {
+    protected final void updateHeaderViewPosition(View headerView) {
         // Refresh the Display Rect of the Decor View
-        mActivity.getWindow().getDecorView().getWindowVisibleDisplayFrame(mRect);
+        getActionBarContainer().getWindowVisibleDisplayFrame(mRect);
 
-        WindowManager.LayoutParams wlp = null;
-        if (headerView.getLayoutParams() instanceof WindowManager.LayoutParams) {
-            wlp = (WindowManager.LayoutParams) headerView.getLayoutParams();
-        } else if (headerView.getTag() instanceof  WindowManager.LayoutParams) {
-            wlp = (WindowManager.LayoutParams) headerView.getTag();
-        }
-
-        if (wlp != null && wlp.y != mRect.top) {
-            wlp.y = mRect.top;
-            mActivity.getWindowManager().updateViewLayout(headerView, wlp);
-        }
+        handleUpdateHeaderViewPosition(headerView);
     }
 
-    protected void removeHeaderViewFromActivity(View headerView) {
+    protected final void removeHeaderViewFromActivity(View headerView) {
         mAddHeaderViewRunnable.finish();
-
-        if (headerView.getWindowToken() != null) {
-            mActivity.getWindowManager().removeViewImmediate(headerView);
-        }
+        handleRemoveHeaderViewFromActivity(headerView);
     }
+
+    protected abstract void handleAddHeaderViewToActivity (View headerView) ;
+    protected abstract void handleUpdateHeaderViewPosition (View headerView) ;
+    protected abstract void handleRemoveHeaderViewFromActivity (View headerView) ;
+
 
     private final Runnable mRefreshMinimizeRunnable = new Runnable() {
         @Override
@@ -681,7 +664,7 @@ public class PullToRefreshAttacher {
         }
 
         private View getDecorView() {
-            return getAttachedActivity().getWindow().getDecorView();
+            return getActionBarContainer();
         }
     }
 }

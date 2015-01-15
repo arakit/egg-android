@@ -20,17 +20,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import jp.egg.android.R;
 import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.HeaderViewListener;
-import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.OnRefreshListener;
 import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.ViewDelegate;
 
 /**
@@ -217,12 +216,17 @@ public class PullToRefreshLayout extends FrameLayout {
         return null;
     }
 
-    protected PullToRefreshAttacher createPullToRefreshAttacher(Activity activity,
-            Options options, Toolbar toolbar) {
-        return new PullToRefreshAttacher(activity,
-                options != null ? options : new Options(), toolbar
-                );
+    protected PullToRefreshAttacherForDecorView createPullToRefreshAttacherForDecorView(Activity activity, Options options) {
+        PullToRefreshAttacherForDecorView attacher = new PullToRefreshAttacherForDecorView(activity);
+        attacher.initialize(options != null ? options : new Options());
+        return attacher;
     }
+    protected PullToRefreshAttacherForViewGroup createPullToRefreshAttacherForViewGroup(Activity activity, ViewGroup toolBar, Options options) {
+        PullToRefreshAttacherForViewGroup attacher = new PullToRefreshAttacherForViewGroup(activity, toolBar);
+        attacher.initialize(options != null ? options : new Options());
+        return attacher;
+    }
+
 
     private void ensureAttacher() {
         if (mPullToRefreshAttacher == null) {

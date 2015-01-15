@@ -233,9 +233,9 @@ public abstract class EggBaseFragment extends Fragment {
     protected void setPullToRefreshLayout(PullToRefreshLayout layout){
         mPullToRefreshLayout = layout;
         EggBaseActivity activity = getEggActivity();
-        activity.setUpRefreshBar(
+        activity.setUpRefreshBar2(
                 mPullToRefreshLayout,
-                activity.getToolBar(),
+                activity.getRefreshProgressContainer(),
                 new Runnable() {
                     @Override
                     public void run() {

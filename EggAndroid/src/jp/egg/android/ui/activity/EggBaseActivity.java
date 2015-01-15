@@ -24,8 +24,11 @@ import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.fragment.EggBaseFragment;
 import jp.egg.android.view.widget.actionbarpulltorefresh.ActionBarPullToRefresh;
+import jp.egg.android.view.widget.actionbarpulltorefresh.DefaultHeaderTransformer;
+import jp.egg.android.view.widget.actionbarpulltorefresh.HeaderTransformer;
 import jp.egg.android.view.widget.actionbarpulltorefresh.Options;
 import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
+import jp.egg.android.view.widget.actionbarpulltorefresh.ToolBarHeaderTransformer;
 import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.OnRefreshListener;
 
 import java.util.HashSet;
@@ -68,6 +71,8 @@ public class EggBaseActivity extends ActionBarActivity {
     private SystemBarTintManager mSystemBarTintManager;
 
     private Toolbar mToolBar;
+
+    private ViewGroup mRefreshProgressContainer;
 
 
     @Override
@@ -331,18 +336,26 @@ public class EggBaseActivity extends ActionBarActivity {
     }
 
 
-    protected void setPullToRefreshLayout(PullToRefreshLayout layout, Toolbar toolbar){
+    protected void setPullToRefreshLayout2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer){
         mPullToRefreshLayout = layout;
-        setUpRefreshBar(
-                mPullToRefreshLayout,
-                toolbar,
+        setRefreshProgressContainer(refreshProgressContainer);
+
+        ToolBarHeaderTransformer headerTransformer = new ToolBarHeaderTransformer();
+        headerTransformer.setHeaderInsetTop(getInsetTopWithTopMaterialActionBar(false));
+
+        setUpRefreshBar2(
+                layout,
+                refreshProgressContainer,
                 new Runnable() {
                     @Override
                     public void run() {
                         onPullToRefresh();
                     }
                 },
-                null
+                new Options.Builder()
+                        .scrollDistance(0.3f)
+                        .headerTransformer(headerTransformer)
+                        .build()
         );
     }
     protected void onPullToRefresh(){
@@ -360,13 +373,22 @@ public class EggBaseActivity extends ActionBarActivity {
 //        );
 //    }
 
+    public Options getDefaultPullToRefreshOptions () {
+        ToolBarHeaderTransformer headerTransformer = new ToolBarHeaderTransformer();
+        headerTransformer.setHeaderInsetTop(getInsetTopWithTopMaterialActionBar(false));
 
-    public void setUpRefreshBar(PullToRefreshLayout layout, Toolbar toolBar, final Runnable refreshListener, Options options){
+        Options options;
+        options = new Options.Builder()
+                .scrollDistance(0.3f)
+                .headerTransformer(headerTransformer)
+                .build();
+        return options;
+    }
+
+    public void setUpRefreshBar2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer, final Runnable refreshListener, Options options){
 
         if (options == null) {
-            options = new Options.Builder()
-                    .scrollDistance(0.3f)
-                    .build();
+            options = getDefaultPullToRefreshOptions();
         }
 
         ActionBarPullToRefresh.from(this)
@@ -382,7 +404,7 @@ public class EggBaseActivity extends ActionBarActivity {
                 .options(
                         options
                 )
-                .setup(layout, toolBar);
+                .setup(layout, refreshProgressContainer);
 
     }
 
@@ -393,10 +415,17 @@ public class EggBaseActivity extends ActionBarActivity {
         mToolBar = toolbar;
     }
 
+    public void setRefreshProgressContainer(ViewGroup layout) {
+        mRefreshProgressContainer = layout;
+    }
+
     public Toolbar getToolBar() {
         return mToolBar;
     }
 
+    public ViewGroup getRefreshProgressContainer () {
+        return mRefreshProgressContainer;
+    }
 
 
 }

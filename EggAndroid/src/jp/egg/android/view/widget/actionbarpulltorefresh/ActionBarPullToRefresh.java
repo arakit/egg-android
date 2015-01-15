@@ -89,9 +89,18 @@ public class ActionBarPullToRefresh {
             return this;
         }
 
-        public void setup(PullToRefreshLayout pullToRefreshLayout, Toolbar toolbar) {
-            PullToRefreshAttacher attacher = pullToRefreshLayout.createPullToRefreshAttacher(
-                    mActivity, mOptions, toolbar);
+        public void setup(PullToRefreshLayout pullToRefreshLayout, ViewGroup progressLayout) {
+
+            PullToRefreshAttacher attacher;
+
+            if (progressLayout!=null) {
+                attacher = pullToRefreshLayout.createPullToRefreshAttacherForViewGroup(
+                        mActivity, progressLayout, mOptions);
+            } else {
+                attacher = pullToRefreshLayout.createPullToRefreshAttacherForDecorView(
+                        mActivity, mOptions);
+            }
+
             attacher.setOnRefreshListener(mOnRefreshListener);
 
             if (mViewGroupToInsertInto != null) {

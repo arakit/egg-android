@@ -41,6 +41,7 @@ import android.widget.TextView;
 
 
 import jp.egg.android.R;
+import jp.egg.android.util.Log;
 import jp.egg.android.view.widget.actionbarpulltorefresh.sdk.Compat;
 import jp.egg.android.view.widget.smoothprogressbar.SmoothProgressBar;
 
@@ -48,6 +49,8 @@ import jp.egg.android.view.widget.smoothprogressbar.SmoothProgressBar;
  * Default Header Transformer.
  */
 public class DefaultHeaderTransformer extends HeaderTransformer {
+
+    private static final String TAG = "DefaultHeaderTransformer";
 
     public static final int PROGRESS_BAR_STYLE_INSIDE = 0;
     public static final int PROGRESS_BAR_STYLE_OUTSIDE = 1;
@@ -64,6 +67,9 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
     private long mAnimationDuration;
     private int mProgressBarStyle;
     private int mProgressBarHeight = RelativeLayout.LayoutParams.WRAP_CONTENT;
+
+    private int mHeaderContentHeight = 0;
+    private int mHeaderInsetTop = 0;
 
     private final Interpolator mInterpolator = new AccelerateInterpolator();
 
@@ -292,12 +298,10 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
                 R.attr.ptrHeaderStyle, R.styleable.PullToRefreshHeader);
 
         // Retrieve the Action Bar size from the app theme or the Action Bar's style
-        if (mContentLayout != null) {
-            final int height = styleAttrs.getDimensionPixelSize(
-                    R.styleable.PullToRefreshHeader_ptrHeaderHeight, getActionBarSize(activity));
-            mContentLayout.getLayoutParams().height = height;
-            mContentLayout.requestLayout();
-        }
+        mHeaderContentHeight = styleAttrs.getDimensionPixelSize(
+                R.styleable.PullToRefreshHeader_ptrHeaderHeight, getActionBarSize(activity));
+        Log.d(TAG, "setupViewsFromStyles. inset top = "+mHeaderInsetTop);
+        applyHeaderInset();
 
         // Retrieve the Action Bar background from the app theme or the Action Bar's style (see #93)
         Drawable bg = styleAttrs.hasValue(R.styleable.PullToRefreshHeader_ptrHeaderBackground)
@@ -328,7 +332,7 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
         }
 
         mProgressBarStyle = styleAttrs.getInt(
-                R.styleable.PullToRefreshHeader_ptrProgressBarStyle, PROGRESS_BAR_STYLE_OUTSIDE);
+                R.styleable.PullToRefreshHeader_ptrProgressBarStyle, PROGRESS_BAR_STYLE_INSIDE);
 
         if (styleAttrs.hasValue(R.styleable.PullToRefreshHeader_ptrProgressBarHeight)) {
             mProgressBarHeight = styleAttrs.getDimensionPixelSize(
@@ -337,14 +341,16 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
 
         // Retrieve the text strings from the style (if they're set)
         if (styleAttrs.hasValue(R.styleable.PullToRefreshHeader_ptrPullText)) {
-            mPullRefreshLabel = styleAttrs.getString(R.styleable.PullToRefreshHeader_ptrPullText);
+            mPullRefreshLabel = styleAttrs
+                    .getString(R.styleable.PullToRefreshHeader_ptrPullText);
         }
         if (styleAttrs.hasValue(R.styleable.PullToRefreshHeader_ptrRefreshingText)) {
             mRefreshingLabel = styleAttrs
                     .getString(R.styleable.PullToRefreshHeader_ptrRefreshingText);
         }
         if (styleAttrs.hasValue(R.styleable.PullToRefreshHeader_ptrReleaseText)) {
-            mReleaseLabel = styleAttrs.getString(R.styleable.PullToRefreshHeader_ptrReleaseText);
+            mReleaseLabel = styleAttrs
+                    .getString(R.styleable.PullToRefreshHeader_ptrReleaseText);
         }
 
         //SmoothProgressBar Style
@@ -359,6 +365,10 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
     }
 
     private void applyProgressBarStyle() {
+        if (mHeaderProgressBar == null) {
+            return;
+        }
+
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, mProgressBarHeight);
 
@@ -448,4 +458,34 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
         // Now return the values (from styleAttrs) from the style
         return context.obtainStyledAttributes(styleResId, styleAttrs);
     }
+
+
+    public void setHeaderInsetTop (int top) {
+        if (mHeaderInsetTop != top) {
+            mHeaderInsetTop = top;
+            applyHeaderInset();
+        }
+    }
+
+    public void applyHeaderInset () {
+        if (mContentLayout!=null) {
+            int height = mHeaderContentHeight;
+            int paddingTop = mHeaderInsetTop;
+            if (height >= 0) {
+                height = height + paddingTop;
+            }
+
+            ViewGroup.LayoutParams lp = mContentLayout.getLayoutParams();
+            lp.height = height;
+            mContentLayout.setLayoutParams(lp);
+
+            mContentLayout.setPadding(
+                    mContentLayout.getPaddingLeft(),
+                    paddingTop,
+                    mContentLayout.getPaddingRight(),
+                    mContentLayout.getPaddingBottom()
+            );
+        }
+    }
+
 }
