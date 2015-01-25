@@ -158,13 +158,15 @@ public class AUtil {
     public static final boolean checkImageAndSize(Context context, Uri uri,long bytes){
         if(uri==null) return false;
 
+        InputStream is = null;
         try {
-            InputStream is = context.getContentResolver().openInputStream(uri);
+            is = context.getContentResolver().openInputStream(uri);
             BitmapFactory.Options imageOptions = new BitmapFactory.Options();
             imageOptions.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(is, null, imageOptions);
             //android.util.Log.d("test77", "Original Image Size: " + imageOptions.outWidth + " x " + imageOptions.outHeight);
             is.close();
+            is = null;
             if(imageOptions.outWidth <= 0 || imageOptions.outHeight<=0 ){
                 return false;
             }
@@ -177,13 +179,16 @@ public class AUtil {
                 fileSizeCounter += size;
             }
             is.close();
+            is=null;
             if( fileSizeCounter > bytes ){
                 return false;
             }
             return true;
-        }catch (Exception ex){
+        } catch (Exception ex){
             ex.printStackTrace();
             return false;
+        } finally {
+            try { if (is != null) is.close(); } catch (Exception ex) {}
         }
     }
 
@@ -233,21 +238,25 @@ public class AUtil {
 
     public static final Bitmap getBitmapFromUri(Context context, Uri uri) {
         if (uri == null) return null;
+        InputStream is = null;
         try {
-            InputStream is = context.getContentResolver().openInputStream(uri);
+            is = context.getContentResolver().openInputStream(uri);
             BitmapFactory.Options imageOptions = new BitmapFactory.Options();
             Bitmap bmp = BitmapFactory.decodeStream(is, null, imageOptions);
             return bmp;
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
+        } finally {
+            try { if (is != null) is.close(); } catch (Exception ex) {}
         }
     }
 
     public static final Bitmap getBitmapFromUri(Context context, Uri uri, int maxWidth, int maxHeight) {
         if (uri == null) return null;
+        InputStream is = null;
         try {
-            InputStream is = context.getContentResolver().openInputStream(uri);
+            is = context.getContentResolver().openInputStream(uri);
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -258,28 +267,33 @@ public class AUtil {
                 pow += 1;
             }
             is.close();
+            is = null;
             is = context.getContentResolver().openInputStream(uri);
             options.inSampleSize = 1 << pow;
             options.inJustDecodeBounds = false;
             Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
-
             return bmp;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
+        } finally {
+            try { if (is != null) is.close(); } catch (Exception ex) {}
         }
     }
 
     public static final Bitmap getBitmapFromRaw(Context context, int resId) {
         if (resId <= 0) return null;
+        InputStream is = null;
         try {
-            InputStream is = context.getResources().openRawResource(resId);
+            is = context.getResources().openRawResource(resId);
             BitmapFactory.Options imageOptions = new BitmapFactory.Options();
             Bitmap bmp = BitmapFactory.decodeStream(is, null, imageOptions);
             return bmp;
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
+        } finally {
+            try { if (is != null) is.close(); } catch (Exception ex) {}
         }
     }
 
