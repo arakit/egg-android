@@ -45,13 +45,17 @@ public class FontAwesomeTextView extends IconFontView {
         }
         a.recycle();
 
+        if (iconName!=null) {
+            setTextByIconName(iconName);
+        }
+
+    }
+
+    public void setTextByIconName (String iconName) {
         String text = iconName!=null ?
                 FontAwesome.getFaMap().get(iconName) :
                 null;
-
-        if ( text!=null ) {
-            setText(text);
-        }
+        setText(text!=null ? text : "");
     }
 
     @Override

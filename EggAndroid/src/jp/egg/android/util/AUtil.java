@@ -10,6 +10,7 @@ import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -426,6 +427,18 @@ public class AUtil {
         Paint.FontMetrics fm = textPaint.getFontMetrics();
         float ty = - fm.ascent;
         canvas.drawText(text, x, y + ty, textPaint);
+    }
+
+
+
+
+    public static void setAccessibilityIgnore(View view) {
+        view.setClickable(false);
+        view.setFocusable(false);
+        view.setContentDescription("");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        }
     }
 
 }
