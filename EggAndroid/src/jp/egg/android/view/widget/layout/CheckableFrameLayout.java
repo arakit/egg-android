@@ -1,6 +1,7 @@
 package jp.egg.android.view.widget.layout;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
@@ -10,7 +11,10 @@ import android.widget.FrameLayout;
  */
 public class CheckableFrameLayout extends FrameLayout implements Checkable{
 
-    private static final int[] CHECKED_STATE_SET = {android.R.attr.state_checked};
+    private static final int[] CHECKED_STATE_SET = {
+            android.R.attr.state_activated,
+            android.R.attr.state_checked
+    };
 
     public static interface OnCheckedChangeListener {
         /**
@@ -64,8 +68,8 @@ public class CheckableFrameLayout extends FrameLayout implements Checkable{
         if (mOnCheckedChangeListener != null) {
             mOnCheckedChangeListener.onCheckedChanged(this, mChecked);
         }
-        refreshDrawableState();
         invalidate();
+        refreshDrawableState();
     }
 
     @Override
