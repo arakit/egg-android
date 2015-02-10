@@ -11,7 +11,7 @@ import android.widget.FrameLayout;
  */
 public class CheckableFrameLayout extends FrameLayout implements Checkable{
 
-    private static final int[] CHECKED_STATE_SET = {
+    private static final int[] CHECKED_STATE_SET = new int[] {
             android.R.attr.state_activated,
             android.R.attr.state_checked
     };
