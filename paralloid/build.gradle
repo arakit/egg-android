@@ -1,9 +1,6 @@
 apply plugin: 'android-library'
 
 dependencies {
-    //compile "com.android.support:support-v4:19.0.+"
-    //compile files('libs/bolts.jar')
-    //compile project(':appcompat_v7-eggandroid')
     compile 'com.android.support:appcompat-v7:21.0.3'
 }
 
