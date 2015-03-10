@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -280,6 +281,36 @@ public class AUtil {
             try { if (is != null) is.close(); } catch (Exception ex) {}
         }
     }
+
+    public static final Bitmap getBitmapFromFile(File file, int maxWidth, int maxHeight) {
+        if (file == null) return null;
+        InputStream is = null;
+        try {
+            is = new BufferedInputStream(new FileInputStream(file));
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            // Set height and width in options, does not return an image and no resource taken
+            BitmapFactory.decodeStream(is, null, options);
+            int pow = 0;
+            while (options.outHeight >> pow > maxHeight || options.outWidth >> pow > maxWidth) {
+                pow += 1;
+            }
+            is.close();
+            is = null;
+            is = new BufferedInputStream(new FileInputStream(file));
+            options.inSampleSize = 1 << pow;
+            options.inJustDecodeBounds = false;
+            Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
+            return bmp;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        } finally {
+            try { if (is != null) is.close(); } catch (Exception ex) {}
+        }
+    }
+
 
     public static final Bitmap getBitmapFromRaw(Context context, int resId) {
         if (resId <= 0) return null;
