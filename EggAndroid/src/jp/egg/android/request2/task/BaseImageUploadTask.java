@@ -3,6 +3,8 @@ package jp.egg.android.request2.task;
 import android.content.Context;
 import android.text.TextUtils;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
@@ -11,6 +13,8 @@ import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskError;
 import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Json;
+import jp.egg.android.util.Log;
+
 import org.apache.http.Header;
 
 import java.lang.reflect.ParameterizedType;
@@ -27,11 +31,14 @@ import java.lang.reflect.Type;
  */
 public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError> {
 
+    private static String TAG = "BaseImageUploadTask";
 
     private Context mContext;
     private int mMethod;
     private String mUrl;
     private Class<O> mBackedOutputType;
+
+    private RequestHandle mCurrentRequest;
 
 //    private Response<O> mResponseListener;
 //    private Response.ErrorListener mErrorListener;
@@ -69,6 +76,7 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
             isSuccess = true;
             response = s;
         }
+
     }
 
     protected abstract I getInput();
@@ -103,24 +111,57 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
 //        if(mIn.app_version_code!=null)  params.add("app_version_code", mIn.app_version_code.toString());
 
         String strCookie = getCookie();
-        SyncHttpClient client = new SyncHttpClient();
+        AsyncHttpClient client = new AsyncHttpClient();
         client.setTimeout(1000*60);
         if(!TextUtils.isEmpty(strCookie)) {
             client.addHeader("cookie", strCookie);
         }
 
+        Log.d(TAG, "request "+url+" "+params);
+
         ResponseHandler rs = new ResponseHandler();
-        RequestHandle request = client.post(url, params,rs);
+        RequestHandle request;
 
+        try {
+            request = client.post(url, params, rs);
+            mCurrentRequest = request;
+        } catch (Exception ex) {
+            Log.e(TAG, "failed client.post()", ex);
+            throw ex;
+        }
+//        request = client.post(url, params, rs)
 
-        if(rs.isSuccess && !rs.isFailure) {
+        if (isCanceled()) {
+            Log.d(TAG, "request is pre canceled.");
+            request.cancel(true);
+        }
+        while (!request.isFinished() && !request.isCancelled()){
+            Log.d(TAG, "request do background. running now. finished or canceled wait.");
+            try {
+                Thread.sleep(Long.MAX_VALUE);
+            } catch (InterruptedException e) {
+
+            }
+        }
+
+        if(request.isFinished() && rs.isSuccess && !rs.isFailure) {
             JsonNode jn = Json.parse(rs.response);
-            setSucces( getOutput(jn) );
-        }else{
+            setSucces(getOutput(jn));
+        }
+        else if (request.isCancelled()){
+            setCancel();
+        }
+        else{
             setError(null);
         }
     }
 
 
-
+    @Override
+    protected void onRequestCancel() {
+        if (mCurrentRequest!=null && !mCurrentRequest.isCancelled()) {
+            mCurrentRequest.cancel(true);
+        }
+        super.onRequestCancel();
+    }
 }

@@ -8,6 +8,8 @@ dependencies {
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:recyclerview-v7:21.0.3'
+    compile 'com.loopj.android:android-async-http:1.4.6'
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
     compile project(':volley-eggandroid')
     compile project(':paralloid')
 }
