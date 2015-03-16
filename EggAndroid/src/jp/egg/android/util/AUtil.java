@@ -12,6 +12,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableStringBuilder;
@@ -236,6 +237,22 @@ public class AUtil {
             return null;
         }
     }
+
+    public static final int getExifOrientation (File file) {
+        try {
+            ExifInterface exifInterface = new ExifInterface(file.getAbsolutePath());
+            // 向きを取得
+            int orientation =
+                    exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL);
+            return orientation;
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return ExifInterface.ORIENTATION_NORMAL;
+        }
+    }
+
 
     public static final Bitmap getBitmapFromUri(Context context, Uri uri) {
         if (uri == null) return null;
