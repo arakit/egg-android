@@ -1,14 +1,9 @@
 package jp.egg.android.request2.task;
 
 import android.content.Context;
-import android.net.Uri;
 import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.RequestHandle;
-import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.TextHttpResponseHandler;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
@@ -18,21 +13,15 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.apache.http.Header;
-
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.HttpCookie;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +31,6 @@ import jp.egg.android.util.HandlerUtil;
 import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Json;
 import jp.egg.android.util.Log;
-import jp.egg.android.util.StringUtil;
 
 /*
 
@@ -53,7 +41,7 @@ import jp.egg.android.util.StringUtil;
 /**
  * Created by chikara on 2014/09/06.
  */
-public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, EggTaskError> {
+public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUploadTask2.UploadTaskError> {
 
     private static String TAG = "BaseImageUploadTask2";
 
@@ -162,42 +150,76 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, EggTaskError
 
         Log.d(TAG, "request = " +request);
 
-        Call call = client.newCall(request);
-        mCurrentRequest = call;
+        while (true) {
 
-        Response response = null;
-        try {
-            response = call.execute();
-        } catch (Exception ex) {
-            Log.e(TAG, "failed execute.", ex);
-        }
-
-        Log.d(TAG, "response="+response);
-
-        if (call.isCanceled()) {
-            Log.d(TAG, "call.isCanceled.");
-            setCancel();
-        }
-        else if (response != null) {
-
-            try {
-                String body = response.body().string();
-                Log.d(TAG, "response body = "+body);
-                JsonNode jn = Json.parse(body);
-                setSucces(getOutput(jn));
-            } catch (Exception ex) {
-                Log.e(TAG, "failed parse.", ex);
-                setError(null);
+            Call call = client.newCall(request);
+            if (isCanceled()) {
+                Log.d(TAG, "isCanceled.");
+                setCancel();
+                return;
             }
-        }
-        else{
-            Log.d(TAG, "result is error.");
-            setError(null);
+
+            mCurrentRequest = call;
+
+            Response response = null;
+            try {
+                response = call.execute();
+            } catch (Exception ex) {
+                Log.e(TAG, "failed execute.", ex);
+            }
+
+            Log.d(TAG, "response=" + response);
+
+            if (call.isCanceled()) {
+                Log.d(TAG, "call.isCanceled.");
+                setCancel();
+                return;
+            } else if (response != null && response.isSuccessful()) {
+                // success!!
+                try {
+                    String body = response.body().string();
+                    Log.d(TAG, "response body = " + body);
+                    JsonNode jn = Json.parse(body);
+                    setSucces(getOutput(jn));
+                } catch (Exception ex) {
+                    Log.e(TAG, "failed parse.", ex);
+                    setError(null);
+                }
+                return;
+            } else if (response != null) {
+                // success以外
+                int code = response.code();
+                String message = response.message();
+                Log.d(TAG, "response is error. response code is " + code + ". " + message);
+
+                if (code == 401) {
+                    boolean retry = onRetryAuthorizedInBackground();
+                    if (retry) {
+                        Log.d(TAG, "retry");
+                        continue;
+                    } else {
+                        Log.d(TAG, "unauthorized error.");
+                        setError(null);
+                        return;
+                    }
+                }
+
+                Log.d(TAG, "response is null error.");
+                setError(null);
+                return;
+            } else {
+                Log.d(TAG, "result is error.");
+                setError(null);
+                return;
+            }
         }
 
 
     }
 
+    protected boolean onRetryAuthorizedInBackground () {
+        return false;
+    }
 
     @Override
     protected void onRequestCancel() {
@@ -215,4 +237,37 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, EggTaskError
 
         super.onRequestCancel();
     }
+
+
+    @Override
+    protected void onError(UploadTaskError result) {
+        super.onError(result);
+    }
+
+
+    public abstract static class UploadTaskError extends EggTaskError {
+
+        public abstract int code();
+        public abstract String message();
+    }
+
+    public static class DefaultUploadTaskError extends UploadTaskError {
+        private int code;
+        private String message;
+
+        public DefaultUploadTaskError (int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        @Override
+        public int code() {
+            return code;
+        }
+        @Override
+        public String message(){
+            return message;
+        }
+    }
+
 }
