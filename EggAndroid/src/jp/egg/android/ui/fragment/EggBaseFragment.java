@@ -13,21 +13,22 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+
 import com.android.volley.Request;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.activity.EggBaseActivity;
 import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
 import jp.egg.android.view.widget.layout.ParallaxListViewEx;
 import uk.co.chrisjenx.paralloid.OnScrollChangedListener;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * フラグメント共通基底クラス。

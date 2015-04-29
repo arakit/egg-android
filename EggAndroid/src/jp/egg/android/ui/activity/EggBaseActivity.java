@@ -1,8 +1,6 @@
 package jp.egg.android.ui.activity;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -11,33 +9,31 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.android.volley.Request;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import jp.egg.android.R;
 import jp.egg.android.manager.SystemBarTintManager;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
-import jp.egg.android.ui.fragment.EggBaseFragment;
 import jp.egg.android.view.widget.actionbarpulltorefresh.ActionBarPullToRefresh;
-import jp.egg.android.view.widget.actionbarpulltorefresh.DefaultHeaderTransformer;
-import jp.egg.android.view.widget.actionbarpulltorefresh.HeaderTransformer;
 import jp.egg.android.view.widget.actionbarpulltorefresh.Options;
 import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
 import jp.egg.android.view.widget.actionbarpulltorefresh.ToolBarHeaderTransformer;
 import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.OnRefreshListener;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Created by chikara on 2014/07/10.
  */
-public class EggBaseActivity extends ActionBarActivity {
+public class EggBaseActivity extends AppCompatActivity {
 
 
 //    public interface OnAutoHideActionBarListener{
