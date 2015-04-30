@@ -32,12 +32,6 @@ import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Json;
 import jp.egg.android.util.Log;
 
-/*
-
-
- */
-
-
 /**
  * Created by chikara on 2014/09/06.
  */
@@ -45,12 +39,18 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
 
     private static String TAG = "BaseImageUploadTask2";
 
+    protected static final int DEFAULT_RETRY_LIMIT = 1;
+
     private Context mContext;
     private int mMethod;
     private String mUrl;
     private Class<O> mBackedOutputType;
 
     private Call mCurrentRequest;
+
+    private int mRetryLimit = DEFAULT_RETRY_LIMIT;
+
+
 
     protected BaseImageUploadTask2(Context context, int method, String url) {
         mContext = context.getApplicationContext();
@@ -83,6 +83,14 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         return null;
     }
 
+    /**
+     * リクエスト失敗時のリトライ回数
+     * @param limit 1の場合、失敗すると1回だけリトライする
+     */
+    protected void setRetryLimit (int limit) {
+        mRetryLimit = limit;
+    }
+
 
 
     protected static MultipartBuilder addPart (MultipartBuilder builder, String name, String value) {
@@ -102,6 +110,29 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         super.onDoInBackground();
 
         OkHttpClient client = new OkHttpClient();
+
+        int retryCount = 0;
+        retry_loop : while (retryCount <= mRetryLimit) {
+            int result = handleRequest(client, retryCount);
+            switch (result) {
+                case REQUEST_RESULT_FINISH:
+                    // 終了
+                    break retry_loop;
+                case REQUEST_RESULT_RETRY:
+                    // リトライする
+                    continue retry_loop;
+                default:
+                    throw new IllegalStateException("unknown result code.");
+            }
+        }
+
+
+    }
+
+    private static final int REQUEST_RESULT_FINISH = 0;
+    private static final int REQUEST_RESULT_RETRY = 1;
+
+    private int handleRequest (OkHttpClient client, int currentRetryCount) {
 
         String url = mUrl;
         I input = getInput();
@@ -123,23 +154,12 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
             Log.e(TAG, "cookie setup error.", ex);
         }
 
-
         MultipartBuilder builder = getRequestParams(input);
         if (builder == null) {
             builder = new MultipartBuilder();
         }
 
         RequestBody requestBody = builder.build();
-//        RequestBody requestBody = new MultipartBuilder()
-//                .type(MultipartBuilder.FORM)
-//                .addPart(
-//                        Headers.of("Content-Disposition", "form-data; name=\"title\""),
-//                        RequestBody.create(null, "Square Logo"))
-//                .addPart(
-//                        Headers.of("Content-Disposition", "form-data; name=\"image\""),
-//                        RequestBody.create(MEDIA_TYPE_PNG, new File("website/static/logo-square.png")))
-//                .build();
-
         Log.d(TAG, "requestBody = " +requestBody);
 
         Request request = new Request.Builder()
@@ -150,71 +170,66 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
 
         Log.d(TAG, "request = " +request);
 
-        while (true) {
-
-            Call call = client.newCall(request);
-            if (isCanceled()) {
-                Log.d(TAG, "isCanceled.");
-                setCancel();
-                return;
-            }
-
-            mCurrentRequest = call;
-
-            Response response = null;
-            try {
-                response = call.execute();
-            } catch (Exception ex) {
-                Log.e(TAG, "failed execute.", ex);
-            }
-
-            Log.d(TAG, "response=" + response);
-
-            if (call.isCanceled()) {
-                Log.d(TAG, "call.isCanceled.");
-                setCancel();
-                return;
-            } else if (response != null && response.isSuccessful()) {
-                // success!!
-                try {
-                    String body = response.body().string();
-                    Log.d(TAG, "response body = " + body);
-                    JsonNode jn = Json.parse(body);
-                    setSucces(getOutput(jn));
-                } catch (Exception ex) {
-                    Log.e(TAG, "failed parse.", ex);
-                    setError(null);
-                }
-                return;
-            } else if (response != null) {
-                // success以外
-                int code = response.code();
-                String message = response.message();
-                Log.d(TAG, "response is error. response code is " + code + ". " + message);
-
-                if (code == 401) {
-                    boolean retry = onRetryAuthorizedInBackground();
-                    if (retry) {
-                        Log.d(TAG, "retry");
-                        continue;
-                    } else {
-                        Log.d(TAG, "unauthorized error.");
-                        setError(null);
-                        return;
-                    }
-                }
-
-                Log.d(TAG, "response is null error.");
-                setError(null);
-                return;
-            } else {
-                Log.d(TAG, "result is error.");
-                setError(null);
-                return;
-            }
+        Call call = client.newCall(request);
+        if (isCanceled()) {
+            Log.d(TAG, "isCanceled.");
+            setCancel();
+            return REQUEST_RESULT_FINISH;
         }
 
+        mCurrentRequest = call;
 
+        Response response = null;
+        try {
+            response = call.execute();
+        } catch (Exception ex) {
+            Log.e(TAG, "failed execute.", ex);
+        }
+
+        Log.d(TAG, "response=" + response);
+
+        if (call.isCanceled()) {
+            Log.d(TAG, "call.isCanceled.");
+            setCancel();
+            return REQUEST_RESULT_FINISH;
+        } else if (response != null && response.isSuccessful()) {
+            // success!!
+            try {
+                String body = response.body().string();
+                Log.d(TAG, "response body = " + body);
+                JsonNode jn = Json.parse(body);
+                setSucces(getOutput(jn));
+            } catch (Exception ex) {
+                Log.e(TAG, "failed parse.", ex);
+                setError(null);
+            }
+            return REQUEST_RESULT_FINISH;
+        } else if (response != null) {
+            // success以外
+            int code = response.code();
+            String message = response.message();
+            Log.d(TAG, "response is error. response code is " + code + ". " + message);
+
+            if (code == 401) {
+                boolean retry = onRetryAuthorizedInBackground();
+                if (retry) {
+                    Log.d(TAG, "retry");
+                    return REQUEST_RESULT_RETRY;
+                } else {
+                    Log.d(TAG, "unauthorized error.");
+                    setError(null);
+                    return REQUEST_RESULT_FINISH;
+                }
+            }
+
+            Log.d(TAG, "response is null error.");
+            setError(null);
+            return REQUEST_RESULT_FINISH;
+        } else {
+            Log.d(TAG, "result is error.");
+            setError(null);
+            return REQUEST_RESULT_FINISH;
+        }
     }
 
     protected boolean onRetryAuthorizedInBackground () {
