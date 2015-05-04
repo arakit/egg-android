@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component inherit-compiler-output="true" inheritJdk="true">
-	<output-test url="file://$MODULE_DIR$/../../mymon-android/mymon-android/out/test/appcompat_v7-eggandroid"/>
-	<exclude-output/>
-	<contentEntry url="file://$MODULE_DIR$"/>
-	<levels>
-		<level name="libs-appcompat" value="project"/>
-	</levels>
-</component>
