@@ -232,6 +232,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         }
     }
 
+
     protected boolean onRetryAuthorizedInBackground () {
         return false;
     }

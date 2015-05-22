@@ -3,16 +3,32 @@ package jp.egg.android.request2.volley;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Pair;
-import com.android.volley.*;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.fasterxml.jackson.databind.JsonNode;
-import jp.egg.android.util.*;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import jp.egg.android.util.DUtil;
+import jp.egg.android.util.JUtil;
+import jp.egg.android.util.Json;
+import jp.egg.android.util.Log;
+import jp.egg.android.util.ReflectionUtils;
 
 /**
  * Created by chikara on 2014/07/10.
@@ -28,7 +44,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
     private String mFinalUrl = null;
 
-    //private boolean mIsRetryAuthToken = true;
     private Priority mPriority = Priority.NORMAL;
     private Class<O> mBackedOutputType;
     private String mDeNormalizedUrl;
@@ -41,11 +56,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
                 url,
                 null);
         mContext = context.getApplicationContext();
-//        mResponseListener = success_listener;
-//        mErrorListener = listener;
-        //setRetryPolicy(new HairRetryPolicy(this, mAuthTokenErrorListener));
         mDeNormalizedUrl = url;
-        //Log.d("request",""+HairUrl.methodUrl(hairMethod));
         Type[] types = ((ParameterizedType)JUtil.getClass(BaseVolleyRequest.this).getGenericSuperclass()).getActualTypeArguments();
         if( types[1] instanceof Class ){
             mBackedOutputType = (Class) types[1];
@@ -55,13 +66,11 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
             Class c2;
             try {
                 String cn = "[L"+c1.getName()+";";
-                //Log.d("test23", "b="+cn);
                 c2 = Class.forName(cn);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 throw new IllegalArgumentException("can not use type "+types[1]);
             }
-            //Log.d("test23", "a="+c2);
             mBackedOutputType = c2;
         } else {
             throw new IllegalArgumentException("can not use type "+types[1]);
@@ -79,55 +88,12 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         return mBackedOutputType;
     }
 
-//    private final HairRetryPolicy.OnAuthTokenErrorListener mAuthTokenErrorListener = new HairRetryPolicy.OnAuthTokenErrorListener() {
-//        @Override
-//        public void onAuthTokenError() {
-//            if( !mIsRetryAuthToken ) return;
-//
-//            requestAuthToken();
-//        }
-//    };
+
 
     protected void setPriority(Priority priority){
         mPriority = priority;
     }
 
-//    private void requestAuthToken(){
-//
-//        RequestToken in = new RequestToken();
-//        in.uuid = AccountPreference.getUuid(mContext);
-//        in.secret = AccountPreference.getUuidSecret(mContext);
-//
-//        RequestFuture<TokenRoot> future = RequestFuture.newFuture();
-//
-//        AppTokenApi api = new AppTokenApi(
-//                mContext,
-//                in,
-//                future,
-//                future
-//        );
-//
-//        EggTaskCentral.getInstance()
-//                .addVolleyRequestByObject(api, null);
-//
-//        try {
-//            future.get();
-//            Log.d("request", "retryAuthToken");
-//        } catch (InterruptedException e) {
-//            Log.d("request", "retryAuthToken InterruptedException", e);
-//        } catch (ExecutionException e) {
-//            Log.d("request", "retryAuthToken ExecutionException", e);
-//        } catch (Exception e){
-//            Log.d("request", "retryAuthToken ExecutionException", e);
-//        }
-//
-//
-//    }
-
-
-//    public void setRetryAuthTokenEnabled(boolean enabled){
-//        mIsRetryAuthToken = enabled;
-//    }
 
 
     public void setListeners(Response.Listener<O> successListener, Response.ErrorListener errorListener){
@@ -211,14 +177,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
             convertInputToParams(params2, field, value);
         }
 
-//        HashMap params = Json.fromJson(Json.toJson(in), HashMap.class);
-//        HashMap<String, String> params2 = new HashMap<String, String>();
-//        for(Object o : params.entrySet()){
-//            Map.Entry<String, Object> e = (Map.Entry<String, Object>) o;
-//            if(e.getValue()!=null){
-//                params2.put(e.getKey(), e.getValue().toString());
-//            }
-//        }
         Log.d("request", "------------------------------------");
         Log.d("request-input", ""+ mDeNormalizedUrl + " params => " + DUtil.toStringPairList((List)params2, false));
         Log.d("input", ""+ mDeNormalizedUrl + " params => " + DUtil.toStringPairList((List)params2, false));
@@ -278,14 +236,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         if (headers.containsKey(SET_COOKIE)) {
             String cookie = headers.get(SET_COOKIE);
             onReceivedCookie(cookie);
-
-//            AccountPreference.putCookies(mContext, cookie);
-//            mContext.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-//                    .edit()
-//                    .putString(PREFERENCE_KEY_COOKIE, cookie)
-//                    .commit();
-//            if(Config.isDebug()) Log.d("cookie", "received cookie = "+ cookie);
-//            if(Config.isDebug()) Log.d("request-response-cookie", "received cookie = "+ cookie +"; "+mDeNormalizedUrl);
         }
     }
 
@@ -306,11 +256,16 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
             e.printStackTrace();
         }
 
-        Log.d("output-raw", "" + mDeNormalizedUrl +" > " + data);
+        if (Log.isDebug()) {
+            Log.d("output-raw", "" + mDeNormalizedUrl + " > " + data);
+        }
 
         JsonNode node = Json.parse(data);
-        Log.d("output", "" + node);
-        Log.d("request-response", "" + node + "; "+mDeNormalizedUrl);
+
+        if (Log.isDebug()) {
+            Log.d("output", "" + node);
+            Log.d("request-response", "" + node + "; " + mDeNormalizedUrl);
+        }
 
         O bean = getOutput(node);
 
@@ -333,10 +288,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
     protected final String getCookie(){
-//        String cookieStr = mContext.getSharedPreferences(PREFERENCE_NAME,
-//                Context.MODE_PRIVATE).getString(PREFERENCE_KEY_COOKIE, "");
-//        String cookieStr = AccountPreference.getCookies(mContext);
-//        return cookieStr;
         String strCookie = onSendCookie();
         return strCookie;
     }
@@ -355,9 +306,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
             headers.put("cookie", cookieStr);
             //if(Config.isDebug()) Log.d("cookie", "send cookie = " + cookieStr);
         }
-
-        //if(Config.isDebug()) Log.d("cookie", DUtil.toStringMap(headers, false));
-        //if(Config.isDebug()) Log.d("request-header", DUtil.toStringMap(headers, false) + "; "+mDeNormalizedUrl);
 
         return headers;
     }
