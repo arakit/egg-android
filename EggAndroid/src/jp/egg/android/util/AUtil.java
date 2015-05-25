@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableStringBuilder;
@@ -367,8 +368,9 @@ public class AUtil {
 
     public static final BitmapOutInfo getBitmapOutInfoFromUri(Context context, Uri uri) {
         if (uri == null) return null;
+        InputStream is = null;
         try {
-            InputStream is = context.getContentResolver().openInputStream(uri);
+            is = context.getContentResolver().openInputStream(uri);
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -381,16 +383,19 @@ public class AUtil {
             result.outMimeType = options.outMimeType;
             return result;
 
-        }catch (Exception ex){
+        } catch (Exception ex){
             ex.printStackTrace();
             return null;
+        } finally {
+            close(is);
         }
     }
 
     public static final BitmapOutInfo getBitmapOutInfoFromFile(File file) {
         if (file == null) return null;
+        InputStream is = null;
         try {
-            InputStream is = new BufferedInputStream(new FileInputStream(file));
+            is = new BufferedInputStream(new FileInputStream(file));
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -403,9 +408,21 @@ public class AUtil {
             result.outMimeType = options.outMimeType;
             return result;
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
+        } finally {
+            close(is);
+        }
+    }
+
+    private static void close (@Nullable InputStream is) {
+        if (is != null) {
+            try {
+                is.close();
+            } catch (IOException ex) {
+                // nothing to do.
+            }
         }
     }
 
