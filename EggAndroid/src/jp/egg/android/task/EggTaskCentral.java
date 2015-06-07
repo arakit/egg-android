@@ -363,9 +363,9 @@ public class EggTaskCentral {
 
     public interface OnDownloadFileListener {
 
-        public void onDownloadProgress(int bytesWritten, int totalSize);
-        public void onDownloadSuccess();
-        public void onDownloadFailed();
+        void onDownloadProgress(long bytesWritten, long totalSize);
+        void onDownloadSuccess();
+        void onDownloadFailed();
     }
 
 
@@ -383,20 +383,26 @@ public class EggTaskCentral {
             }
 
             @Override
-            protected void onDownloadProgress(int bytesWritten, int totalSize) {
+            protected void onDownloadProgress(long bytesWritten, long totalSize) {
                 super.onDownloadProgress(bytesWritten, totalSize);
-                if (listener!=null) listener.onDownloadProgress(bytesWritten, totalSize);
+                if (listener!=null) {
+                    listener.onDownloadProgress(bytesWritten, totalSize);
+                }
             }
         };
         task.setOnListener(new EggTaskListener() {
             @Override
             public void onSuccess(Object response) {
-                if (listener!=null) listener.onDownloadSuccess();
+                if (listener!=null) {
+                    listener.onDownloadSuccess();
+                }
             }
 
             @Override
             public void onError(EggTaskError error) {
-                if (listener!=null) listener.onDownloadFailed();
+                if (listener!=null) {
+                    listener.onDownloadFailed();
+                }
             }
 
             @Override

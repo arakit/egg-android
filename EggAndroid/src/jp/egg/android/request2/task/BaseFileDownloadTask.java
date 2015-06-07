@@ -88,13 +88,10 @@ public abstract class BaseFileDownloadTask<I> extends EggTask<File, EggTaskError
 
 
         @Override
-        public void onProgress(int bytesWritten, int totalSize) {
+        public void onProgress(long bytesWritten, long totalSize) {
             super.onProgress(bytesWritten, totalSize);
             BaseFileDownloadTask.this.onDownloadProgress(bytesWritten, totalSize);
         }
-
-
-
     }
 
     protected abstract I getInput();
@@ -111,7 +108,7 @@ public abstract class BaseFileDownloadTask<I> extends EggTask<File, EggTaskError
     }
 
 
-    protected void onDownloadProgress (int bytesWritten, int totalSize) {
+    protected void onDownloadProgress (long bytesWritten, long totalSize) {
 
     }
 
@@ -127,16 +124,16 @@ public abstract class BaseFileDownloadTask<I> extends EggTask<File, EggTaskError
         String strCookie = getCookie();
         SyncHttpClient client = new SyncHttpClient();
         client.setTimeout(1000*60);
-        if(!TextUtils.isEmpty(strCookie)) {
+        if (!TextUtils.isEmpty(strCookie)) {
             client.addHeader("cookie", strCookie);
         }
 
         ResponseHandler rs = new ResponseHandler(mOutputFile);
         RequestHandle request = client.get(url, params, rs);
 
-        if(rs.isSuccess && !rs.isFailure) {
+        if (rs.isSuccess && !rs.isFailure) {
             setSucces( rs.response );
-        }else{
+        } else {
             setError(null);
         }
     }
