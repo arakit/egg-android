@@ -3,7 +3,6 @@ package jp.egg.android.view.widget.actionbarpulltorefresh;
 import android.app.Activity;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import android.view.WindowManager;
 /**
  * Created by chikara on 2015/01/15.
  */
-public class PullToRefreshAttacherForDecorView extends PullToRefreshAttacher{
+public class PullToRefreshAttacherForDecorView extends PullToRefreshAttacher {
 
 
     private Activity mActivity;
@@ -29,7 +28,7 @@ public class PullToRefreshAttacherForDecorView extends PullToRefreshAttacher{
     }
 
     @Override
-    protected ViewGroup getActionBarContainer () {
+    protected ViewGroup getActionBarContainer() {
         return (ViewGroup) mActivity.getWindow().getDecorView();
     }
 
@@ -69,7 +68,7 @@ public class PullToRefreshAttacherForDecorView extends PullToRefreshAttacher{
         WindowManager.LayoutParams wlp = null;
         if (headerView.getLayoutParams() instanceof WindowManager.LayoutParams) {
             wlp = (WindowManager.LayoutParams) headerView.getLayoutParams();
-        } else if (headerView.getTag() instanceof  WindowManager.LayoutParams) {
+        } else if (headerView.getTag() instanceof WindowManager.LayoutParams) {
             wlp = (WindowManager.LayoutParams) headerView.getTag();
         }
 
@@ -86,8 +85,6 @@ public class PullToRefreshAttacherForDecorView extends PullToRefreshAttacher{
             mActivity.getWindowManager().removeViewImmediate(headerView);
         }
     }
-
-
 
 
 }

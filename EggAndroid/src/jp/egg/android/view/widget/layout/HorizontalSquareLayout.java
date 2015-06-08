@@ -4,12 +4,13 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+
 import jp.egg.android.R;
 
 /**
  * Created by chikara on 2014/09/11.
  */
-public class HorizontalSquareLayout extends FrameLayout{
+public class HorizontalSquareLayout extends FrameLayout {
 
     private float mVerticalWeight;
 
@@ -29,7 +30,7 @@ public class HorizontalSquareLayout extends FrameLayout{
     }
 
 
-    private void init (Context context, AttributeSet attrs){
+    private void init(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SquareLayout);
         mVerticalWeight = a.getFloat(R.styleable.SquareLayout_slWeight, 1.0f);
     }
@@ -43,7 +44,7 @@ public class HorizontalSquareLayout extends FrameLayout{
 
         super.onMeasure(
                 widthMeasureSpec,
-                MeasureSpec.makeMeasureSpec((int)(measureWidthSize * mVerticalWeight), measureWidthMode)
+                MeasureSpec.makeMeasureSpec((int) (measureWidthSize * mVerticalWeight), measureWidthMode)
         );
     }
 

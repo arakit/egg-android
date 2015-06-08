@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import jp.egg.android.R;
 import jp.egg.android.util.ToastUtil;
 
@@ -41,14 +42,13 @@ public class ActionBadgeMenuItemView extends FrameLayout {
     }
 
 
-
-    private void init(Context context){
+    private void init(Context context) {
         View child = LayoutInflater.from(context).inflate(R.layout.ab_action_menu_layout, this, true);
 
         getIconView().setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mOnClickListener!=null){
+                if (mOnClickListener != null) {
                     mOnClickListener.onClick(ActionBadgeMenuItemView.this);
                 }
             }
@@ -57,18 +57,18 @@ public class ActionBadgeMenuItemView extends FrameLayout {
             @Override
             public boolean onLongClick(View v) {
                 boolean ret = false;
-                if(mOnLongClickListener!=null){
+                if (mOnLongClickListener != null) {
                     ret = mOnLongClickListener.onLongClick(ActionBadgeMenuItemView.this);
                 }
-                if( ret ){
+                if (ret) {
                     return true;
                 }
                 CharSequence title = mTitle;
-                if(!TextUtils.isEmpty(title)) {
+                if (!TextUtils.isEmpty(title)) {
                     CharSequence badgeText = getBadgeText();
-                    if( TextUtils.isEmpty(badgeText) ) {
+                    if (TextUtils.isEmpty(badgeText)) {
                         ToastUtil.popupToast(v, title);
-                    }else{
+                    } else {
                         ToastUtil.popupToast(v, title + " " + badgeText + "");
                     }
                     return true;
@@ -79,85 +79,87 @@ public class ActionBadgeMenuItemView extends FrameLayout {
 
     }
 
-    public void setColor(int badgeBackgroundResource, int textColor){
+    public void setColor(int badgeBackgroundResource, int textColor) {
         TextView view = getBadgeTextView();
         view.setBackgroundResource(badgeBackgroundResource);
         view.setTextColor(textColor);
     }
 
-    public CharSequence getBadgeText(){
+    public CharSequence getBadgeText() {
         return getBadgeTextView().getText();
     }
 
-    public void setBadgeText(CharSequence text){
+    public void setBadgeText(CharSequence text) {
         TextView badgeView = getBadgeTextView();
-        if( text != null ) {
+        if (text != null) {
             badgeView.setText(text);
             badgeView.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             badgeView.setText("");
             badgeView.setVisibility(View.INVISIBLE);
         }
     }
 
-    public void setImageResource(int resId){
+    public void setImageResource(int resId) {
         ImageView iconView = getIconView();
         iconView.setImageResource(resId);
     }
-    public void setImageDrawable(Drawable drawable){
+
+    public void setImageDrawable(Drawable drawable) {
         ImageView iconView = getIconView();
         iconView.setImageDrawable(drawable);
     }
 
-    protected TextView getBadgeTextView(){
+    protected TextView getBadgeTextView() {
         TextView badgeView = (TextView) findViewById(R.id.badge);
         return badgeView;
     }
-    protected ImageView getIconView(){
+
+    protected ImageView getIconView() {
         ImageView iconView = (ImageView) findViewById(android.R.id.icon);
         return iconView;
     }
 
-    public void setBadgeForNumber(int num){
-        if( num >= 1000 ) {
+    public void setBadgeForNumber(int num) {
+        if (num >= 1000) {
             setBadgeText("999+");
-        }else if( num > 0 ) {
+        } else if (num > 0) {
             setBadgeText(Integer.toString(num));
-        }else{
+        } else {
             setBadgeText(null);
         }
     }
 
-    public void setTitle(CharSequence title){
+    public void setTitle(CharSequence title) {
         mTitle = title;
     }
 
-    public void setUpActionView(MenuItem item){
+    public void setUpActionView(MenuItem item) {
         setImageDrawable(item.getIcon());
         setBadgeText(null);
         setTitle(item.getTitle());
         //item.setCheckable(true);
     }
 
-    public void setUpActionView(MenuItem item, final OnClickListener listener){
+    public void setUpActionView(MenuItem item, final OnClickListener listener) {
         setUpActionView(item);
         setOnMenuClickListener(listener);
         item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if(listener!=null) listener.onClick(ActionBadgeMenuItemView.this);
+                if (listener != null) listener.onClick(ActionBadgeMenuItemView.this);
                 return true;
             }
         });
     }
 
-    public void setOnMenuClickListener(OnClickListener listener){
+    public void setOnMenuClickListener(OnClickListener listener) {
         mOnClickListener = listener;
     }
-    public void setOnMenuLongClickListener(OnLongClickListener listener){
+
+    public void setOnMenuLongClickListener(OnLongClickListener listener) {
         mOnLongClickListener = listener;
     }
-
 
 
     @Deprecated

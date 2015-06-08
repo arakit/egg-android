@@ -1,26 +1,16 @@
 package jp.egg.android.task;
 
-import java.io.File;
-
-import android.graphics.BitmapFactory;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
-
-import com.loopj.android.http.RequestParams;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import jp.egg.android.R;
-import jp.egg.android.request.volley.EggVolley;
-import jp.egg.android.request.volley.VolleyTag;
-import jp.egg.android.request2.task.BaseFileDownloadTask;
-
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RequestQueue.RequestFilter;
+import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiscCache;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -28,10 +18,16 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
-import javax.microedition.khronos.opengles.GL10;
+import java.io.File;
+
+import jp.egg.android.R;
+import jp.egg.android.request.volley.EggVolley;
+import jp.egg.android.request.volley.VolleyTag;
+import jp.egg.android.request2.task.BaseFileDownloadTask;
 
 public class EggTaskCentral {
 
@@ -41,42 +37,40 @@ public class EggTaskCentral {
 
 
     public static EggTaskCentral sInstance = null;
+    private Context mContext;
+    private RequestQueue mVolleyQueue;
+    private EggTaskQueue mQueue;
 
-    public static EggTaskCentral initialize(Context context){
-        if(sInstance != null) return sInstance;
+
+    //インスタンス
+    //private ImageLoader mVolleyImageLoader;
+    private com.nostra13.universalimageloader.core.ImageLoader mUnivImageLoader;
+    private EggTaskCentral() {
+
+    }
+
+    public static EggTaskCentral initialize(Context context) {
+        if (sInstance != null) return sInstance;
         EggTaskCentral central = new EggTaskCentral();
         sInstance = central;
         central.onInitialize(context);
         return central;
     }
-    public static void destroy(){
+
+    public static void destroy() {
         EggTaskCentral central = sInstance;
-        if(central == null) return ;
+        if (central == null) return;
         central.onDestroy();
         sInstance = null;
     }
-    public static EggTaskCentral getInstance(){
-        if(sInstance == null) throw new IllegalStateException("not initialize. must call EggTaskCentral.initialize().");
+
+    public static EggTaskCentral getInstance() {
+        if (sInstance == null)
+            throw new IllegalStateException("not initialize. must call EggTaskCentral.initialize().");
         return sInstance;
     }
 
-
-
-    //インスタンス
-
-    private Context mContext;
-    private RequestQueue mVolleyQueue;
-    private EggTaskQueue mQueue;
-    //private ImageLoader mVolleyImageLoader;
-    private com.nostra13.universalimageloader.core.ImageLoader mUnivImageLoader;
-
-
-    private EggTaskCentral() {
-
-    }
-
-
-    private void onInitialize(Context context){
+    private void onInitialize(Context context) {
         mContext = context.getApplicationContext();
         mVolleyQueue = EggVolley.newRequestQueue(mContext, DEFAULT_VOLLEY_CACHE_SIZE);
         mQueue = new EggTaskQueue();
@@ -88,7 +82,7 @@ public class EggTaskCentral {
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mContext)
                 .memoryCache(new LruMemoryCache(DEFAULT_IMAGE_CACHE_SIZE))
-                //.memoryCacheExtraOptions( (int)(dm.widthPixels / dm.density / 2), (int)(dm.heightPixels / dm.density / 2) )
+                        //.memoryCacheExtraOptions( (int)(dm.widthPixels / dm.density / 2), (int)(dm.heightPixels / dm.density / 2) )
                         //.memoryCacheSize(DEFAULT_IMAGE_CACHE_SIZE)
                 .diskCache(new LimitedAgeDiscCache(cacheDir, DEFAULT_IMAGE_DISC_CACHE_SIZE))
                         //.diskCacheSize(DEFAULT_IMAGE_DISC_CACHE_SIZE)
@@ -101,7 +95,8 @@ public class EggTaskCentral {
         startTask();
         startVolleyRequest();
     }
-    private void onDestroy(){
+
+    private void onDestroy() {
         mContext = null;
         cancelVolleyRequestAll();
         stopVolleyRquest();
@@ -111,14 +106,15 @@ public class EggTaskCentral {
         mUnivImageLoader.destroy();
     }
 
-    private void startVolleyRequest(){
+    private void startVolleyRequest() {
         mVolleyQueue.start();
     }
-    private void stopVolleyRquest(){
+
+    private void stopVolleyRquest() {
         mVolleyQueue.stop();
     }
 
-    public void resetVolley(){
+    public void resetVolley() {
         cancelVolleyRequestAll();
         stopVolleyRquest();
         mVolleyQueue = EggVolley.newRequestQueue(mContext, DEFAULT_VOLLEY_CACHE_SIZE);
@@ -126,22 +122,23 @@ public class EggTaskCentral {
     }
 
 
-
-    public void cancelVolleyRquest(RequestFilter filter){
+    public void cancelVolleyRquest(RequestFilter filter) {
         mVolleyQueue.cancelAll(filter);
     }
-    public void cancelVolleyRquestByObject(final Object obj){
+
+    public void cancelVolleyRquestByObject(final Object obj) {
         mVolleyQueue.cancelAll(new RequestFilter() {
             @Override
             public boolean apply(Request<?> request) {
-                if(request.getTag()!=null && request.getTag() instanceof VolleyTag ){
+                if (request.getTag() != null && request.getTag() instanceof VolleyTag) {
                     return ((VolleyTag) request.getTag()).object == obj;
                 }
                 return false;
             }
         });
     }
-    public void cancelVolleyRequestAll(){
+
+    public void cancelVolleyRequestAll() {
         mVolleyQueue.cancelAll(new RequestFilter() {
             @Override
             public boolean apply(Request<?> request) {
@@ -151,26 +148,27 @@ public class EggTaskCentral {
     }
 
 
-
-    private void startTask(){
+    private void startTask() {
         mQueue.start();
     }
-    private void stopTask(){
+
+    private void stopTask() {
         mQueue.stop();
     }
 
 
-    public void addTask(EggTask<?,?> task){
+    public void addTask(EggTask<?, ?> task) {
         mQueue.add(task);
     }
 
 
-    public void addVolleyRequest(Request<?> request){
-        if(request == null) return ;
+    public void addVolleyRequest(Request<?> request) {
+        if (request == null) return;
         mVolleyQueue.add(request);
     }
-    public void addVolleyRequestByObject(Request<?> request, Object obj){
-        if(request == null) return ;
+
+    public void addVolleyRequestByObject(Request<?> request, Object obj) {
+        if (request == null) return;
 
         VolleyTag tag = new VolleyTag();
         tag.object = obj;
@@ -179,43 +177,20 @@ public class EggTaskCentral {
         mVolleyQueue.add(request);
     }
 
-    public void clearVolleyCache(){
+    public void clearVolleyCache() {
         mVolleyQueue.getCache().clear();
     }
 
-
-
-
-    public static class LoadImageContainer{
-
-//		final ImageContainer ic;
-//
-//		LoadImageContainer(ImageContainer ic) {
-//			this.ic = ic;
-//		}
-
-        public void cancelRequest(){
-            //ic.cancelRequest();
-        }
-    }
-
-    public interface LoadImageListener{
-        //public
-        public void onLoaded(Bitmap bmp, ImageView view);
-        public void onError();
-    }
-
-    public void displayImage(ImageView view, int resource){
+    public void displayImage(ImageView view, int resource) {
         mUnivImageLoader.cancelDisplayTask(view);
-        if( resource == 0 ) {
+        if (resource == 0) {
             view.setImageDrawable(null);
-        }else{
+        } else {
             view.setImageResource(resource);
         }
     }
 
-
-    public LoadImageContainer displayImageThumbOrDetail(final ImageView view, String url, String detailUrl, int defRes, boolean isDetail){
+    public LoadImageContainer displayImageThumbOrDetail(final ImageView view, String url, String detailUrl, int defRes, boolean isDetail) {
 
         String curLoadUrl = (String) view.getTag(R.id.tag_loading_image);
 
@@ -227,7 +202,7 @@ public class EggTaskCentral {
 
         boolean curIsDetail = false;
         boolean reset = true;
-        if(!TextUtils.isEmpty(curLoadUrl) && (curLoadUrl.equals(url) || curLoadUrl.equals(detailUrl)) ){
+        if (!TextUtils.isEmpty(curLoadUrl) && (curLoadUrl.equals(url) || curLoadUrl.equals(detailUrl))) {
             reset = false;
             curIsDetail = curLoadUrl.equals(detailUrl);
         }
@@ -240,33 +215,33 @@ public class EggTaskCentral {
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
                 .showImageForEmptyUri(defRes);
 
-        if ( reset ) {
+        if (reset) {
             options
-                .showImageOnLoading(defRes)
-                .displayer(new FadeInBitmapDisplayer(250, true, true, false));
+                    .showImageOnLoading(defRes)
+                    .displayer(new FadeInBitmapDisplayer(250, true, true, false));
 
         }
 
-        if( isDetail || curIsDetail) {
+        if (isDetail || curIsDetail) {
             //bo.cacheInMemory(false);
             return displayImage(view, detailUrl, options.build(), null);
-        }else{
+        } else {
             options.showImageOnFail(defRes);
             return displayImage(view, url, options.build(), null);
         }
 
     }
 
-    public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes){
+    public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes) {
         return displayImage(view, url, loadingRes, null);
     }
 
-    public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes, final LoadImageListener listener){
+    public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes, final LoadImageListener listener) {
 
         String curLoadUrl = (String) view.getTag(R.id.tag_loading_image);
 
         boolean reset = true;
-        if(!TextUtils.isEmpty(curLoadUrl) && curLoadUrl.equals(url) ){
+        if (!TextUtils.isEmpty(curLoadUrl) && curLoadUrl.equals(url)) {
             reset = false;
         }
 
@@ -277,17 +252,16 @@ public class EggTaskCentral {
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
                 .displayer(new FadeInBitmapDisplayer(250, true, false, false))
                 .showImageOnFail(loadingRes)
-                .showImageForEmptyUri(loadingRes)
-                ;
+                .showImageForEmptyUri(loadingRes);
 
-        if(reset){
+        if (reset) {
             options.showImageOnLoading(loadingRes);
         }
 
         return displayImage(view, url, options.build(), listener);
     }
 
-    public LoadImageContainer displayImage(final ImageView view, String url, DisplayImageOptions options, final LoadImageListener listener){
+    public LoadImageContainer displayImage(final ImageView view, String url, DisplayImageOptions options, final LoadImageListener listener) {
 
         view.setTag(R.id.tag_loading_image, url);
 
@@ -304,12 +278,12 @@ public class EggTaskCentral {
                     @Override
                     public void onLoadingFailed(String imageUri, View view,
                                                 FailReason failReason) {
-                        if(listener!=null) listener.onError();
+                        if (listener != null) listener.onError();
                     }
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if(listener!=null) listener.onLoaded(loadedImage, (ImageView)view);
+                        if (listener != null) listener.onLoaded(loadedImage, (ImageView) view);
                     }
 
                     @Override
@@ -320,7 +294,7 @@ public class EggTaskCentral {
 
         //ImageContainer ic = mVolleyImageLoader.get(url, listener, maxWidth, maxHeight);
 
-        return new LoadImageContainer(){
+        return new LoadImageContainer() {
             @Override
             public void cancelRequest() {
                 super.cancelRequest();
@@ -329,8 +303,7 @@ public class EggTaskCentral {
         };
     }
 
-
-    public void loadImage(String url, final LoadImageListener listener, int maxWidth, int maxHeight){
+    public void loadImage(String url, final LoadImageListener listener, int maxWidth, int maxHeight) {
 
 
         mUnivImageLoader.loadImage(
@@ -349,7 +322,7 @@ public class EggTaskCentral {
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        listener.onLoaded(loadedImage, (ImageView)view);
+                        listener.onLoaded(loadedImage, (ImageView) view);
                     }
 
                     @Override
@@ -361,15 +334,7 @@ public class EggTaskCentral {
 
     }
 
-    public interface OnDownloadFileListener {
-
-        void onDownloadProgress(long bytesWritten, long totalSize);
-        void onDownloadSuccess();
-        void onDownloadFailed();
-    }
-
-
-    public void downloadFile (String url, File output, final OnDownloadFileListener listener) {
+    public void downloadFile(String url, File output, final OnDownloadFileListener listener) {
 
         BaseFileDownloadTask task = new BaseFileDownloadTask(mContext, url, output) {
             @Override
@@ -385,7 +350,7 @@ public class EggTaskCentral {
             @Override
             protected void onDownloadProgress(long bytesWritten, long totalSize) {
                 super.onDownloadProgress(bytesWritten, totalSize);
-                if (listener!=null) {
+                if (listener != null) {
                     listener.onDownloadProgress(bytesWritten, totalSize);
                 }
             }
@@ -393,14 +358,14 @@ public class EggTaskCentral {
         task.setOnListener(new EggTaskListener() {
             @Override
             public void onSuccess(Object response) {
-                if (listener!=null) {
+                if (listener != null) {
                     listener.onDownloadSuccess();
                 }
             }
 
             @Override
             public void onError(EggTaskError error) {
-                if (listener!=null) {
+                if (listener != null) {
                     listener.onDownloadFailed();
                 }
             }
@@ -416,6 +381,35 @@ public class EggTaskCentral {
 
     }
 
+
+    public interface LoadImageListener {
+        //public
+        public void onLoaded(Bitmap bmp, ImageView view);
+
+        public void onError();
+    }
+
+    public interface OnDownloadFileListener {
+
+        void onDownloadProgress(long bytesWritten, long totalSize);
+
+        void onDownloadSuccess();
+
+        void onDownloadFailed();
+    }
+
+    public static class LoadImageContainer {
+
+//		final ImageContainer ic;
+//
+//		LoadImageContainer(ImageContainer ic) {
+//			this.ic = ic;
+//		}
+
+        public void cancelRequest() {
+            //ic.cancelRequest();
+        }
+    }
 
 
 }

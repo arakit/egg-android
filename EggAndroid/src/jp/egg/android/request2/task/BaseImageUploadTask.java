@@ -2,23 +2,23 @@ package jp.egg.android.request2.task;
 
 import android.content.Context;
 import android.text.TextUtils;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.SyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
-import jp.egg.android.task.EggTask;
-import jp.egg.android.task.EggTaskError;
-import jp.egg.android.util.JUtil;
-import jp.egg.android.util.Json;
-import jp.egg.android.util.Log;
 
 import org.apache.http.Header;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+
+import jp.egg.android.task.EggTask;
+import jp.egg.android.task.EggTaskError;
+import jp.egg.android.util.JUtil;
+import jp.egg.android.util.Json;
+import jp.egg.android.util.Log;
 
 /*
 
@@ -51,32 +51,12 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
         mBackedOutputType = (Class) types[1];
     }
 
-    protected Context getContext(){
+    protected Context getContext() {
         return mContext;
     }
 
-    protected Class<O> getBackedOutputType(){
+    protected Class<O> getBackedOutputType() {
         return mBackedOutputType;
-    }
-
-    private static class ResponseHandler extends TextHttpResponseHandler {
-
-        boolean isFailure;
-        boolean isSuccess;
-        public String response;
-
-        @Override
-        public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
-            isFailure = true;
-            response = s;
-        }
-
-        @Override
-        public void onSuccess(int i, Header[] headers, String s) {
-            isSuccess = true;
-            response = s;
-        }
-
     }
 
     protected abstract I getInput();
@@ -85,16 +65,14 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
 
     protected abstract O getOutput(JsonNode node);
 
-    protected final String getCookie(){
+    protected final String getCookie() {
         String strCookie = onSendCookie();
         return strCookie;
     }
 
-    protected String onSendCookie(){
+    protected String onSendCookie() {
         return null;
     }
-
-
 
     @Override
     protected final void onDoInBackground() {
@@ -112,12 +90,12 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
 
         String strCookie = getCookie();
         AsyncHttpClient client = new AsyncHttpClient();
-        client.setTimeout(1000*60);
-        if(!TextUtils.isEmpty(strCookie)) {
+        client.setTimeout(1000 * 60);
+        if (!TextUtils.isEmpty(strCookie)) {
             client.addHeader("cookie", strCookie);
         }
 
-        Log.d(TAG, "request "+url+" "+params);
+        Log.d(TAG, "request " + url + " " + params);
 
         ResponseHandler rs = new ResponseHandler();
         RequestHandle request;
@@ -135,7 +113,7 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
             Log.d(TAG, "request is pre canceled.");
             request.cancel(true);
         }
-        while (!request.isFinished() && !request.isCancelled()){
+        while (!request.isFinished() && !request.isCancelled()) {
             Log.d(TAG, "request do background. running now. finished or canceled wait.");
             try {
                 Thread.sleep(Long.MAX_VALUE);
@@ -144,24 +122,41 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
             }
         }
 
-        if(request.isFinished() && rs.isSuccess && !rs.isFailure) {
+        if (request.isFinished() && rs.isSuccess && !rs.isFailure) {
             JsonNode jn = Json.parse(rs.response);
             setSucces(getOutput(jn));
-        }
-        else if (request.isCancelled()){
+        } else if (request.isCancelled()) {
             setCancel();
-        }
-        else{
+        } else {
             setError(null);
         }
     }
 
-
     @Override
     protected void onRequestCancel() {
-        if (mCurrentRequest!=null && !mCurrentRequest.isCancelled()) {
+        if (mCurrentRequest != null && !mCurrentRequest.isCancelled()) {
             mCurrentRequest.cancel(true);
         }
         super.onRequestCancel();
+    }
+
+    private static class ResponseHandler extends TextHttpResponseHandler {
+
+        public String response;
+        boolean isFailure;
+        boolean isSuccess;
+
+        @Override
+        public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+            isFailure = true;
+            response = s;
+        }
+
+        @Override
+        public void onSuccess(int i, Header[] headers, String s) {
+            isSuccess = true;
+            response = s;
+        }
+
     }
 }

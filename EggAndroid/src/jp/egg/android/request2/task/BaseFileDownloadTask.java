@@ -40,16 +40,58 @@ public abstract class BaseFileDownloadTask<I> extends EggTask<File, EggTaskError
         mOutputFile = output;
     }
 
-    protected Context getContext(){
+    protected Context getContext() {
         return mContext;
     }
 
+    protected abstract I getInput();
+
+    protected abstract RequestParams getRequestParams(I in);
+
+    protected final String getCookie() {
+        String strCookie = onSendCookie();
+        return strCookie;
+    }
+
+    protected String onSendCookie() {
+        return null;
+    }
+
+    protected void onDownloadProgress(long bytesWritten, long totalSize) {
+
+    }
+
+    @Override
+    protected final void onDoInBackground() {
+        super.onDoInBackground();
+
+        String url = mUrl;
+
+        I input = getInput();
+        RequestParams params = getRequestParams(input);
+
+        String strCookie = getCookie();
+        SyncHttpClient client = new SyncHttpClient();
+        client.setTimeout(1000 * 60);
+        if (!TextUtils.isEmpty(strCookie)) {
+            client.addHeader("cookie", strCookie);
+        }
+
+        ResponseHandler rs = new ResponseHandler(mOutputFile);
+        RequestHandle request = client.get(url, params, rs);
+
+        if (rs.isSuccess && !rs.isFailure) {
+            setSucces(rs.response);
+        } else {
+            setError(null);
+        }
+    }
 
     private class ResponseHandler extends FileAsyncHttpResponseHandler {
 
+        public File response;
         boolean isFailure;
         boolean isSuccess;
-        public File response;
 
         public ResponseHandler(Context context) {
             super(context);
@@ -93,51 +135,6 @@ public abstract class BaseFileDownloadTask<I> extends EggTask<File, EggTaskError
             BaseFileDownloadTask.this.onDownloadProgress(bytesWritten, totalSize);
         }
     }
-
-    protected abstract I getInput();
-
-    protected abstract RequestParams getRequestParams(I in);
-
-    protected final String getCookie(){
-        String strCookie = onSendCookie();
-        return strCookie;
-    }
-
-    protected String onSendCookie(){
-        return null;
-    }
-
-
-    protected void onDownloadProgress (long bytesWritten, long totalSize) {
-
-    }
-
-    @Override
-    protected final void onDoInBackground() {
-        super.onDoInBackground();
-
-        String url = mUrl;
-
-        I input = getInput();
-        RequestParams params = getRequestParams(input);
-
-        String strCookie = getCookie();
-        SyncHttpClient client = new SyncHttpClient();
-        client.setTimeout(1000*60);
-        if (!TextUtils.isEmpty(strCookie)) {
-            client.addHeader("cookie", strCookie);
-        }
-
-        ResponseHandler rs = new ResponseHandler(mOutputFile);
-        RequestHandle request = client.get(url, params, rs);
-
-        if (rs.isSuccess && !rs.isFailure) {
-            setSucces( rs.response );
-        } else {
-            setError(null);
-        }
-    }
-
 
 
 }

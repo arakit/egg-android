@@ -8,13 +8,12 @@ import android.view.View;
 
 /**
  * Created by chikara on 2014/07/25.
- *
- *  SwipeRefreshLayoutのProgressの描画を外側でおこないためのView. つまり描画横取りView.
- *
- *  How to use.
- *    setSwipeRefreshLayout()で、対象のSwipeRefreshLayoutをsetしてください。
- *    さすれば、Progressの描画を横取りできるであろう。
- *
+ * <p/>
+ * SwipeRefreshLayoutのProgressの描画を外側でおこないためのView. つまり描画横取りView.
+ * <p/>
+ * How to use.
+ * setSwipeRefreshLayout()で、対象のSwipeRefreshLayoutをsetしてください。
+ * さすれば、Progressの描画を横取りできるであろう。
  */
 public class SwipeRefreshProgressDrawView extends View {
 
@@ -38,7 +37,7 @@ public class SwipeRefreshProgressDrawView extends View {
         init();
     }
 
-    private void init(){
+    private void init() {
         setWillNotDraw(false);
         final DisplayMetrics metrics = getResources().getDisplayMetrics();
         mProgressBarHeight = (int) (metrics.density * CustomSwipeRefreshLayout.PROGRESS_BAR_HEIGHT);
@@ -47,13 +46,14 @@ public class SwipeRefreshProgressDrawView extends View {
 
     /**
      * SwipeRefreshLayoutのProgressの描画を横取りします。
+     *
      * @param swipeRefreshLayout
      */
-    public void setSwipeRefreshLayout(final CustomSwipeRefreshLayout swipeRefreshLayout){
-        if(swipeRefreshLayout == null){
+    public void setSwipeRefreshLayout(final CustomSwipeRefreshLayout swipeRefreshLayout) {
+        if (swipeRefreshLayout == null) {
             mSwipeRefreshLayout = null;
             mProgressBar = null;
-            return ;
+            return;
         }
         mSwipeRefreshLayout = swipeRefreshLayout;
         mProgressBar = mSwipeRefreshLayout.getProgressBar();
@@ -70,7 +70,7 @@ public class SwipeRefreshProgressDrawView extends View {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if(mProgressBar!=null){
+        if (mProgressBar != null) {
             //Logger.LOGD("swipe", "draw()");
             mProgressBar.draw(canvas);
         }
@@ -82,12 +82,11 @@ public class SwipeRefreshProgressDrawView extends View {
     }
 
 
-
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        final int width =  getMeasuredWidth();
+        final int width = getMeasuredWidth();
         final int height = getMeasuredHeight();
-        if(mProgressBar!=null){
+        if (mProgressBar != null) {
             //Logger.LOGD("swipe", ""+width+", "+mProgressBarHeight);
             mProgressBar.setBounds(0, 0, width, mProgressBarHeight); //CHANGED PAIRS
         }
@@ -101,6 +100,6 @@ public class SwipeRefreshProgressDrawView extends View {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 
-        setMeasuredDimension( widthSize, mProgressBarHeight );
+        setMeasuredDimension(widthSize, mProgressBarHeight);
     }
 }

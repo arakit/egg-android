@@ -1,7 +1,6 @@
 package jp.egg.android.task;
 
-public class FailedCancelExeption extends  Exception{
-
+public class FailedCancelExeption extends Exception {
 
 
 }

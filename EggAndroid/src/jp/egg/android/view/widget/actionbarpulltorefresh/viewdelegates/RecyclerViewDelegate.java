@@ -16,18 +16,12 @@
 
 package jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewParent;
-import android.widget.AbsListView;
 
-import java.util.Arrays;
 import java.util.List;
 
 import jp.egg.android.util.Log;
@@ -37,7 +31,7 @@ import jp.egg.android.util.Log;
  */
 public class RecyclerViewDelegate implements ViewDelegate {
 
-    public static final Class[] SUPPORTED_VIEW_CLASSES =  { RecyclerView.class };
+    public static final Class[] SUPPORTED_VIEW_CLASSES = {RecyclerView.class};
 
     @Override
     public boolean isReadyForPull(View view, final float x, final float y) {
@@ -65,16 +59,15 @@ public class RecyclerViewDelegate implements ViewDelegate {
 
 
     /**
-     *
      * @param recyclerView
      * @return スクロール状態が一番端か
      */
-    private boolean checkCoordinatorLayoutTop (RecyclerView recyclerView) {
+    private boolean checkCoordinatorLayoutTop(RecyclerView recyclerView) {
 
         ViewParent vp, vpPrev;
         vp = recyclerView.getParent();
         vpPrev = null;
-        while (vp!=null) {
+        while (vp != null) {
 
             if (vp instanceof CoordinatorLayout) {
                 CoordinatorLayout coordinatorLayout = (CoordinatorLayout) vp;
@@ -99,11 +92,11 @@ public class RecyclerViewDelegate implements ViewDelegate {
     }
 
 
-    private void debugViewInfo (String name, View v) {
+    private void debugViewInfo(String name, View v) {
         int top = v.getTop();
         int scroll = v.getScrollY();
         float translateY = v.getTranslationY();
-        Log.d("RecyclerViewDelegate", name+ " v = " + v +", top = " + top + ", translateY = " + translateY+", scrollY = "+scroll);
+        Log.d("RecyclerViewDelegate", name + " v = " + v + ", top = " + top + ", translateY = " + translateY + ", scrollY = " + scroll);
     }
 
 }

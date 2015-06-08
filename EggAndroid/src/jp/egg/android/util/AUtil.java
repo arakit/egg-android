@@ -1,20 +1,20 @@
 package jp.egg.android.util;
 
-import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -24,12 +24,12 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.Pair;
 import android.view.View;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -43,24 +43,24 @@ import java.util.regex.Pattern;
  */
 public class AUtil {
 
-    public static void makeAboutSpannable(SpannableStringBuilder span, String str_link, String replace, final Runnable on_click){
+    public static void makeAboutSpannable(SpannableStringBuilder span, String str_link, String replace, final Runnable on_click) {
         Pattern pattern = Pattern.compile(str_link);
         Matcher matcher = pattern.matcher(span);
         ForegroundColorSpan color_theme = new ForegroundColorSpan(Color.parseColor("#53b7bb"));
-        if(matcher.find()) {
+        if (matcher.find()) {
             span.setSpan(new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    if(on_click!=null) on_click.run();
+                    if (on_click != null) on_click.run();
                 }
             }, matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             span.setSpan(color_theme,
                     matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            if(replace!=null) span.replace(matcher.start(), matcher.end(), replace);
+            if (replace != null) span.replace(matcher.start(), matcher.end(), replace);
         }
     }
 
-    public static void makeClickableTagsSpannable(Context context, SpannableStringBuilder span, String word, int textAppearance, final Runnable on_click){
+    public static void makeClickableTagsSpannable(Context context, SpannableStringBuilder span, String word, int textAppearance, final Runnable on_click) {
         //ForegroundColorSpan color_theme = new ForegroundColorSpan(color);
         TextAppearanceSpan appearanceSpan = new TextAppearanceSpan(context, textAppearance);
         int start = span.length();
@@ -69,8 +69,9 @@ public class AUtil {
         span.setSpan(new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                if(on_click!=null) on_click.run();
+                if (on_click != null) on_click.run();
             }
+
             @Override
             public void updateDrawState(TextPaint ds) {
                 //ds.setColor(ds.linkColor);
@@ -83,45 +84,45 @@ public class AUtil {
     }
 
 
-    public static boolean isInternetConnected(Context context){
+    public static boolean isInternetConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(cm==null) return false;
+        if (cm == null) return false;
 
         boolean is_connect = false;
 
         NetworkInfo info = cm.getActiveNetworkInfo();
-        if(info != null){
-            if( info.isConnected() ) is_connect = true;
+        if (info != null) {
+            if (info.isConnected()) is_connect = true;
         }
 
         return is_connect;
     }
 
 
-    public static void deleteAppDatabases(Context context){
+    public static void deleteAppDatabases(Context context) {
         String[] dbs = context.databaseList();
-        if( dbs==null || dbs.length==0 ) return;
-        for( String db : dbs ) {
+        if (dbs == null || dbs.length == 0) return;
+        for (String db : dbs) {
             context.deleteDatabase(db);
         }
     }
 
-    public static void deleteCacheData(Context context){
+    public static void deleteCacheData(Context context) {
         File cacheDir = context.getCacheDir();
-        if( cacheDir == null ) return;
+        if (cacheDir == null) return;
         try {
             FileUtils.cleanDirectory(cacheDir);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public static void deleteAppFiles(Context context){
+    public static void deleteAppFiles(Context context) {
         File fileDir = context.getFilesDir();
-        if( fileDir == null ) return;
+        if (fileDir == null) return;
         try {
             FileUtils.cleanDirectory(fileDir);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -148,7 +149,7 @@ public class AUtil {
         }
     }
 
-    public static void deleteAppDataAll(Context context){
+    public static void deleteAppDataAll(Context context) {
 
         deleteAppDatabases(context);
         deleteCacheData(context);
@@ -158,8 +159,8 @@ public class AUtil {
     }
 
 
-    public static final boolean checkImageAndSize(Context context, Uri uri,long bytes){
-        if(uri==null) return false;
+    public static final boolean checkImageAndSize(Context context, Uri uri, long bytes) {
+        if (uri == null) return false;
 
         InputStream is = null;
         try {
@@ -170,28 +171,31 @@ public class AUtil {
             //android.util.Log.d("test77", "Original Image Size: " + imageOptions.outWidth + " x " + imageOptions.outHeight);
             is.close();
             is = null;
-            if(imageOptions.outWidth <= 0 || imageOptions.outHeight<=0 ){
+            if (imageOptions.outWidth <= 0 || imageOptions.outHeight <= 0) {
                 return false;
             }
             is = context.getContentResolver().openInputStream(uri);
             long fileSizeCounter = 0;
             long size;
             byte[] buf = new byte[8192];
-            while( (size = is.read(buf, 0 , buf.length)) != -1 ){
+            while ((size = is.read(buf, 0, buf.length)) != -1) {
                 //android.util.Log.d("test77", "size="+size);
                 fileSizeCounter += size;
             }
             is.close();
-            is=null;
-            if( fileSizeCounter > bytes ){
+            is = null;
+            if (fileSizeCounter > bytes) {
                 return false;
             }
             return true;
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return false;
         } finally {
-            try { if (is != null) is.close(); } catch (Exception ex) {}
+            try {
+                if (is != null) is.close();
+            } catch (Exception ex) {
+            }
         }
     }
 
@@ -232,14 +236,13 @@ public class AUtil {
             Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
             bitmap.recycle();
             return bmRotated;
-        }
-        catch (OutOfMemoryError e) {
+        } catch (OutOfMemoryError e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static final int getExifOrientation (File file) {
+    public static final int getExifOrientation(File file) {
         try {
             ExifInterface exifInterface = new ExifInterface(file.getAbsolutePath());
             // 向きを取得
@@ -247,8 +250,7 @@ public class AUtil {
                     exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                             ExifInterface.ORIENTATION_NORMAL);
             return orientation;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return ExifInterface.ORIENTATION_NORMAL;
         }
@@ -267,7 +269,10 @@ public class AUtil {
             ex.printStackTrace();
             return null;
         } finally {
-            try { if (is != null) is.close(); } catch (Exception ex) {}
+            try {
+                if (is != null) is.close();
+            } catch (Exception ex) {
+            }
         }
     }
 
@@ -296,7 +301,10 @@ public class AUtil {
             ex.printStackTrace();
             return null;
         } finally {
-            try { if (is != null) is.close(); } catch (Exception ex) {}
+            try {
+                if (is != null) is.close();
+            } catch (Exception ex) {
+            }
         }
     }
 
@@ -325,7 +333,10 @@ public class AUtil {
             ex.printStackTrace();
             return null;
         } finally {
-            try { if (is != null) is.close(); } catch (Exception ex) {}
+            try {
+                if (is != null) is.close();
+            } catch (Exception ex) {
+            }
         }
     }
 
@@ -342,28 +353,11 @@ public class AUtil {
             ex.printStackTrace();
             return null;
         } finally {
-            try { if (is != null) is.close(); } catch (Exception ex) {}
+            try {
+                if (is != null) is.close();
+            } catch (Exception ex) {
+            }
         }
-    }
-
-    public static class BitmapOutInfo {
-        /**
-         *
-         * <p>outWidth will be set to -1 if there is an error trying to decode.</p>
-         */
-        public int outWidth;
-
-        /**
-         *
-         * <p>outHeight will be set to -1 if there is an error trying to decode.</p>
-         */
-        public int outHeight;
-
-        /**
-         * If known, this string is set to the mimetype of the decoded image.
-         * If not know, or there is an error, it is set to null.
-         */
-        public String outMimeType;
     }
 
     public static final BitmapOutInfo getBitmapOutInfoFromUri(Context context, Uri uri) {
@@ -383,7 +377,7 @@ public class AUtil {
             result.outMimeType = options.outMimeType;
             return result;
 
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         } finally {
@@ -416,7 +410,7 @@ public class AUtil {
         }
     }
 
-    private static void close (@Nullable InputStream is) {
+    private static void close(@Nullable InputStream is) {
         if (is != null) {
             try {
                 is.close();
@@ -426,17 +420,73 @@ public class AUtil {
         }
     }
 
-
-    public static File makeTmpFile(Context context, String prefix, String suffix){
+    public static File makeTmpFile(Context context, String prefix, String suffix) {
         File tmpOutFile = null;
         try {
 //            File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
             File dir = ContextCompat.getExternalCacheDirs(context)[0];
-            tmpOutFile = File.createTempFile(prefix , suffix, dir);
-        }catch (Exception ex){
+            tmpOutFile = File.createTempFile(prefix, suffix, dir);
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return tmpOutFile;
+    }
+
+    public static final Bitmap newBitmapSquareCenterCrop(Bitmap bitmap) {
+
+        if (bitmap == null) {
+            return null;
+        }
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int left, top, right, bottom;
+
+        if (width < height) {
+            int cropSize = width;
+            left = 0;
+            right = cropSize;
+            top = height / 2 - cropSize / 2;
+            bottom = top + cropSize;
+        } else {
+            int cropSize = height;
+            top = 0;
+            bottom = cropSize;
+            left = width / 2 - cropSize / 2;
+            right = left + cropSize;
+        }
+
+        return Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top);
+    }
+
+    public static void drawVerticalCenterText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
+        Paint.FontMetrics fm = textPaint.getFontMetrics();
+        // フォントの高さを求める
+        float fh = fm.descent - fm.ascent;
+        // センター合わせにしたあと、Baselineの位置を求めるためにdescentを引く
+        float ty = +(fh / 2f) - fm.descent;
+        canvas.drawText(text, x, y + ty, textPaint);
+    }
+
+    public static void drawVerticalBottomText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
+        Paint.FontMetrics fm = textPaint.getFontMetrics();
+        float ty = -fm.descent;
+        canvas.drawText(text, x, y + ty, textPaint);
+    }
+
+    public static void drawVerticalTopText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
+        Paint.FontMetrics fm = textPaint.getFontMetrics();
+        float ty = -fm.ascent;
+        canvas.drawText(text, x, y + ty, textPaint);
+    }
+
+    public static void setAccessibilityIgnore(View view) {
+        view.setClickable(false);
+        view.setFocusable(false);
+        view.setContentDescription("");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        }
     }
 
     /**
@@ -457,67 +507,22 @@ public class AUtil {
         }
     }
 
+    public static class BitmapOutInfo {
+        /**
+         * <p>outWidth will be set to -1 if there is an error trying to decode.</p>
+         */
+        public int outWidth;
 
-    public static final Bitmap newBitmapSquareCenterCrop (Bitmap bitmap) {
+        /**
+         * <p>outHeight will be set to -1 if there is an error trying to decode.</p>
+         */
+        public int outHeight;
 
-        if ( bitmap == null ) {
-            return null;
-        }
-
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int left, top, right, bottom;
-
-        if ( width < height ) {
-            int cropSize = width;
-            left = 0;
-            right = cropSize;
-            top = height / 2 - cropSize / 2;
-            bottom = top + cropSize;
-        } else {
-            int cropSize = height;
-            top = 0;
-            bottom = cropSize;
-            left = width / 2 - cropSize / 2;
-            right = left + cropSize;
-        }
-
-        return Bitmap.createBitmap(bitmap, left, top, right-left, bottom-top);
-    }
-
-
-
-    public static void drawVerticalCenterText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
-        Paint.FontMetrics fm = textPaint.getFontMetrics();
-        // フォントの高さを求める
-        float fh = fm.descent - fm.ascent;
-        // センター合わせにしたあと、Baselineの位置を求めるためにdescentを引く
-        float ty = + (fh/2f) - fm.descent;
-        canvas.drawText(text, x, y + ty, textPaint);
-    }
-
-    public static void drawVerticalBottomText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
-        Paint.FontMetrics fm = textPaint.getFontMetrics();
-        float ty = - fm.descent;
-        canvas.drawText(text, x, y + ty, textPaint);
-    }
-
-    public static void drawVerticalTopText(Canvas canvas, String text, float x, float y, TextPaint textPaint) {
-        Paint.FontMetrics fm = textPaint.getFontMetrics();
-        float ty = - fm.ascent;
-        canvas.drawText(text, x, y + ty, textPaint);
-    }
-
-
-
-
-    public static void setAccessibilityIgnore(View view) {
-        view.setClickable(false);
-        view.setFocusable(false);
-        view.setContentDescription("");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        }
+        /**
+         * If known, this string is set to the mimetype of the decoded image.
+         * If not know, or there is an error, it is set to null.
+         */
+        public String outMimeType;
     }
 
 }

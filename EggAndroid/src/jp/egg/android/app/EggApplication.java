@@ -1,10 +1,10 @@
 package jp.egg.android.app;
 
-import jp.egg.android.EggAndroid;
 import android.app.Application;
 
-public class EggApplication extends Application{
+import jp.egg.android.EggAndroid;
 
+public class EggApplication extends Application {
 
 
     @Override
@@ -21,8 +21,6 @@ public class EggApplication extends Application{
         EggAndroid.terminate();
 
     }
-
-
 
 
 }

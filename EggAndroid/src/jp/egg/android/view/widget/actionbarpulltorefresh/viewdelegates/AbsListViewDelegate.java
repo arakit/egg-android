@@ -26,7 +26,7 @@ import android.widget.AbsListView;
  */
 public class AbsListViewDelegate implements ViewDelegate {
 
-    public static final Class[] SUPPORTED_VIEW_CLASSES =  { AbsListView.class };
+    public static final Class[] SUPPORTED_VIEW_CLASSES = {AbsListView.class};
 
     @Override
     public boolean isReadyForPull(View view, final float x, final float y) {
@@ -73,6 +73,7 @@ public class AbsListViewDelegate implements ViewDelegate {
         static int getVerticalScrollbarPosition(AbsListView absListView) {
             return View.SCROLLBAR_POSITION_RIGHT;
         }
+
         static boolean isFastScrollAlwaysVisible(AbsListView absListView) {
             return false;
         }
@@ -83,6 +84,7 @@ public class AbsListViewDelegate implements ViewDelegate {
         static int getVerticalScrollbarPosition(AbsListView absListView) {
             return absListView.getVerticalScrollbarPosition();
         }
+
         static boolean isFastScrollAlwaysVisible(AbsListView absListView) {
             return absListView.isFastScrollAlwaysVisible();
         }

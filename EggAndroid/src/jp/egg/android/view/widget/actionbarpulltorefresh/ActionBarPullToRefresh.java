@@ -18,7 +18,6 @@ package jp.egg.android.view.widget.actionbarpulltorefresh;
 
 
 import android.app.Activity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -46,6 +45,21 @@ public class ActionBarPullToRefresh {
 
         private SetupWizard(Activity activity) {
             mActivity = activity;
+        }
+
+        private static void insertLayoutIntoViewGroup(ViewGroup viewGroup,
+                                                      PullToRefreshLayout pullToRefreshLayout) {
+            // Move all children to PullToRefreshLayout. This code looks a bit silly but the child
+            // indices change every time we remove a View (so we can't just iterate through)
+            View child = viewGroup.getChildAt(0);
+            while (child != null) {
+                viewGroup.removeViewAt(0);
+                pullToRefreshLayout.addView(child);
+                child = viewGroup.getChildAt(0);
+            }
+
+            viewGroup.addView(pullToRefreshLayout, ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
         }
 
         public SetupWizard options(Options options) {
@@ -93,7 +107,7 @@ public class ActionBarPullToRefresh {
 
             PullToRefreshAttacher attacher;
 
-            if (progressLayout!=null) {
+            if (progressLayout != null) {
                 attacher = pullToRefreshLayout.createPullToRefreshAttacherForViewGroup(
                         mActivity, progressLayout, mOptions);
             } else {
@@ -125,21 +139,6 @@ public class ActionBarPullToRefresh {
                     attacher.useViewDelegate(entry.getKey(), entry.getValue());
                 }
             }
-        }
-
-        private static void insertLayoutIntoViewGroup(ViewGroup viewGroup,
-                PullToRefreshLayout pullToRefreshLayout) {
-            // Move all children to PullToRefreshLayout. This code looks a bit silly but the child
-            // indices change every time we remove a View (so we can't just iterate through)
-            View child = viewGroup.getChildAt(0);
-            while (child != null) {
-                viewGroup.removeViewAt(0);
-                pullToRefreshLayout.addView(child);
-                child = viewGroup.getChildAt(0);
-            }
-
-            viewGroup.addView(pullToRefreshLayout, ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT);
         }
     }
 }

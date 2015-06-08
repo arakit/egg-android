@@ -31,10 +31,11 @@ public abstract class HeaderTransformer {
      * Called whether the header view has been inflated from the resources
      * defined in {@link Options#headerLayout}.
      *
-     * @param activity The {@link android.app.Activity} that the header view is attached to.
+     * @param activity   The {@link android.app.Activity} that the header view is attached to.
      * @param headerView The inflated header view.
      */
-    public void onViewCreated(Activity activity, View headerView) {}
+    public void onViewCreated(Activity activity, View headerView) {
+    }
 
     /**
      * Called when the header should be reset. You should update any child
@@ -43,7 +44,8 @@ public abstract class HeaderTransformer {
      * You should <strong>not</strong> change the visibility of the header
      * view.
      */
-    public void onReset() {}
+    public void onReset() {
+    }
 
     /**
      * Called the user has pulled on the scrollable view.
@@ -51,27 +53,31 @@ public abstract class HeaderTransformer {
      * @param percentagePulled value between 0.0f and 1.0f depending on how far the
      *                         user has pulled.
      */
-    public void onPulled(float percentagePulled) {}
+    public void onPulled(float percentagePulled) {
+    }
 
     /**
      * Called when a refresh has begun. Theoretically this call is similar
      * to that provided from {@link uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener} but is more suitable
      * for header view updates.
      */
-    public void onRefreshStarted() {}
+    public void onRefreshStarted() {
+    }
 
     /**
      * Called when a refresh can be initiated when the user ends the touch
      * event. This is only called when {@link Options#refreshOnUp} is set to
      * true.
      */
-    public void onReleaseToRefresh() {}
+    public void onReleaseToRefresh() {
+    }
 
     /**
      * Called when the current refresh has taken longer than the time
      * specified in {@link Options#refreshMinimizeDelay}.
      */
-    public void onRefreshMinimized() {}
+    public void onRefreshMinimized() {
+    }
 
     /**
      * Called when the Header View should be made visible, usually with an animation.
@@ -90,10 +96,10 @@ public abstract class HeaderTransformer {
     /**
      * Called when the Activity's configuration has changed.
      *
-     * @param activity The {@link android.app.Activity} that the header view is attached to.
+     * @param activity  The {@link android.app.Activity} that the header view is attached to.
      * @param newConfig New configuration.
-     *
      * @see android.app.Activity#onConfigurationChanged(android.content.res.Configuration)
      */
-    public void onConfigurationChanged(Activity activity, Configuration newConfig) {}
+    public void onConfigurationChanged(Activity activity, Configuration newConfig) {
+    }
 }

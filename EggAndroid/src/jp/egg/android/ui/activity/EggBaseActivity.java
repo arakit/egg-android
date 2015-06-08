@@ -41,35 +41,27 @@ public class EggBaseActivity extends AppCompatActivity {
 //        public void onHideAutoHideActionBar();
 //    }
 
-    public interface OnCustomActionListener{
-        public void onCustomAction(EggBaseActivity activity, Message message);
-    }
-
-    private class CustomHandler extends Handler{
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            deliveryCustomAction(msg);
-        }
-    }
-
-    protected Set<Object> mRefreshRequest = new HashSet<Object>();
-
-    private PullToRefreshLayout mPullToRefreshLayout;
-
-    private CustomHandler mCustomHandler = new CustomHandler();
-
     //private final Set<OnAutoHideActionBarListener> mAutoHideActionBarListeners = new HashSet<OnAutoHideActionBarListener>();
     private final Set<OnCustomActionListener> mCustomActionListeners = new HashSet<OnCustomActionListener>();
-
-
+    protected Set<Object> mRefreshRequest = new HashSet<Object>();
+    private PullToRefreshLayout mPullToRefreshLayout;
+    private CustomHandler mCustomHandler = new CustomHandler();
     private SystemBarTintManager mSystemBarTintManager;
-
     private Toolbar mToolBar;
-
     private ViewGroup mRefreshProgressContainer;
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static void refreshActionBarBackground(EggBaseActivity activity) {
+        if (activity == null) return;
+        Resources.Theme theme = activity.getTheme();
+        android.support.v7.app.ActionBar actionBar = activity.getSupportActionBar();
+        TypedValue actionBarStyle = new TypedValue();
+        theme.resolveAttribute(R.attr.actionBarStyle, actionBarStyle, true);
+        TypedArray actionBarStyleAttributes = theme.obtainStyledAttributes(actionBarStyle.resourceId, new int[]{R.attr.background});
+        Drawable actionBarBackground = actionBarStyleAttributes.getDrawable(0);
+        actionBar.setBackgroundDrawable(actionBarBackground);
+        actionBarStyleAttributes.recycle();
+    }
 
     @Override
     public void setContentView(View view) {
@@ -95,8 +87,7 @@ public class EggBaseActivity extends AppCompatActivity {
         setupSystemBarTint();
     }
 
-
-    protected SystemBarTintManager setupSystemBarTint(){
+    protected SystemBarTintManager setupSystemBarTint() {
 
         if (mSystemBarTintManager != null) {
             return mSystemBarTintManager;
@@ -114,25 +105,28 @@ public class EggBaseActivity extends AppCompatActivity {
         return mSystemBarTintManager;
     }
 
-    protected SystemBarTintManager getSystemBarTintManager () {
+    protected SystemBarTintManager getSystemBarTintManager() {
         return mSystemBarTintManager;
     }
 
-    public int getInsetTop (boolean withActionBar) {
+    public int getInsetTop(boolean withActionBar) {
         return mSystemBarTintManager.getConfig().getPixelInsetTop(withActionBar);
     }
-    public int getInsetBottom () {
+
+    public int getInsetBottom() {
         return mSystemBarTintManager.getConfig().getPixelInsetBottom();
     }
-    public int getInsetLeft () {
+
+    public int getInsetLeft() {
         return 0;
     }
-    public int getInsetRight () {
+
+    public int getInsetRight() {
         return mSystemBarTintManager.getConfig().getPixelInsetRight();
     }
 
-    public void setInsetPadding (View view) {
-        view.setPadding (
+    public void setInsetPadding(View view) {
+        view.setPadding(
                 getInsetLeft(),
                 getInsetTop(true),
                 getInsetRight(),
@@ -140,19 +134,22 @@ public class EggBaseActivity extends AppCompatActivity {
         );
     }
 
-
-    public int getInsetTopWithTopMaterialActionBar (boolean withActionBar) {
+    public int getInsetTopWithTopMaterialActionBar(boolean withActionBar) {
         return mSystemBarTintManager.getConfig().getPixelInsetTop(false) +
-                (withActionBar ? (int)getResources().getDimension(R.dimen.abc_action_bar_default_height_material) : 0);
+                (withActionBar ? (int) getResources().getDimension(R.dimen.abc_action_bar_default_height_material) : 0);
     }
 
-    public void setInsetPaddingWithTopMaterialActionBar (View view, boolean withActionBar) {
-        view.setPadding (
+    public void setInsetPaddingWithTopMaterialActionBar(View view, boolean withActionBar) {
+        view.setPadding(
                 getInsetLeft(),
                 getInsetTopWithTopMaterialActionBar(withActionBar),
                 getInsetRight(),
                 getInsetBottom()
         );
+    }
+
+    public void addCustomActionListener(OnCustomActionListener listener) {
+        mCustomActionListeners.add(listener);
     }
 
 //    public void addAutoHideActionBarListener(OnAutoHideActionBarListener listener){
@@ -162,11 +159,14 @@ public class EggBaseActivity extends AppCompatActivity {
 //        mAutoHideActionBarListeners.remove(listener);
 //    }
 
-    public void addCustomActionListener(OnCustomActionListener listener){
-        mCustomActionListeners.add(listener);
-    }
-    public void removeCustomActionListener(OnCustomActionListener listener){
+    public void removeCustomActionListener(OnCustomActionListener listener) {
         mCustomActionListeners.remove(listener);
+    }
+
+    protected void deliveryCustomAction(Message msg) {
+        for (OnCustomActionListener listener : mCustomActionListeners) {
+            listener.onCustomAction(this, msg);
+        }
     }
 
 //    protected void notifyShowAutoHideActionBr(boolean visible){
@@ -181,18 +181,17 @@ public class EggBaseActivity extends AppCompatActivity {
 //        }
 //    }
 
-    protected void deliveryCustomAction(Message msg){
-        for( OnCustomActionListener listener : mCustomActionListeners ){
-            listener.onCustomAction(this, msg);
-        }
-    }
-
-    public final void sendCustomAction(Message msg){
+    public final void sendCustomAction(Message msg) {
         mCustomHandler.sendMessage(msg);
     }
-    public final void sendCustomAction(int what, int arg1, int arg2, Object obj){
+
+    public final void sendCustomAction(int what, int arg1, int arg2, Object obj) {
         mCustomHandler.sendMessage(
-                mCustomHandler.obtainMessage(what, arg1, arg2, obj) );
+                mCustomHandler.obtainMessage(what, arg1, arg2, obj));
+    }
+
+    public void addTask(EggTask<?, ?> task) {
+        EggTaskCentral.getInstance().addTask(task);
     }
 
 //
@@ -219,65 +218,41 @@ public class EggBaseActivity extends AppCompatActivity {
 //        return getSupportActionBar().isShowing();
 //    }
 
-
-    public void addTask(EggTask<?,?> task){
+    public void addTaskInActivity(EggTask<?, ?> task) {
         EggTaskCentral.getInstance().addTask(task);
     }
 
-    public void addTaskInActivity(EggTask<?,?> task){
-        EggTaskCentral.getInstance().addTask(task);
-    }
-
-
-    public void addVolleyRequest(Request request){
+    public void addVolleyRequest(Request request) {
         EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
     }
 
-    public void addVolleyRequestInActivity(Request request){
+    public void addVolleyRequestInActivity(Request request) {
         EggTaskCentral.getInstance().addVolleyRequestByObject(request, EggBaseActivity.this);
     }
 
-    public void cancelVolleyRequestInActivity(){
+    public void cancelVolleyRequestInActivity() {
         EggTaskCentral.getInstance().cancelVolleyRquestByObject(EggBaseActivity.this);
     }
 
-
-
-
-    public void startActivity(Class clazz){
+    public void startActivity(Class clazz) {
         Intent intent = new Intent(this, clazz);
         startActivity(intent);
     }
-    public void startActivity(Class clazz, int requestCode){
+
+    public void startActivity(Class clazz, int requestCode) {
         Intent intent = new Intent(this, clazz);
         startActivityForResult(intent, requestCode);
     }
-    public void startActivity(Class clazz, Bundle data, int requestCode){
+
+    public void startActivity(Class clazz, Bundle data, int requestCode) {
         Intent intent = new Intent(this, clazz);
-        if(data!=null) intent.putExtras(data);
+        if (data != null) intent.putExtras(data);
         startActivityForResult(intent, requestCode);
     }
 
-
-
-
-    public void refreshActionBarBackground(){
+    public void refreshActionBarBackground() {
         refreshActionBarBackground(this);
     }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static void refreshActionBarBackground(EggBaseActivity activity){
-        if(activity == null) return;
-        Resources.Theme theme = activity.getTheme();
-        android.support.v7.app.ActionBar actionBar = activity.getSupportActionBar();
-        TypedValue actionBarStyle = new TypedValue();
-        theme.resolveAttribute(R.attr.actionBarStyle, actionBarStyle, true);
-        TypedArray actionBarStyleAttributes = theme.obtainStyledAttributes(actionBarStyle.resourceId, new int[]{R.attr.background});
-        Drawable actionBarBackground = actionBarStyleAttributes.getDrawable(0);
-        actionBar.setBackgroundDrawable(actionBarBackground);
-        actionBarStyleAttributes.recycle();
-    }
-
 
     @Override
     protected void onDestroy() {
@@ -285,11 +260,10 @@ public class EggBaseActivity extends AppCompatActivity {
         cancelVolleyRequestInActivity();
     }
 
-
     protected void updateRefreshRequest() {
-        if( mRefreshRequest.size() > 0 ){
+        if (mRefreshRequest.size() > 0) {
             startRefresh();
-        }else{
+        } else {
             finishedRefresh();
         }
     }
@@ -300,39 +274,39 @@ public class EggBaseActivity extends AppCompatActivity {
         updateRefreshRequest();
         return tag;
     }
+
     protected void startRefreshRequest(Object request) {
         mRefreshRequest.add(request);
         updateRefreshRequest();
     }
+
     protected void finishRefreshRequest(Object request) {
         mRefreshRequest.remove(request);
         updateRefreshRequest();
     }
 
-    protected void startRefresh(){
+    protected void startRefresh() {
         onRefreshStateUpdate(true);
     }
 
-    protected void finishedRefresh(){
+    protected void finishedRefresh() {
         onRefreshStateUpdate(false);
     }
 
-
     protected void onRefreshStateUpdate(boolean refreshing) {
-        if(mPullToRefreshLayout!=null) {
+        if (mPullToRefreshLayout != null) {
             mPullToRefreshLayout.setRefreshing(refreshing);
         }
     }
 
-    protected boolean isPullToRefreshing () {
-        if (mPullToRefreshLayout!=null) {
+    protected boolean isPullToRefreshing() {
+        if (mPullToRefreshLayout != null) {
             return mPullToRefreshLayout.isRefreshing();
         }
         return false;
     }
 
-
-    protected void setPullToRefreshLayout2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer){
+    protected void setPullToRefreshLayout2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer) {
         mPullToRefreshLayout = layout;
         setRefreshProgressContainer(refreshProgressContainer);
 
@@ -354,22 +328,12 @@ public class EggBaseActivity extends AppCompatActivity {
                         .build()
         );
     }
-    protected void onPullToRefresh(){
+
+    protected void onPullToRefresh() {
 
     }
 
-//    public void setUpRefreshBar(PullToRefreshLayout layout, Toolbar toolbar, final Runnable refreshListener){
-//        setUpRefreshBar(
-//                layout,
-//                refreshListener,
-//                new Options.Builder()
-//                        .scrollDistance(0.3f)
-//                        .build(),
-//                toolbar
-//        );
-//    }
-
-    public Options getDefaultPullToRefreshOptions () {
+    public Options getDefaultPullToRefreshOptions() {
         ToolBarHeaderTransformer headerTransformer = new ToolBarHeaderTransformer();
         headerTransformer.setHeaderInsetTop(getInsetTopWithTopMaterialActionBar(false));
 
@@ -381,7 +345,7 @@ public class EggBaseActivity extends AppCompatActivity {
         return options;
     }
 
-    public void setUpRefreshBar2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer, final Runnable refreshListener, Options options){
+    public void setUpRefreshBar2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer, final Runnable refreshListener, Options options) {
 
         if (options == null) {
             options = getDefaultPullToRefreshOptions();
@@ -404,6 +368,16 @@ public class EggBaseActivity extends AppCompatActivity {
 
     }
 
+//    public void setUpRefreshBar(PullToRefreshLayout layout, Toolbar toolbar, final Runnable refreshListener){
+//        setUpRefreshBar(
+//                layout,
+//                refreshListener,
+//                new Options.Builder()
+//                        .scrollDistance(0.3f)
+//                        .build(),
+//                toolbar
+//        );
+//    }
 
     @Override
     public void setSupportActionBar(Toolbar toolbar) {
@@ -411,16 +385,29 @@ public class EggBaseActivity extends AppCompatActivity {
         mToolBar = toolbar;
     }
 
-    public void setRefreshProgressContainer(ViewGroup layout) {
-        mRefreshProgressContainer = layout;
-    }
-
     public Toolbar getToolBar() {
         return mToolBar;
     }
 
-    public ViewGroup getRefreshProgressContainer () {
+    public ViewGroup getRefreshProgressContainer() {
         return mRefreshProgressContainer;
+    }
+
+    public void setRefreshProgressContainer(ViewGroup layout) {
+        mRefreshProgressContainer = layout;
+    }
+
+    public interface OnCustomActionListener {
+        public void onCustomAction(EggBaseActivity activity, Message message);
+    }
+
+    private class CustomHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            deliveryCustomAction(msg);
+        }
     }
 
 

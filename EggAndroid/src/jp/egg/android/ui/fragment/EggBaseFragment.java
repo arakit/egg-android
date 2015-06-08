@@ -44,6 +44,24 @@ public abstract class EggBaseFragment extends Fragment {
     private boolean mIsStopped = false;
 
     private boolean mIsDestroyed = false;
+    private int mActionBarHeight;
+    private int mParallaxHeaderHeight;
+    private Drawable mActionBarBackgroundDrawable;
+    private View mParallaxHeaderView;
+    private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            setActionBarBackgroundDrawable(getEggActivity(), who);
+        }
+
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +74,7 @@ public abstract class EggBaseFragment extends Fragment {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    public boolean isDestroyed(){
+    public boolean isDestroyed() {
         return mIsDestroyed;
     }
 
@@ -91,113 +109,108 @@ public abstract class EggBaseFragment extends Fragment {
         mIsStarted = false;
     }
 
-
-
-    public void addTask(EggTask<?,?> task){
+    public void addTask(EggTask<?, ?> task) {
         EggTaskCentral.getInstance().addTask(task);
     }
 
-    public void addTaskInFragment(EggTask<?,?> task){
+    public void addTaskInFragment(EggTask<?, ?> task) {
         EggTaskCentral.getInstance().addTask(task);
     }
 
-
-    public void cancelTaskInFragment(){
+    public void cancelTaskInFragment() {
         //TODO
     }
 
-    public void addVolleyRequest(Request request){
+    public void addVolleyRequest(Request request) {
         EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
     }
 
-    public void addVolleyRequestInFragment(Request request){
+    public void addVolleyRequestInFragment(Request request) {
         EggTaskCentral.getInstance().addVolleyRequestByObject(request, EggBaseFragment.this);
     }
 
-    public void cancelVolleyRequestInFragment(){
+    public void cancelVolleyRequestInFragment() {
         EggTaskCentral.getInstance().cancelVolleyRquestByObject(EggBaseFragment.this);
     }
 
-    public String getDefaultTitle(){
+    public String getDefaultTitle() {
         return null;
     }
 
-
-    protected boolean isStarted(){
+    protected boolean isStarted() {
         return mIsStarted;
     }
-    protected boolean isStopped(){
+
+    protected boolean isStopped() {
         return mIsStopped;
     }
 
-
-    public void refreshActionBarBackground(){
+    public void refreshActionBarBackground() {
         EggBaseActivity.refreshActionBarBackground(getEggActivity());
     }
 
-    public void finishActivity(){
+    public void finishActivity() {
         Activity activity = getActivity();
-        if(activity == null) return;
+        if (activity == null) return;
         activity.finish();
     }
 
-    public void finishActivityResultOK(Intent data){
+    public void finishActivityResultOK(Intent data) {
         Activity activity = getActivity();
-        if(activity == null) return;
+        if (activity == null) return;
         activity.setResult(Activity.RESULT_OK, data);
         activity.finish();
     }
-    public void finishActivityResultCanceled(Intent data){
+
+    public void finishActivityResultCanceled(Intent data) {
         Activity activity = getActivity();
-        if(activity == null) return;
+        if (activity == null) return;
         activity.setResult(Activity.RESULT_CANCELED, data);
         activity.finish();
     }
 
-    public void startActivityFromFragment(Intent intent, int requestCode){
+    public void startActivityFromFragment(Intent intent, int requestCode) {
         FragmentActivity activity = getActivity();
-        if(activity == null) return;
+        if (activity == null) return;
         activity.startActivityFromFragment(EggBaseFragment.this, intent, requestCode);
     }
 
-    public void startActivityFromFragment(Class clazz, Bundle data, int requestCode){
+    public void startActivityFromFragment(Class clazz, Bundle data, int requestCode) {
         FragmentActivity activity = getActivity();
-        if(activity == null) return;
+        if (activity == null) return;
         Intent intent = new Intent(activity, clazz);
-        if(data!=null) intent.putExtras(data);
+        if (data != null) intent.putExtras(data);
         activity.startActivityFromFragment(EggBaseFragment.this, intent, requestCode);
     }
 
-    public void startActivityFromFragment(Class clazz){
+    public void startActivityFromFragment(Class clazz) {
         FragmentActivity activity = getActivity();
-        if(activity == null) return;
+        if (activity == null) return;
         Intent intent = new Intent(activity, clazz);
         activity.startActivityFromFragment(EggBaseFragment.this, intent, 0);
     }
 
-    public EggBaseActivity getEggActivity(){
+    public EggBaseActivity getEggActivity() {
         FragmentActivity fragmentActivity = getActivity();
-        if(fragmentActivity instanceof EggBaseActivity){
+        if (fragmentActivity instanceof EggBaseActivity) {
             return (EggBaseActivity) fragmentActivity;
-        }else{
+        } else {
             return null;
         }
     }
 
-
-
-
-    protected int getCurrentRefreshRequestCount () {
+    protected int getCurrentRefreshRequestCount() {
         return mRefreshRequest.size();
     }
-    protected boolean hasRefreshRequest () {
+
+    protected boolean hasRefreshRequest() {
         return getCurrentRefreshRequestCount() > 0;
     }
 
     protected void updateRefreshRequest() {
-        if( mRefreshRequest.size() > 0 ){
+        if (mRefreshRequest.size() > 0) {
             startRefresh();
-        }else{
+        } else {
             finishedRefresh();
         }
     }
@@ -207,31 +220,35 @@ public abstract class EggBaseFragment extends Fragment {
         startRefreshRequest(tag);
         return tag;
     }
+
     public void startRefreshRequest(Object request) {
         mRefreshRequest.add(request);
         updateRefreshRequest();
     }
+
     public void finishRefreshRequest(Object request) {
         mRefreshRequest.remove(request);
         updateRefreshRequest();
     }
 
-    protected void startRefresh(){
+
+    ////
+
+    protected void startRefresh() {
         onRefreshStateUpdate(true);
     }
 
-    protected void finishedRefresh(){
+    protected void finishedRefresh() {
         onRefreshStateUpdate(false);
     }
 
     protected void onRefreshStateUpdate(boolean refreshing) {
-        if(mPullToRefreshLayout!=null) {
+        if (mPullToRefreshLayout != null) {
             mPullToRefreshLayout.setRefreshing(refreshing);
         }
     }
 
-
-    protected void setPullToRefreshLayout(PullToRefreshLayout layout){
+    protected void setPullToRefreshLayout(PullToRefreshLayout layout) {
         mPullToRefreshLayout = layout;
         EggBaseActivity activity = getEggActivity();
         activity.setUpRefreshBar2(
@@ -246,37 +263,18 @@ public abstract class EggBaseFragment extends Fragment {
                 null
         );
     }
-    protected void onPullToRefresh(){
+
+    protected void onPullToRefresh() {
 
     }
 
-
-
-
-
-
-
-
-
-    ////
-
-
-
-
-
-
-    private int mActionBarHeight;
-    private int mParallaxHeaderHeight;
-    private Drawable mActionBarBackgroundDrawable;
-    private View mParallaxHeaderView;
-
-    private void updateParallax(int scrollPosition){
+    private void updateParallax(int scrollPosition) {
 
         int headerHeight = mParallaxHeaderHeight - mActionBarHeight;
-        double ratio = Math.min(Math.max(scrollPosition, 0), headerHeight) / (double)headerHeight;
+        double ratio = Math.min(Math.max(scrollPosition, 0), headerHeight) / (double) headerHeight;
         int newAlpha = (int) (ratio * 255);
         mActionBarBackgroundDrawable.setAlpha(newAlpha);
-        if(mParallaxHeaderView!=null) {
+        if (mParallaxHeaderView != null) {
             if (ratio < 1.0) {
                 mParallaxHeaderView.setVisibility(View.VISIBLE);
             } else {
@@ -285,7 +283,7 @@ public abstract class EggBaseFragment extends Fragment {
         }
     }
 
-    protected void setUpParallax(int abHeight, int parallaxHeaderHeight, ParallaxListViewEx listView, View headerView, final AbsListView.OnScrollListener listener){
+    protected void setUpParallax(int abHeight, int parallaxHeaderHeight, ParallaxListViewEx listView, View headerView, final AbsListView.OnScrollListener listener) {
 
         mActionBarHeight = abHeight;
         mParallaxHeaderHeight = parallaxHeaderHeight;
@@ -333,34 +331,18 @@ public abstract class EggBaseFragment extends Fragment {
         mActionBarBackgroundDrawable.setAlpha(0);
     }
 
-    protected void releaseFadingActionBar(){
+    protected void releaseFadingActionBar() {
 
     }
 
-    private void setActionBarBackgroundDrawable(EggBaseActivity activity, Drawable drawable){
-        if (activity!=null) {
+    private void setActionBarBackgroundDrawable(EggBaseActivity activity, Drawable drawable) {
+        if (activity != null) {
             ActionBar actionBar = activity.getSupportActionBar();
-            if (actionBar!=null) {
+            if (actionBar != null) {
                 actionBar.setBackgroundDrawable(drawable);
             }
         }
     }
-
-
-    private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
-        @Override
-        public void invalidateDrawable(Drawable who) {
-            setActionBarBackgroundDrawable(getEggActivity(), who);
-        }
-
-        @Override
-        public void scheduleDrawable(Drawable who, Runnable what, long when) {
-        }
-
-        @Override
-        public void unscheduleDrawable(Drawable who, Runnable what) {
-        }
-    };
 
 
 }

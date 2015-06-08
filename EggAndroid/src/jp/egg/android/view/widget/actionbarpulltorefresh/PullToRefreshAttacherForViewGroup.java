@@ -10,10 +10,9 @@ import jp.egg.android.util.Log;
 /**
  * Created by chikara on 2015/01/15.
  */
-public class PullToRefreshAttacherForViewGroup extends PullToRefreshAttacher{
+public class PullToRefreshAttacherForViewGroup extends PullToRefreshAttacher {
 
     public final String TAG = "PullToRefreshAttacherForToolBar";
-
 
 
     private Activity mActivity;
@@ -34,7 +33,7 @@ public class PullToRefreshAttacherForViewGroup extends PullToRefreshAttacher{
     }
 
     @Override
-    public ViewGroup getActionBarContainer () {
+    public ViewGroup getActionBarContainer() {
         return mBarContainerView;
     }
 
@@ -76,7 +75,7 @@ public class PullToRefreshAttacherForViewGroup extends PullToRefreshAttacher{
         mBarContainerView.addView(headerView, lp);
 
 
-        Log.d(TAG, "mToolBar.addView() "+mBarContainerView.getChildCount());
+        Log.d(TAG, "mToolBar.addView() " + mBarContainerView.getChildCount());
 
     }
 
@@ -101,10 +100,8 @@ public class PullToRefreshAttacherForViewGroup extends PullToRefreshAttacher{
     @Override
     protected void handleRemoveHeaderViewFromActivity(View headerView) {
         mBarContainerView.removeView(headerView);
-        Log.d(TAG, "mToolBar.removeView() "+mBarContainerView.getChildCount());
+        Log.d(TAG, "mToolBar.removeView() " + mBarContainerView.getChildCount());
     }
-
-
 
 
 }

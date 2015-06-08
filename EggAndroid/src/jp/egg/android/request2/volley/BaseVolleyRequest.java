@@ -51,108 +51,100 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     protected BaseVolleyRequest(Context context, int method, String url) {
         this(context, method, url, null, null);
     }
+
     protected BaseVolleyRequest(Context context, int method, String url, Response.Listener<O> successListener, Response.ErrorListener errorListener) {
         super(method,
                 url,
                 null);
         mContext = context.getApplicationContext();
         mDeNormalizedUrl = url;
-        Type[] types = ((ParameterizedType)JUtil.getClass(BaseVolleyRequest.this).getGenericSuperclass()).getActualTypeArguments();
-        if( types[1] instanceof Class ){
+        Type[] types = ((ParameterizedType) JUtil.getClass(BaseVolleyRequest.this).getGenericSuperclass()).getActualTypeArguments();
+        if (types[1] instanceof Class) {
             mBackedOutputType = (Class) types[1];
-        } else if( types[1] instanceof GenericArrayType ) {
+        } else if (types[1] instanceof GenericArrayType) {
             GenericArrayType genericArrayType = (GenericArrayType) types[1];
             Class c1 = (Class) genericArrayType.getGenericComponentType();
             Class c2;
             try {
-                String cn = "[L"+c1.getName()+";";
+                String cn = "[L" + c1.getName() + ";";
                 c2 = Class.forName(cn);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-                throw new IllegalArgumentException("can not use type "+types[1]);
+                throw new IllegalArgumentException("can not use type " + types[1]);
             }
             mBackedOutputType = c2;
         } else {
-            throw new IllegalArgumentException("can not use type "+types[1]);
+            throw new IllegalArgumentException("can not use type " + types[1]);
         }
 
 
         setListeners(successListener, errorListener);
     }
 
-    protected Context getContext(){
+    protected Context getContext() {
         return mContext;
     }
 
-    protected Class<O> getBackedOutputType(){
+    protected Class<O> getBackedOutputType() {
         return mBackedOutputType;
     }
 
-
-
-    protected void setPriority(Priority priority){
-        mPriority = priority;
-    }
-
-
-
-    public void setListeners(Response.Listener<O> successListener, Response.ErrorListener errorListener){
+    public void setListeners(Response.Listener<O> successListener, Response.ErrorListener errorListener) {
         setSuccessListener(successListener);
         setErrorListener(errorListener);
     }
-    public void setSuccessListener(Response.Listener<O> successListener){
+
+    public void setSuccessListener(Response.Listener<O> successListener) {
         mResponseListener = successListener;
     }
-    public void setErrorListener(Response.ErrorListener errorListener){
+
+    public void setErrorListener(Response.ErrorListener errorListener) {
         mErrorListener = errorListener;
     }
 
     protected abstract I getInput();
 
     @Override
-    public String getUrl()  {
-        if(mFinalUrl!=null) return mFinalUrl;
+    public String getUrl() {
+        if (mFinalUrl != null) return mFinalUrl;
 
         int method = getMethod();
-        if(method == Method.GET){
+        if (method == Method.GET) {
             String baseUrl = super.getUrl();
             try {
                 Uri.Builder builder = Uri.parse(baseUrl).buildUpon();
                 List<Pair<String, String>> params2 = getParams2();
-                for( Pair<String, String> e : params2 ){
-                    if(e.second!=null) {
+                for (Pair<String, String> e : params2) {
+                    if (e.second != null) {
                         builder.appendQueryParameter(e.first, e.second);
                     }
                 }
                 return mFinalUrl = builder.toString();
             } catch (Exception authFailureError) {
-                Log.e( "request", "authFailureError url="+baseUrl , authFailureError);
+                Log.e("request", "authFailureError url=" + baseUrl, authFailureError);
                 return mFinalUrl = null;
             }
-        }else {
+        } else {
             return mFinalUrl = super.getUrl();
         }
     }
 
-
-    protected void convertInputToParams(List<Pair<String, String>> params, Field field, Object value){
+    protected void convertInputToParams(List<Pair<String, String>> params, Field field, Object value) {
         Class type = field.getType();
         String key = field.getName();
-        if( value == null ){
+        if (value == null) {
             // なし
-        }
-        else if( type.isArray() ){
+        } else if (type.isArray()) {
             Object[] arr = (Object[]) value;
-            for(int i=0;i<arr.length;i++){
+            for (int i = 0; i < arr.length; i++) {
                 params.add(Pair.create(key, arr[i].toString()));
             }
-        }
-        else{
+        } else {
             params.add(Pair.create(key, value.toString()));
         }
     }
 
-    protected List<Pair<String, String>> getParams2(){
+    protected List<Pair<String, String>> getParams2() {
         I in = getInput();
 
         List<Pair<String, String>> params2 = new LinkedList<Pair<String, String>>();
@@ -162,16 +154,16 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
                     @Override
                     public boolean accept(Field field) {
                         int modifiers = field.getModifiers();
-                        if( Modifier.isStatic( modifiers ) ) return false;
-                        if( Modifier.isPrivate( modifiers ) ) return false;
-                        if( Modifier.isProtected( modifiers ) ) return false;
+                        if (Modifier.isStatic(modifiers)) return false;
+                        if (Modifier.isPrivate(modifiers)) return false;
+                        if (Modifier.isProtected(modifiers)) return false;
                         return true;
                     }
                 },
                 null
         );
 
-        for(Map.Entry<Field, Object> e : values.entrySet()){
+        for (Map.Entry<Field, Object> e : values.entrySet()) {
             Field field = e.getKey();
             Object value = e.getValue();
             convertInputToParams(params2, field, value);
@@ -190,7 +182,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     protected final Map<String, String> getParams() throws AuthFailureError {
         throw new RuntimeException("not use!!!!!");
     }
-
 
     @Override
     @Deprecated
@@ -232,8 +223,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
     protected abstract O getOutput(JsonNode jn);
 
-
-    protected final void parseCookie(NetworkResponse response){
+    protected final void parseCookie(NetworkResponse response) {
         Map<String, String> headers = response.headers;
         if (headers.containsKey(SET_COOKIE)) {
             String cookie = headers.get(SET_COOKIE);
@@ -241,7 +231,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
 
-    protected void onReceivedCookie(String strCookie){
+    protected void onReceivedCookie(String strCookie) {
 
     }
 
@@ -252,8 +242,8 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
         String data = null;
         try {
-            data = new String( response.data,
-                    HttpHeaderParser.parseCharset(response.headers) );
+            data = new String(response.data,
+                    HttpHeaderParser.parseCharset(response.headers));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -271,40 +261,38 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
         O bean = getOutput(node);
 
-        return Response.success( bean,  HttpHeaderParser.parseCacheHeaders(response));
+        return Response.success(bean, HttpHeaderParser.parseCacheHeaders(response));
     }
-
-
 
     @Override
     protected void deliverResponse(O response) {
-        if(mResponseListener!=null) {
+        if (mResponseListener != null) {
             mResponseListener.onResponse(response);
         }
     }
 
     @Override
     public void deliverError(VolleyError error) {
-        if(mErrorListener!=null){
+        if (mErrorListener != null) {
             mErrorListener.onErrorResponse(error);
         }
     }
-    protected final String getCookie(){
+
+    protected final String getCookie() {
         String strCookie = onSendCookie();
         return strCookie;
     }
 
-    protected String onSendCookie(){
+    protected String onSendCookie() {
         return null;
     }
 
-
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
-        Map<String, String> headers = new LinkedHashMap<String, String>( super.getHeaders() );
+        Map<String, String> headers = new LinkedHashMap<String, String>(super.getHeaders());
 
         String cookieStr = getCookie();
-        if (cookieStr!=null && cookieStr.length() > 0) {
+        if (cookieStr != null && cookieStr.length() > 0) {
             headers.put("cookie", cookieStr);
             //if(Config.isDebug()) Log.d("cookie", "send cookie = " + cookieStr);
         }
@@ -312,9 +300,12 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         return headers;
     }
 
-
     @Override
     public Priority getPriority() {
         return mPriority;
+    }
+
+    protected void setPriority(Priority priority) {
+        mPriority = priority;
     }
 }

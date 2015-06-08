@@ -78,6 +78,7 @@ public class SVGParser {
 
     /**
      * Parse SVG data from an input stream and scale to the specific size.
+     *
      * @param svgData
      * @param targetWidth
      * @param targetHeight
@@ -107,8 +108,8 @@ public class SVGParser {
      * @param assetMngr the Android asset manager.
      * @param svgPath   the path to the SVG file in the application's assets.
      * @return the parsed SVG.
-     * @throws SVGParseException if there is an error while parsing.
-     * @throws java.io.IOException       if there was a problem reading the file.
+     * @throws SVGParseException   if there is an error while parsing.
+     * @throws java.io.IOException if there was a problem reading the file.
      */
     public static SVG getSVGFromAsset(AssetManager assetMngr, String svgPath) throws SVGParseException, IOException {
         InputStream inputStream = assetMngr.open(svgPath);
@@ -166,8 +167,8 @@ public class SVGParser {
      * @param searchColor  the color in the SVG to replace.
      * @param replaceColor the color with which to replace the search color.
      * @return the parsed SVG.
-     * @throws SVGParseException if there is an error while parsing.
-     * @throws java.io.IOException       if there was a problem reading the file.
+     * @throws SVGParseException   if there is an error while parsing.
+     * @throws java.io.IOException if there was a problem reading the file.
      */
     public static SVG getSVGFromAsset(AssetManager assetMngr, String svgPath, int searchColor, int replaceColor) throws SVGParseException, IOException {
         InputStream inputStream = assetMngr.open(svgPath);
@@ -800,6 +801,9 @@ public class SVGParser {
         HashMap<String, Shader> gradientMap = new HashMap<String, Shader>();
         HashMap<String, Gradient> gradientRefMap = new HashMap<String, Gradient>();
         Gradient gradient = null;
+        private boolean hidden = false;
+        private int hiddenLevel = 0;
+        private boolean boundsMode = false;
 
         private SVGHandler(Picture picture) {
             this.picture = picture;
@@ -811,6 +815,21 @@ public class SVGParser {
             this(picture);
             this.targetWidth = targetWidth;
             this.targetHeight = targetHeight;
+        }
+
+        private static final void prepareScaledCanvas(Canvas canvas, float imageWidth, float imageHeight) {
+            final float scaleX = canvas.getWidth() / imageWidth;
+            final float scaleY = canvas.getHeight() / imageHeight;
+
+            if (scaleX > scaleY) {
+                final float dx = ((scaleX - scaleY) * imageWidth) / 2;
+                canvas.translate(dx, 0);
+                canvas.scale(scaleY, scaleY);
+            } else {
+                final float dy = ((scaleY - scaleX) * imageHeight) / 2;
+                canvas.translate(0, dy);
+                canvas.scale(scaleX, scaleX);
+            }
         }
 
         public void setColorSwap(Integer searchColor, Integer replaceColor) {
@@ -957,10 +976,6 @@ public class SVGParser {
             }
         }
 
-        private boolean hidden = false;
-        private int hiddenLevel = 0;
-        private boolean boundsMode = false;
-
         private void doLimits(float x, float y) {
             if (x < limits.left) {
                 limits.left = x;
@@ -1008,35 +1023,20 @@ public class SVGParser {
          * If target width and height are set for the canvas
          * scale output picture uniformally using by the smallest
          * dimention.
-         * @param imageWidth Width of the SVG image.
+         *
+         * @param imageWidth  Width of the SVG image.
          * @param imageHeight Height of the SVG image.
          * @return
          */
         private Canvas beginRecordingPicture(int imageWidth, int imageHeight) {
-            if(targetWidth == 0 || targetHeight == 0) {
-               return picture.beginRecording(imageWidth, imageHeight);
+            if (targetWidth == 0 || targetHeight == 0) {
+                return picture.beginRecording(imageWidth, imageHeight);
             } else {
-               Canvas canvas = picture.beginRecording(targetWidth, targetHeight);
-               prepareScaledCanvas(canvas, imageWidth, imageHeight);
-               return canvas;
+                Canvas canvas = picture.beginRecording(targetWidth, targetHeight);
+                prepareScaledCanvas(canvas, imageWidth, imageHeight);
+                return canvas;
             }
         }
-
-        private static final void prepareScaledCanvas(Canvas canvas, float imageWidth, float imageHeight) {
-            final float scaleX = canvas.getWidth() / imageWidth;
-            final float scaleY = canvas.getHeight() / imageHeight;
-
-            if(scaleX > scaleY) {
-                final float dx = ((scaleX - scaleY) * imageWidth) / 2;
-                canvas.translate(dx, 0);
-                canvas.scale(scaleY, scaleY);
-            } else {
-                final float dy = ((scaleY - scaleX) * imageHeight) / 2;
-                canvas.translate(0, dy);
-                canvas.scale(scaleX, scaleX);
-            }
-        }
-
 
         @Override
         public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {

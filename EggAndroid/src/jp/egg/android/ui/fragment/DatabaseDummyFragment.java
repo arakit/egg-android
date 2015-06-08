@@ -4,35 +4,30 @@
 
 package jp.egg.android.ui.fragment;
 
-import jp.egg.android.R;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import jp.egg.android.R;
 
 /**
  *
  */
 public class DatabaseDummyFragment extends EggBaseFragment {
 
-	public static final DatabaseDummyFragment newInstance(){
-		DatabaseDummyFragment f = new DatabaseDummyFragment();
-		Bundle args = new Bundle();
-		f.setArguments(args);
-		return f;
-	}
-
-
-	private View mView;
-
-	private class ViewHolder{
-
-	}
+    private View mView;
 
 
     public DatabaseDummyFragment() {
     }
 
+    public static final DatabaseDummyFragment newInstance() {
+        DatabaseDummyFragment f = new DatabaseDummyFragment();
+        Bundle args = new Bundle();
+        f.setArguments(args);
+        return f;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,30 +35,26 @@ public class DatabaseDummyFragment extends EggBaseFragment {
         ViewHolder holder = new ViewHolder();
 
 
-
         v.setTag(holder);
         mView = v;
         return v;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    }
 
-	}
+    private class ViewHolder {
 
-
-	@Override
-	public void onStart() {
-		super.onStart();
-
-	}
-
-
-
+    }
 
 
 }

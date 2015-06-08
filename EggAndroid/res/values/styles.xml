@@ -39,11 +39,10 @@
     <style name="ButtonBarButton" />
 
 
-
-
     <style name="B">
 
     </style>
+
     <style name="B.Button">
         <item name="android:textColor">@color/text_light_1</item>
         <item name="android:background">@drawable/bbuton_default</item>

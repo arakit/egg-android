@@ -1,7 +1,6 @@
 package jp.egg.android.task;
 
-public class FailedStartExeption extends Exception{
-
+public class FailedStartExeption extends Exception {
 
 
 }

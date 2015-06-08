@@ -29,20 +29,12 @@ public final class Options {
     private static final boolean DEFAULT_REFRESH_ON_UP = false;
     private static final int DEFAULT_REFRESH_MINIMIZED_DELAY = 1 * 1000;
     private static final boolean DEFAULT_REFRESH_MINIMIZE = true;
-
-    public static Builder create() {
-        return new Builder();
-    }
-
-    Options() {}
-
     EnvironmentDelegate environmentDelegate = null;
     int headerLayout = DEFAULT_HEADER_LAYOUT;
     HeaderTransformer headerTransformer = null;
     float refreshScrollDistance = DEFAULT_REFRESH_SCROLL_DISTANCE;
     boolean refreshOnUp = DEFAULT_REFRESH_ON_UP;
     int refreshMinimizeDelay = DEFAULT_REFRESH_MINIMIZED_DELAY;
-
     /**
      * Enable or disable the header 'minimization', which by default means that the majority of
      * the header is hidden, leaving only the progress bar still showing.
@@ -52,6 +44,12 @@ public final class Options {
      * until the refresh is finished.
      */
     boolean refreshMinimize = DEFAULT_REFRESH_MINIMIZE;
+    Options() {
+    }
+
+    public static Builder create() {
+        return new Builder();
+    }
 
     public static class Builder {
         final Options mOptions = new Options();

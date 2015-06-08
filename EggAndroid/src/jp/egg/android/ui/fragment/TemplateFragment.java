@@ -4,29 +4,27 @@
 
 package jp.egg.android.ui.fragment;
 
-import jp.egg.android.R;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import jp.egg.android.R;
+
 /**
- *  テンプレート フラグメント。
+ * テンプレート フラグメント。
  */
 public class TemplateFragment extends EggBaseFragment {
-
-	public static final TemplateFragment newInstance(){
-		TemplateFragment f = new TemplateFragment();
-		Bundle args = new Bundle();
-		f.setArguments(args);
-		return f;
-	}
-
-
 
     public TemplateFragment() {
     }
 
+    public static final TemplateFragment newInstance() {
+        TemplateFragment f = new TemplateFragment();
+        Bundle args = new Bundle();
+        f.setArguments(args);
+        return f;
+    }
 
     /*
      * (non-Javadoc)
@@ -48,19 +46,17 @@ public class TemplateFragment extends EggBaseFragment {
     }
 
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	}
-
-
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
+    }
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
 
 }

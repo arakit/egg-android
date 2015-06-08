@@ -18,31 +18,43 @@ package jp.egg.android.util;
 
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 public final class ReflectionUtils {
 
-    public interface FieldFilter {
-
-        /**
-         *
-         * @param field The abstract field to be tested
-         * @return <code>true</code> if and only if <code>pathname</code>
-         * should be included
-         */
-        boolean accept(Field field);
+    public static Map<String, Object> getDeclaredFieldNameAndValues(Object instance, Set<Field> fields) {
+        Map<String, Object> map = new HashMap();
+        for (Field f : fields) {
+            try {
+                f.setAccessible(true);
+                Object v = f.get(instance);
+                map.put(f.getName(), v);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return map;
     }
 
-    public interface ClassFilter {
-
-        /**
-         *
-         * @param clazz The abstract class to be tested
-         * @return <code>true</code> if and only if <code>pathname</code>
-         * should be included
-         */
-        boolean accept(Class<?> clazz);
+    public static Map<Field, Object> getDeclaredFieldValues(Object instance, Set<Field> fields) {
+        Map<Field, Object> map = new HashMap();
+        for (Field f : fields) {
+            try {
+                f.setAccessible(true);
+                Object v = f.get(instance);
+                map.put(f, v);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return map;
     }
 
 
@@ -58,34 +70,6 @@ public final class ReflectionUtils {
 //        return isSubclassOf(type, TypeSerializer.class);
 //    }
 
-    public static Map<String, Object> getDeclaredFieldNameAndValues(Object instance, Set<Field> fields) {
-        Map<String, Object> map = new HashMap();
-        for(Field f : fields){
-            try {
-                f.setAccessible(true);
-                Object v = f.get(instance);
-                map.put(f.getName(), v);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        return map;
-    }
-
-    public static Map<Field, Object> getDeclaredFieldValues(Object instance, Set<Field> fields) {
-        Map<Field, Object> map = new HashMap();
-        for(Field f : fields){
-            try {
-                f.setAccessible(true);
-                Object v = f.get(instance);
-                map.put(f, v);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        return map;
-    }
-
     public static Map<Field, Object> getDeclaredFieldValues(Object instance, FieldFilter fieldFilter, Class<?> baseType) {
         return getDeclaredFieldValues(instance, getDeclaredFields(instance.getClass(), fieldFilter, baseType));
     }
@@ -93,7 +77,7 @@ public final class ReflectionUtils {
     public static Set<Field> getDeclaredFields(Class<?> type, FieldFilter fieldFilter, Class<?> baseType) {
         Set<Field> declaredColumnFields = Collections.emptySet();
 
-        if( baseType == null || isSubclassOf(type, baseType) ) {
+        if (baseType == null || isSubclassOf(type, baseType)) {
             declaredColumnFields = new LinkedHashSet<Field>();
 
             Field[] fields = type.getDeclaredFields();
@@ -119,10 +103,6 @@ public final class ReflectionUtils {
         return declaredColumnFields;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////
-    // PRIVATE METHODS
-    //////////////////////////////////////////////////////////////////////////////////////
-
     public static boolean isSubclassOf(Class<?> type, Class<?> superClass) {
         if (type.getSuperclass() != null) {
             if (type.getSuperclass().equals(superClass)) {
@@ -142,11 +122,11 @@ public final class ReflectionUtils {
         return false;
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE METHODS
+    //////////////////////////////////////////////////////////////////////////////////////
 
-    ////
-
-
-    public static boolean setFieldValue(Object instance, Field field, Object value){
+    public static boolean setFieldValue(Object instance, Field field, Object value) {
         try {
             field.setAccessible(true);
             field.set(instance, value);
@@ -155,5 +135,29 @@ public final class ReflectionUtils {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public interface FieldFilter {
+
+        /**
+         * @param field The abstract field to be tested
+         * @return <code>true</code> if and only if <code>pathname</code>
+         * should be included
+         */
+        boolean accept(Field field);
+    }
+
+
+    ////
+
+
+    public interface ClassFilter {
+
+        /**
+         * @param clazz The abstract class to be tested
+         * @return <code>true</code> if and only if <code>pathname</code>
+         * should be included
+         */
+        boolean accept(Class<?> clazz);
     }
 }

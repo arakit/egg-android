@@ -26,27 +26,18 @@ import jp.egg.android.util.StringUtil;
  */
 public class DatabaseStructureFragment extends EggBaseFragment {
 
-    public static final DatabaseStructureFragment newInstance(){
+    private DatabaseStructureAdapter mAdapter;
+    private View mView;
+
+    public DatabaseStructureFragment() {
+    }
+
+    public static final DatabaseStructureFragment newInstance() {
         DatabaseStructureFragment f = new DatabaseStructureFragment();
         Bundle args = new Bundle();
         f.setArguments(args);
         return f;
     }
-
-
-    private DatabaseStructureAdapter mAdapter;
-
-    private View mView;
-
-    private class ViewHolder{
-        //TextView textview;
-        ListView listview;
-    }
-
-
-    public DatabaseStructureFragment() {
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,9 +54,6 @@ public class DatabaseStructureFragment extends EggBaseFragment {
         return v;
     }
 
-
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +63,6 @@ public class DatabaseStructureFragment extends EggBaseFragment {
 
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -84,9 +71,7 @@ public class DatabaseStructureFragment extends EggBaseFragment {
         //executeList();
     }
 
-
-
-    private void executeList(){
+    private void executeList() {
 
 //        Log.d("test", "executeList");
 
@@ -98,23 +83,23 @@ public class DatabaseStructureFragment extends EggBaseFragment {
         Cursor c = ActiveAndroid.getDatabase().rawQuery(sql, null);
         Log.d("test", "table num = " + String.valueOf(c.getCount()));
         StringBuilder sb = new StringBuilder();
-        if(c.moveToFirst()){
+        if (c.moveToFirst()) {
             String[] colmns = c.getColumnNames();
             int colmn_name = c.getColumnIndex("name");
             int colmn_tbl_name = c.getColumnIndex("tbl_name");
             //sb.append("colmns = "+	StringUtil.makeDivideString(colmns, ", "));
             //sb.append('\n');
 
-            while(c.moveToNext()){
+            while (c.moveToNext()) {
                 String[] values = new String[colmns.length];
-                for(int i=0;i<colmns.length;i++){
+                for (int i = 0; i < colmns.length; i++) {
                     values[i] = c.getString(i);
                 }
-                sb.append("values = "+	StringUtil.makeDivideString(values, ", "));
+                sb.append("values = " + StringUtil.makeDivideString(values, ", "));
                 sb.append('\n');
 
                 DatabaseStructureAdapter.Item item = new DatabaseStructureAdapter.Item();
-                item.name = c.getString(colmn_name) ;
+                item.name = c.getString(colmn_name);
                 items.add(item);
             }
 
@@ -129,8 +114,10 @@ public class DatabaseStructureFragment extends EggBaseFragment {
 
     }
 
-
-
+    private class ViewHolder {
+        //TextView textview;
+        ListView listview;
+    }
 
 
 }

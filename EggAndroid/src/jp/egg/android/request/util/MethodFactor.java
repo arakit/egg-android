@@ -7,6 +7,7 @@ public interface MethodFactor {
 
 
     public int method();
+
     public String path();
 
 

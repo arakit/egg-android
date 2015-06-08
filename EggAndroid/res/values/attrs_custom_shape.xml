@@ -7,9 +7,9 @@
             <enum name="rectangle" value="2" />
             <enum name="svg" value="3" />
         </attr>
-        
+
         <attr name="svg_raw_resource" format="reference" />
-        
+
     </declare-styleable>
 
 </resources>

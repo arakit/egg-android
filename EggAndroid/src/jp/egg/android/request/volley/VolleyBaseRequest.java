@@ -4,6 +4,12 @@
 
 package jp.egg.android.request.volley;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,34 +17,32 @@ import java.io.InputStream;
 import jp.egg.android.request.in.EggRequestBody;
 import jp.egg.android.request.out.EggResponseBody;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-
 
 /**
  * APIリクエスト基底クラス。
  */
 public class VolleyBaseRequest<T> extends Request<T> {
 
-    /** Charset for request. */
+    /**
+     * Charset for request.
+     */
     private static final String PROTOCOL_CHARSET = "utf-8";
 
-    /** Content type for request. */
+    /**
+     * Content type for request.
+     */
     private static final String PROTOCOL_CONTENT_TYPE =
-        String.format("application/json; charset=%s", PROTOCOL_CHARSET);
+            String.format("application/json; charset=%s", PROTOCOL_CHARSET);
 
 
-	//private Context mContext;
-	//private HttpResponseListener<T> mListener;
-	private Listener<T> mResponseListener;
-	//private ErrorListener mErrorListener;
-	private EggRequestBody mReqBody;
-	private EggResponseBody<T> mResponseBody;
+    //private Context mContext;
+    //private HttpResponseListener<T> mListener;
+    private Listener<T> mResponseListener;
+    //private ErrorListener mErrorListener;
+    private EggRequestBody mReqBody;
+    private EggResponseBody<T> mResponseBody;
 
-	//private RequestFuture<T> mFuture;
+    //private RequestFuture<T> mFuture;
 
 //	/**
 //	 * @param url
@@ -50,21 +54,19 @@ public class VolleyBaseRequest<T> extends Request<T> {
 //		this(method, url, listener, listener);
 //	}
 
-	/**
-	 * @param url
-	 *            {@link String}
-	 * @param listener
-	 *            {@link HttpResponseListener}
-	 */
-	public VolleyBaseRequest(
-			EggRequestBody requestBody, EggResponseBody<T> responseBody,
-			Listener<T> response, ErrorListener error) {
-		super(requestBody.getMethod(), requestBody.getUrl(), error);
-		mResponseListener = response;
-		mReqBody = requestBody;
-		mResponseBody = responseBody;
-		//mErrorListener = error;
-	}
+    /**
+     * @param url      {@link String}
+     * @param listener {@link HttpResponseListener}
+     */
+    public VolleyBaseRequest(
+            EggRequestBody requestBody, EggResponseBody<T> responseBody,
+            Listener<T> response, ErrorListener error) {
+        super(requestBody.getMethod(), requestBody.getUrl(), error);
+        mResponseListener = response;
+        mReqBody = requestBody;
+        mResponseBody = responseBody;
+        //mErrorListener = error;
+    }
 
 //	/**
 //	 * @param url
@@ -98,23 +100,23 @@ public class VolleyBaseRequest<T> extends Request<T> {
 //		return null;
 //	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.android.volley.Request#deliverResponse(java.lang.Object)
-	 */
-	@Override
-	protected void deliverResponse(T response) {
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.android.volley.Request#deliverResponse(java.lang.Object)
+     */
+    @Override
+    protected void deliverResponse(T response) {
 //		if (mListener != null) {
 //			mListener.onResponse(response);
 //		}
 //		if (mFuture != null) {
 //			mFuture.onResponse(response);
 //		}
-		if(mResponseListener!=null){
-			mResponseListener.onResponse(response);
-		}
-	}
+        if (mResponseListener != null) {
+            mResponseListener.onResponse(response);
+        }
+    }
 
 //	/*
 //	 * (non-Javadoc)
@@ -128,14 +130,13 @@ public class VolleyBaseRequest<T> extends Request<T> {
 //	}
 
 
-
 //    @Override
 //    abstract protected Response<T> parseNetworkResponse(NetworkResponse response);
 
     @Override
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
 
-    	return mResponseBody.parseNetworkResponse(response);
+        return mResponseBody.parseNetworkResponse(response);
 
 //        try {
 //            String jsonString =
@@ -159,8 +160,6 @@ public class VolleyBaseRequest<T> extends Request<T> {
     }
 
 
-
-
     @Override
     public String getBodyContentType() {
         return PROTOCOL_CONTENT_TYPE;
@@ -168,27 +167,27 @@ public class VolleyBaseRequest<T> extends Request<T> {
 
     @Override
     public byte[] getBody() {
-    	try{
-	    	InputStream in = mReqBody.getBody();
-	    	if(in == null) return null;
+        try {
+            InputStream in = mReqBody.getBody();
+            if (in == null) return null;
 
-	    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-	    	byte [] buffer = new byte[1024];
-	        while(true) {
-	            int len = in.read(buffer);
-	            if(len < 0) {
-	                break;
-	            }
-	            out.write(buffer, 0, len);
-	        }
-	        return out.toByteArray();
+            byte[] buffer = new byte[1024];
+            while (true) {
+                int len = in.read(buffer);
+                if (len < 0) {
+                    break;
+                }
+                out.write(buffer, 0, len);
+            }
+            return out.toByteArray();
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-    	return null;
+        return null;
 
 //        try {
 //        	if(mRequestBody == null) return null;
@@ -203,17 +202,6 @@ public class VolleyBaseRequest<T> extends Request<T> {
 //            return null;
 //        }
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 //	/**
@@ -273,7 +261,6 @@ public class VolleyBaseRequest<T> extends Request<T> {
 //			return null;
 //		}
 //	}
-
 
 
 }

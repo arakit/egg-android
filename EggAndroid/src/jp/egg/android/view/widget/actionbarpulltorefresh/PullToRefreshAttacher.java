@@ -21,18 +21,14 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import java.util.WeakHashMap;
 
@@ -47,36 +43,32 @@ public abstract class PullToRefreshAttacher {
     private static final String LOG_TAG = "PullToRefreshAttacher";
 
     /* Member Variables */
-
+    private final WeakHashMap<View, ViewDelegate> mRefreshableViews = new WeakHashMap<View, ViewDelegate>();
+    private final int[] mViewLocationResult = new int[2];
+    private final Rect mRect = new Rect();
     private EnvironmentDelegate mEnvironmentDelegate;
     private HeaderTransformer mHeaderTransformer;
-
     private OnRefreshListener mOnRefreshListener;
-
     private Activity mActivity;
     private View mHeaderView;
     private HeaderViewListener mHeaderViewListener;
-
     private int mTouchSlop;
     private float mRefreshScrollDistance;
-
     private float mInitialMotionY, mLastMotionY, mPullBeginY;
     private float mInitialMotionX;
     private boolean mIsBeingDragged, mIsRefreshing, mHandlingTouchEventFromDown;
     private View mViewBeingDragged;
-
-    private final WeakHashMap<View, ViewDelegate> mRefreshableViews = new WeakHashMap<View, ViewDelegate>();
-
     private boolean mRefreshOnUp;
     private int mRefreshMinimizeDelay;
     private boolean mRefreshMinimize;
     private boolean mIsDestroyed = false;
-
-    private final int[] mViewLocationResult = new int[2];
-    private final Rect mRect = new Rect();
-
+    private final Runnable mRefreshMinimizeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            minimizeHeader();
+        }
+    };
     private AddHeaderViewRunnable mAddHeaderViewRunnable;
-
     private boolean mInitializeCalled = false;
 
 
@@ -87,8 +79,7 @@ public abstract class PullToRefreshAttacher {
         mActivity = activity;
     }
 
-
-    protected void initialize (Options options) {
+    protected void initialize(Options options) {
 
         if (mInitializeCalled) {
             throw new IllegalStateException("already initialized called.");
@@ -149,9 +140,9 @@ public abstract class PullToRefreshAttacher {
 
     }
 
-    protected abstract ViewGroup getActionBarContainer () ;
+    protected abstract ViewGroup getActionBarContainer();
 
-    protected Rect getContainerVisibleRect () {
+    protected Rect getContainerVisibleRect() {
         return mRect;
     }
 
@@ -204,17 +195,6 @@ public abstract class PullToRefreshAttacher {
     }
 
     /**
-     * Manually set this Attacher's refreshing state. The header will be
-     * displayed or hidden as requested.
-     *
-     * @param refreshing
-     *            - Whether the attacher should be in a refreshing state,
-     */
-    final void setRefreshing(boolean refreshing) {
-        setRefreshingInt(null, refreshing, false);
-    }
-
-    /**
      * @return true if this Attacher is currently in a refreshing state.
      */
     final boolean isRefreshing() {
@@ -222,9 +202,19 @@ public abstract class PullToRefreshAttacher {
     }
 
     /**
+     * Manually set this Attacher's refreshing state. The header will be
+     * displayed or hidden as requested.
+     *
+     * @param refreshing - Whether the attacher should be in a refreshing state,
+     */
+    final void setRefreshing(boolean refreshing) {
+        setRefreshingInt(null, refreshing, false);
+    }
+
+    /**
      * Call this when your refresh is complete and this view should reset itself
      * (header view will be hidden).
-     *
+     * <p/>
      * This is the equivalent of calling <code>setRefreshing(false)</code>.
      */
     final void setRefreshComplete() {
@@ -266,7 +256,7 @@ public abstract class PullToRefreshAttacher {
 
     /**
      * @return The Header View which is displayed when the user is pulling, or
-     *         we are refreshing.
+     * we are refreshing.
      */
     final View getHeaderView() {
         return mHeaderView;
@@ -486,6 +476,10 @@ public abstract class PullToRefreshAttacher {
         }
     }
 
+//    protected final Activity getAttachedActivity() {
+//        return mActivity;
+//    }
+
     void hideHeaderView() {
         if (mHeaderTransformer.hideHeaderView()) {
             if (mHeaderViewListener != null) {
@@ -494,10 +488,6 @@ public abstract class PullToRefreshAttacher {
             }
         }
     }
-
-//    protected final Activity getAttachedActivity() {
-//        return mActivity;
-//    }
 
     protected EnvironmentDelegate createDefaultEnvironmentDelegate() {
         return new EnvironmentDelegate() {
@@ -553,7 +543,7 @@ public abstract class PullToRefreshAttacher {
     /**
      * @param fromTouch Whether this is being invoked from a touch event
      * @return true if we're currently in a state where a refresh can be
-     *         started.
+     * started.
      */
     private boolean canRefresh(boolean fromTouch) {
         return !mIsRefreshing && (!fromTouch || mOnRefreshListener != null);
@@ -629,17 +619,11 @@ public abstract class PullToRefreshAttacher {
         handleRemoveHeaderViewFromActivity(headerView);
     }
 
-    protected abstract void handleAddHeaderViewToActivity (View headerView) ;
-    protected abstract void handleUpdateHeaderViewPosition (View headerView) ;
-    protected abstract void handleRemoveHeaderViewFromActivity (View headerView) ;
+    protected abstract void handleAddHeaderViewToActivity(View headerView);
 
+    protected abstract void handleUpdateHeaderViewPosition(View headerView);
 
-    private final Runnable mRefreshMinimizeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            minimizeHeader();
-        }
-    };
+    protected abstract void handleRemoveHeaderViewFromActivity(View headerView);
 
     private class AddHeaderViewRunnable implements Runnable {
         @Override
