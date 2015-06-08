@@ -18,11 +18,19 @@ package jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.AbsListView;
+
+import java.util.Arrays;
+import java.util.List;
+
+import jp.egg.android.util.Log;
 
 /**
  * FIXME
@@ -48,51 +56,54 @@ public class RecyclerViewDelegate implements ViewDelegate {
             ready = firstVisibleChild != null && firstVisibleChild.getTop() >= linearLayoutManager.getPaddingTop();
         }
 
-        // TODO feature fast scroll
-//        // Then we have to check whether the fas scroller is enabled, and check we're not starting
-//        // the gesture from the scroller
-//        if (ready && absListView.isFastScrollEnabled() && isFastScrollAlwaysVisible(absListView)) {
-//            switch (getVerticalScrollbarPosition(absListView)) {
-//                case View.SCROLLBAR_POSITION_RIGHT:
-//                    ready = x < absListView.getRight() - absListView.getVerticalScrollbarWidth();
-//                    break;
-//                case View.SCROLLBAR_POSITION_LEFT:
-//                    ready = x > absListView.getVerticalScrollbarWidth();
-//                    break;
-//            }
-//        }
+        if (ready) {
+            ready = checkCoordinatorLayoutTop(recyclerView);
+        }
 
         return ready;
     }
 
-//    int getVerticalScrollbarPosition(AbsListView absListView) {
-//        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-//                CompatV11.getVerticalScrollbarPosition(absListView) :
-//                Compat.getVerticalScrollbarPosition(absListView);
-//    }
-//
-//    boolean isFastScrollAlwaysVisible(AbsListView absListView) {
-//        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-//                CompatV11.isFastScrollAlwaysVisible(absListView) :
-//                Compat.isFastScrollAlwaysVisible(absListView);
-//    }
-//
-//    static class Compat {
-//        static int getVerticalScrollbarPosition(AbsListView absListView) {
-//            return View.SCROLLBAR_POSITION_RIGHT;
-//        }
-//        static boolean isFastScrollAlwaysVisible(AbsListView absListView) {
-//            return false;
-//        }
-//    }
-//
-//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-//    static class CompatV11 {
-//        static int getVerticalScrollbarPosition(AbsListView absListView) {
-//            return absListView.getVerticalScrollbarPosition();
-//        }
-//        static boolean isFastScrollAlwaysVisible(AbsListView absListView) {
-//            return absListView.isFastScrollAlwaysVisible();
-//        }
-//    }
+
+    /**
+     *
+     * @param recyclerView
+     * @return スクロール状態が一番端か
+     */
+    private boolean checkCoordinatorLayoutTop (RecyclerView recyclerView) {
+
+        ViewParent vp, vpPrev;
+        vp = recyclerView.getParent();
+        vpPrev = null;
+        while (vp!=null) {
+
+            if (vp instanceof CoordinatorLayout) {
+                CoordinatorLayout coordinatorLayout = (CoordinatorLayout) vp;
+                View content = (View) vpPrev;
+
+                List<View> children = coordinatorLayout.getDependencies(content);
+                View appBar = children.get(0);
+                int appBarHeight = appBar.getHeight();
+
+                debugViewInfo("content", content);
+                if (content.getTranslationY() != appBarHeight) {
+                    return false;
+                }
+
+            }
+
+            vpPrev = vp;
+            vp = vp.getParent();
+        }
+
+        return true;
+    }
+
+
+    private void debugViewInfo (String name, View v) {
+        int top = v.getTop();
+        int scroll = v.getScrollY();
+        float translateY = v.getTranslationY();
+        Log.d("RecyclerViewDelegate", name+ " v = " + v +", top = " + top + ", translateY = " + translateY+", scrollY = "+scroll);
+    }
+
 }
