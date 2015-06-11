@@ -279,12 +279,14 @@ public class RoundedDrawable extends Drawable {
         invalidateSelf();
     }
 
-    @Override public void setDither(boolean dither) {
+    @Override
+    public void setDither(boolean dither) {
         mBitmapPaint.setDither(dither);
         invalidateSelf();
     }
 
-    @Override public void setFilterBitmap(boolean filter) {
+    @Override
+    public void setFilterBitmap(boolean filter) {
         mBitmapPaint.setFilterBitmap(filter);
         invalidateSelf();
     }
@@ -322,18 +324,18 @@ public class RoundedDrawable extends Drawable {
         return mBorderColor.getDefaultColor();
     }
 
+    public RoundedDrawable setBorderColor(ColorStateList colors) {
+        mBorderColor = colors != null ? colors : ColorStateList.valueOf(0);
+        mBorderPaint.setColor(mBorderColor.getColorForState(getState(), DEFAULT_BORDER_COLOR));
+        return this;
+    }
+
     public RoundedDrawable setBorderColor(int color) {
         return setBorderColor(ColorStateList.valueOf(color));
     }
 
     public ColorStateList getBorderColors() {
         return mBorderColor;
-    }
-
-    public RoundedDrawable setBorderColor(ColorStateList colors) {
-        mBorderColor = colors != null ? colors : ColorStateList.valueOf(0);
-        mBorderPaint.setColor(mBorderColor.getColorForState(getState(), DEFAULT_BORDER_COLOR));
-        return this;
     }
 
     public boolean isOval() {

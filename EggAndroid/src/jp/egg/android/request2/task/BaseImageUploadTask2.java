@@ -37,20 +37,16 @@ import jp.egg.android.util.Log;
  */
 public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUploadTask2.UploadTaskError> {
 
-    private static String TAG = "BaseImageUploadTask2";
-
     protected static final int DEFAULT_RETRY_LIMIT = 1;
-
+    private static final int REQUEST_RESULT_FINISH = 0;
+    private static final int REQUEST_RESULT_RETRY = 1;
+    private static String TAG = "BaseImageUploadTask2";
     private Context mContext;
     private int mMethod;
     private String mUrl;
     private Class<O> mBackedOutputType;
-
     private Call mCurrentRequest;
-
     private int mRetryLimit = DEFAULT_RETRY_LIMIT;
-
-
 
     protected BaseImageUploadTask2(Context context, int method, String url) {
         mContext = context.getApplicationContext();
@@ -60,11 +56,23 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         mBackedOutputType = (Class) types[1];
     }
 
-    protected Context getContext(){
+    protected static MultipartBuilder addPart(MultipartBuilder builder, String name, String value) {
+        return builder.addPart(
+                Headers.of("Content-Disposition", String.format("form-data; name=\"%s\"", name)),
+                RequestBody.create(null, value));
+    }
+
+    protected static MultipartBuilder addPart(MultipartBuilder builder, String name, File file, MediaType contentType) {
+        return builder.addPart(
+                Headers.of("Content-Disposition", String.format("form-data; name=\"%s\""), name),
+                RequestBody.create(contentType, file));
+    }
+
+    protected Context getContext() {
         return mContext;
     }
 
-    protected Class<O> getBackedOutputType(){
+    protected Class<O> getBackedOutputType() {
         return mBackedOutputType;
     }
 
@@ -74,36 +82,23 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
 
     protected abstract O getOutput(JsonNode node);
 
-    protected final String getCookie(){
+    protected final String getCookie() {
         String strCookie = onSendCookie();
         return strCookie;
     }
 
-    protected String onSendCookie(){
+    protected String onSendCookie() {
         return null;
     }
 
     /**
      * リクエスト失敗時のリトライ回数
+     *
      * @param limit 1の場合、失敗すると1回だけリトライする
      */
-    protected void setRetryLimit (int limit) {
+    protected void setRetryLimit(int limit) {
         mRetryLimit = limit;
     }
-
-
-
-    protected static MultipartBuilder addPart (MultipartBuilder builder, String name, String value) {
-        return builder.addPart(
-                Headers.of("Content-Disposition", String.format("form-data; name=\"%s\"", name) ),
-                RequestBody.create(null, value));
-    }
-    protected static MultipartBuilder addPart (MultipartBuilder builder, String name, File file, MediaType contentType) {
-        return builder.addPart(
-                Headers.of("Content-Disposition", String.format("form-data; name=\"%s\""), name),
-                RequestBody.create(contentType, file));
-    }
-
 
     @Override
     protected final void onDoInBackground() {
@@ -112,7 +107,8 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         OkHttpClient client = new OkHttpClient();
 
         int retryCount = 0;
-        retry_loop : while (retryCount <= mRetryLimit) {
+        retry_loop:
+        while (retryCount <= mRetryLimit) {
             int result = handleRequest(client, retryCount);
             switch (result) {
                 case REQUEST_RESULT_FINISH:
@@ -129,10 +125,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
 
     }
 
-    private static final int REQUEST_RESULT_FINISH = 0;
-    private static final int REQUEST_RESULT_RETRY = 1;
-
-    private int handleRequest (OkHttpClient client, int currentRetryCount) {
+    private int handleRequest(OkHttpClient client, int currentRetryCount) {
 
         String url = mUrl;
         I input = getInput();
@@ -160,7 +153,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         }
 
         RequestBody requestBody = builder.build();
-        Log.d(TAG, "requestBody = " +requestBody);
+        Log.d(TAG, "requestBody = " + requestBody);
 
         Request request = new Request.Builder()
                 //.header("Authorization", "Client-ID " + IMGUR_CLIENT_ID)
@@ -168,7 +161,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
                 .post(requestBody)
                 .build();
 
-        Log.d(TAG, "request = " +request);
+        Log.d(TAG, "request = " + request);
 
         Call call = client.newCall(request);
         if (isCanceled()) {
@@ -233,7 +226,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
     }
 
 
-    protected boolean onRetryAuthorizedInBackground () {
+    protected boolean onRetryAuthorizedInBackground() {
         return false;
     }
 
@@ -244,7 +237,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         HandlerUtil.postBackground(new Runnable() {
             @Override
             public void run() {
-                if (mCurrentRequest!=null && !mCurrentRequest.isCanceled()) {
+                if (mCurrentRequest != null && !mCurrentRequest.isCanceled()) {
                     mCurrentRequest.cancel();
                 }
             }
@@ -264,6 +257,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
     public abstract static class UploadTaskError extends EggTaskError {
 
         public abstract int code();
+
         public abstract String message();
     }
 
@@ -271,7 +265,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         private int code;
         private String message;
 
-        public DefaultUploadTaskError (int code, String message) {
+        public DefaultUploadTaskError(int code, String message) {
             this.code = code;
             this.message = message;
         }
@@ -280,8 +274,9 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         public int code() {
             return code;
         }
+
         @Override
-        public String message(){
+        public String message() {
             return message;
         }
     }

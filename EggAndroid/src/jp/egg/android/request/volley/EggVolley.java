@@ -16,10 +16,6 @@
 
 package jp.egg.android.request.volley;
 
-import java.io.File;
-import java.net.CookieManager;
-import java.net.CookieStore;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -33,19 +29,21 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpClientStack;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.File;
 
 public class EggVolley {
 
-    /** Default on-disk cache directory. */
+    /**
+     * Default on-disk cache directory.
+     */
     private static final String DEFAULT_CACHE_DIR = "volley";
 
     /**
      * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
      *
      * @param context A {@link Context} to use for creating the cache dir.
-     * @param stack An {@link HttpStack} to use for the network, or null for default.
+     * @param stack   An {@link HttpStack} to use for the network, or null for default.
      * @return A started {@link RequestQueue} instance.
      */
     protected static RequestQueue newRequestQueue(Context context, HttpStack stack, int cacheSizeInBytes) {
@@ -101,18 +99,6 @@ public class EggVolley {
 //        return newRequestQueue(context, stack, cacheSizeInBytes);
         return newRequestQueue(context, null, cacheSizeInBytes);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

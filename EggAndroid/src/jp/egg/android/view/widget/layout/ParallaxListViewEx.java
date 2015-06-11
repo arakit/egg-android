@@ -6,18 +6,19 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import uk.co.chrisjenx.paralloid.OnScrollChangedListener;
 import uk.co.chrisjenx.paralloid.ParallaxViewController;
 import uk.co.chrisjenx.paralloid.Parallaxor;
 import uk.co.chrisjenx.paralloid.transform.Transformer;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 /**
  * Created by chikara on 2014/09/13.
  */
-public class ParallaxListViewEx extends ListView  implements Parallaxor {
+public class ParallaxListViewEx extends ListView implements Parallaxor {
 
 
 //    public interface OnScrollChangeListener {
@@ -25,16 +26,16 @@ public class ParallaxListViewEx extends ListView  implements Parallaxor {
 //    }
 
 
+    ParallaxViewController mParallaxViewController;
     private OnScrollListener mOnScrollListener;
     private Set<OnScrollListener> mOnScrollListeners = new LinkedHashSet<OnScrollListener>();
-
     private final OnScrollListener mOnWrappedScrollListener = new OnScrollListener() {
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
-            if( mOnScrollListener!=null ){
+            if (mOnScrollListener != null) {
                 mOnScrollListener.onScrollStateChanged(view, scrollState);
             }
-            for(OnScrollListener listener : mOnScrollListeners){
+            for (OnScrollListener listener : mOnScrollListeners) {
                 listener.onScrollStateChanged(view, scrollState);
             }
 
@@ -42,18 +43,14 @@ public class ParallaxListViewEx extends ListView  implements Parallaxor {
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if( mOnScrollListener!=null ){
+            if (mOnScrollListener != null) {
                 mOnScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
             }
-            for(OnScrollListener listener : mOnScrollListeners){
+            for (OnScrollListener listener : mOnScrollListeners) {
                 listener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
             }
         }
     };
-
-
-
-    ParallaxViewController mParallaxViewController;
 
     public ParallaxListViewEx(Context context) {
         super(context);
@@ -76,7 +73,6 @@ public class ParallaxListViewEx extends ListView  implements Parallaxor {
     }
 
 
-
     @Override
     public void parallaxViewBy(View view, float multiplier) {
         mParallaxViewController.parallaxViewBy(view, multiplier);
@@ -93,7 +89,6 @@ public class ParallaxListViewEx extends ListView  implements Parallaxor {
     }
 
 
-
     //    @Override
 //    public void setOnScrollListener(OnScrollChangedListener listener){
 //        mParallaxViewController.setOnScrollListener(listener);
@@ -103,14 +98,15 @@ public class ParallaxListViewEx extends ListView  implements Parallaxor {
         mOnScrollListener = l;
     }
 
-    public void addOnScrollLister(OnScrollListener listener){
+    public void addOnScrollLister(OnScrollListener listener) {
         mOnScrollListeners.add(listener);
     }
-    public void removeOnScrollLister(OnScrollListener listener){
+
+    public void removeOnScrollLister(OnScrollListener listener) {
         mOnScrollListeners.remove(listener);
     }
 
-    public void setOnScrollChangeListener(OnScrollChangedListener listener){
+    public void setOnScrollChangeListener(OnScrollChangedListener listener) {
         mParallaxViewController.setOnScrollListener(listener);
     }
 
@@ -130,7 +126,6 @@ public class ParallaxListViewEx extends ListView  implements Parallaxor {
 //            mOnScrollChangeListener.onScrollChanged(getFirstVisiblePosition(), scrolly);
 //        }
 //    }
-
 
 
 }

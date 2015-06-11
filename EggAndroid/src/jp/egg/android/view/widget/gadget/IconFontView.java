@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
 import jp.egg.android.manager.IconFontManager;
 import jp.egg.android.util.Log;
+
 /**
  * Created by chikara on 2014/10/10.
  */
@@ -28,19 +30,6 @@ public class IconFontView extends TextView {
         setUpCustomFont();
     }
 
-
-    private final void setUpCustomFont() {
-        String path = onCustomFontSetUp();
-        if (path!=null){
-            setCustomFont(getContext(), this, path);
-        }
-    }
-
-    protected String onCustomFontSetUp() {
-        return null;
-    }
-
-
     public static boolean setCustomFont(Context context, TextView view, String path) {
         Typeface tf = null;
         try {
@@ -56,6 +45,16 @@ public class IconFontView extends TextView {
         return true;
     }
 
+    private final void setUpCustomFont() {
+        String path = onCustomFontSetUp();
+        if (path != null) {
+            setCustomFont(getContext(), this, path);
+        }
+    }
+
+    protected String onCustomFontSetUp() {
+        return null;
+    }
 
 
 }

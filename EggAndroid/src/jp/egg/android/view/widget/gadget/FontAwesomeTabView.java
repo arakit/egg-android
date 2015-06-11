@@ -7,13 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
 import jp.egg.android.R;
 import jp.egg.android.manager.FontAwesome;
 
 /**
  * Created by chikara on 2014/10/10.
  */
-public class FontAwesomeTabView extends FrameLayout{
+public class FontAwesomeTabView extends FrameLayout {
 
     private FontAwesomeTextView mIconView;
     private TextView mLabelView;
@@ -33,7 +34,7 @@ public class FontAwesomeTabView extends FrameLayout{
     }
 
 
-    private void setUp (Context context, AttributeSet attrs, int defStyle) {
+    private void setUp(Context context, AttributeSet attrs, int defStyle) {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FontAwesomeTabView);
         int layoutResId = a.getResourceId(R.styleable.FontAwesomeTabView_faTabLayout, R.layout.layout_font_awesome_tab);
@@ -54,21 +55,18 @@ public class FontAwesomeTabView extends FrameLayout{
 
 
         String iconText = null;
-        if ( iconName!=null ) {
+        if (iconName != null) {
             iconText = FontAwesome.getFaMap().get(iconName);
         }
 
-        if ( iconText!=null ) {
+        if (iconText != null) {
             mIconView.setText(iconText);
         }
-        if ( label!=null ) {
+        if (label != null) {
             mLabelView.setText(label);
         }
 
     }
-
-
-
 
 
 }

@@ -39,7 +39,6 @@ import android.view.animation.Interpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
 import jp.egg.android.R;
 import jp.egg.android.util.Log;
 import jp.egg.android.view.widget.actionbarpulltorefresh.sdk.Compat;
@@ -50,28 +49,21 @@ import jp.egg.android.view.widget.smoothprogressbar.SmoothProgressBar;
  */
 public class DefaultHeaderTransformer extends HeaderTransformer {
 
-    private static final String TAG = "DefaultHeaderTransformer";
-
     public static final int PROGRESS_BAR_STYLE_INSIDE = 0;
     public static final int PROGRESS_BAR_STYLE_OUTSIDE = 1;
-
+    private static final String TAG = "DefaultHeaderTransformer";
+    private final Interpolator mInterpolator = new AccelerateInterpolator();
     private View mHeaderView;
     private ViewGroup mContentLayout;
     private TextView mHeaderTextView;
     private SmoothProgressBar mHeaderProgressBar;
-
     private CharSequence mPullRefreshLabel, mRefreshingLabel, mReleaseLabel;
-
     private int mProgressDrawableColor;
-
     private long mAnimationDuration;
     private int mProgressBarStyle;
     private int mProgressBarHeight = RelativeLayout.LayoutParams.WRAP_CONTENT;
-
     private int mHeaderContentHeight = 0;
     private int mHeaderInsetTop = 0;
-
-    private final Interpolator mInterpolator = new AccelerateInterpolator();
 
     protected DefaultHeaderTransformer() {
         final int min = getMinimumApiLevel();
@@ -80,6 +72,17 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
                     + min
                     + "+. If using ActionBarSherlock or ActionBarCompat you should use the appropriate provided extra.");
         }
+    }
+
+    protected static TypedArray obtainStyledAttrsFromThemeAttr(Context context, int themeAttr,
+                                                               int[] styleAttrs) {
+        // Need to get resource id of style pointed to from the theme attr
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(themeAttr, outValue, true);
+        final int styleResId = outValue.resourceId;
+
+        // Now return the values (from styleAttrs) from the style
+        return context.obtainStyledAttributes(styleResId, styleAttrs);
     }
 
     @Override
@@ -300,7 +303,7 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
         // Retrieve the Action Bar size from the app theme or the Action Bar's style
         mHeaderContentHeight = styleAttrs.getDimensionPixelSize(
                 R.styleable.PullToRefreshHeader_ptrHeaderHeight, getActionBarSize(activity));
-        Log.d(TAG, "setupViewsFromStyles. inset top = "+mHeaderInsetTop);
+        Log.d(TAG, "setupViewsFromStyles. inset top = " + mHeaderInsetTop);
         applyHeaderInset();
 
         // Retrieve the Action Bar background from the app theme or the Action Bar's style (see #93)
@@ -437,38 +440,15 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
         return Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
-    class HideAnimationCallback extends AnimatorListenerAdapter {
-        @Override
-        public void onAnimationEnd(Animator animation) {
-            View headerView = getHeaderView();
-            if (headerView != null) {
-                headerView.setVisibility(View.GONE);
-            }
-            onReset();
-        }
-    }
-
-    protected static TypedArray obtainStyledAttrsFromThemeAttr(Context context, int themeAttr,
-                                                               int[] styleAttrs) {
-        // Need to get resource id of style pointed to from the theme attr
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(themeAttr, outValue, true);
-        final int styleResId = outValue.resourceId;
-
-        // Now return the values (from styleAttrs) from the style
-        return context.obtainStyledAttributes(styleResId, styleAttrs);
-    }
-
-
-    public void setHeaderInsetTop (int top) {
+    public void setHeaderInsetTop(int top) {
         if (mHeaderInsetTop != top) {
             mHeaderInsetTop = top;
             applyHeaderInset();
         }
     }
 
-    public void applyHeaderInset () {
-        if (mContentLayout!=null) {
+    public void applyHeaderInset() {
+        if (mContentLayout != null) {
             int height = mHeaderContentHeight;
             int paddingTop = mHeaderInsetTop;
             if (height >= 0) {
@@ -485,6 +465,17 @@ public class DefaultHeaderTransformer extends HeaderTransformer {
                     mContentLayout.getPaddingRight(),
                     mContentLayout.getPaddingBottom()
             );
+        }
+    }
+
+    class HideAnimationCallback extends AnimatorListenerAdapter {
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            View headerView = getHeaderView();
+            if (headerView != null) {
+                headerView.setVisibility(View.GONE);
+            }
+            onReset();
         }
     }
 

@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import jp.egg.android.R;
 
 /**
@@ -48,15 +49,15 @@ public class BadgeActionProvider extends ActionProvider {
         return null;
     }
 
-    private void updateInfoBadge(View view, int num){
+    private void updateInfoBadge(View view, int num) {
         TextView badgeView = (TextView) view.findViewById(R.id.badge);
-        if( num >= 100 ) {
+        if (num >= 100) {
             badgeView.setText("99+");
             badgeView.setVisibility(View.VISIBLE);
-        }else if( num > 0 ) {
+        } else if (num > 0) {
             badgeView.setText("" + num);
             badgeView.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             badgeView.setText("");
             badgeView.setVisibility(View.INVISIBLE);
         }

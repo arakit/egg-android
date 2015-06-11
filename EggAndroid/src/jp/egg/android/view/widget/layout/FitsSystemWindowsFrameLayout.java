@@ -13,7 +13,6 @@ import android.widget.FrameLayout;
  * propagate window insets to attached fragments.
  *
  * @author Christophe Beyls
- *
  */
 public class FitsSystemWindowsFrameLayout extends FrameLayout {
 

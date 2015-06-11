@@ -8,17 +8,14 @@ import java.util.Map;
 public abstract class EggRequestBody<I> {
 
 
+    private int mMethod;
+    private String mUrl;
+    private I mInputData;
 
-
-
-	private int mMethod;
-	private String mUrl;
-	private I mInputData;
-
-	public EggRequestBody(int method, String url) {
-		mMethod = method;
-		mUrl = url;
-	}
+    public EggRequestBody(int method, String url) {
+        mMethod = method;
+        mUrl = url;
+    }
 
 //	private boolean mIsSetUped;
 
@@ -34,98 +31,76 @@ public abstract class EggRequestBody<I> {
 //		return mIsSetUped;
 //	}
 
+    protected I getData() {
+        return mInputData;
+    }
 
-	//セット
-	public void setUrl(String url){
-		mUrl = url;
-	}
-	public void setMethod(int method){
-		mMethod = method;
-	}
+    public void setData(I input) {
+        mInputData = input;
+    }
 
-	public void setData(I input){
-		mInputData = input;
-	}
+    //ベース処理系
+    protected final int prepareMethod() {
+        int method = mMethod;
+        return onPrepareMethod(method);
+    }
 
-	protected I getData(){
-		return mInputData;
-	}
-
-
-	//ベース処理系
-	protected final int prepareMethod(){
-		int method = mMethod;
-		return onPrepareMethod(method);
-	}
-	protected final String prepareUrl(){
-		String url = mUrl;
-		return onPrepareUrl(url);
-	}
-
-
-
-
+    protected final String prepareUrl() {
+        String url = mUrl;
+        return onPrepareUrl(url);
+    }
 
     public final String getBodyContentType() {
         //return "application/x-www-form-urlencoded; charset=" + getParamsEncoding();
-    	return onBodyContentType();
+        return onBodyContentType();
     }
 
-
-    public int getMethod(){
-    	return prepareMethod();
+    public int getMethod() {
+        return prepareMethod();
     }
 
-	public final String getUrl(){
-		///if(!isSetUped()) throw new IllegalStateException();
-		return prepareUrl();
-	}
-	public final InputStream getBody(){
-		//if(!isSetUped()) throw new IllegalStateException();
-		return onBody();
-	}
+    public void setMethod(int method) {
+        mMethod = method;
+    }
+
+    public final String getUrl() {
+        ///if(!isSetUped()) throw new IllegalStateException();
+        return prepareUrl();
+    }
+
+    //セット
+    public void setUrl(String url) {
+        mUrl = url;
+    }
+
+    public final InputStream getBody() {
+        //if(!isSetUped()) throw new IllegalStateException();
+        return onBody();
+    }
 //	public final Map<String, String> getParams(){
 //		if(!isSetUped()) throw new IllegalStateException();
 //		return m
 //	}
 
 
-
-	//イベント系
+    //イベント系
 
 //	protected void onSetup(){
 //		mMethod = prepareMethod();
 //		mUrl = prepareUrl();
 //	}
 
-	//URL
-	protected abstract String onPrepareUrl(String url);
-	//メソッド
-	protected abstract int onPrepareMethod(int method);
+    //URL
+    protected abstract String onPrepareUrl(String url);
+
+    //メソッド
+    protected abstract int onPrepareMethod(int method);
 
 
-	//コンテンツ系
-	protected abstract InputStream onBody();
-	protected abstract String onBodyContentType();
+    //コンテンツ系
+    protected abstract InputStream onBody();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    protected abstract String onBodyContentType();
 
 
 //    /**

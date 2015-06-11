@@ -3,9 +3,6 @@
  */
 package jp.egg.android.util;
 
-import java.io.IOException;
-import java.io.StringWriter;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
@@ -15,6 +12,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
 /**
  * Helper functions to handle JsonNode values.
  */
@@ -22,13 +22,13 @@ public class Json {
     private static final ObjectMapper defaultObjectMapper = new ObjectMapper();
     private static volatile ObjectMapper objectMapper = null;
 
-  /**
-   * Get the ObjectMapper used to serialize and deserialize objects to and from JSON values.
-   *
-   * This can be set to a custom implementation using Json.setObjectMapper.
-   *
-   * @return the ObjectMapper currently being used
-   */
+    /**
+     * Get the ObjectMapper used to serialize and deserialize objects to and from JSON values.
+     * <p/>
+     * This can be set to a custom implementation using Json.setObjectMapper.
+     *
+     * @return the ObjectMapper currently being used
+     */
     public static ObjectMapper mapper() {
         if (objectMapper == null) {
             return defaultObjectMapper;
@@ -63,7 +63,7 @@ public class Json {
     public static JsonNode toJson(final Object data) {
         try {
             return mapper().valueToTree(data);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -71,13 +71,13 @@ public class Json {
     /**
      * Convert a JsonNode to a Java value
      *
-     * @param json Json value to convert.
+     * @param json  Json value to convert.
      * @param clazz Expected Java value type.
      */
     public static <A> A fromJson(JsonNode json, Class<A> clazz) {
         try {
             return mapper().treeToValue(json, clazz);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -123,7 +123,7 @@ public class Json {
     public static JsonNode parse(String src) {
         try {
             return mapper().readTree(src);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             throw new RuntimeException(t);
         }
     }
@@ -134,7 +134,7 @@ public class Json {
     public static JsonNode parse(java.io.InputStream src) {
         try {
             return mapper().readTree(src);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             throw new RuntimeException(t);
         }
     }
@@ -145,14 +145,14 @@ public class Json {
     public static JsonNode parse(byte[] src) {
         try {
             return mapper().readTree(src);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             throw new RuntimeException(t);
         }
     }
 
     /**
      * Inject the object mapper to use.
-     *
+     * <p/>
      * This is intended to be used when Play starts up.  By default, Play will inject its own object mapper here,
      * but this mapper can be overridden either by a custom plugin or from Global.onStart.
      */

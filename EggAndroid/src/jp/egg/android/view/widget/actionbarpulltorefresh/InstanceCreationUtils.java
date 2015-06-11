@@ -39,6 +39,7 @@ class InstanceCreationUtils {
     private static final Class<?>[] TRANSFORMER_CONSTRUCTOR_SIGNATURE = new Class[]{};
 
     private static final HashMap<Class, Class> BUILT_IN_DELEGATES;
+
     static {
         BUILT_IN_DELEGATES = new HashMap<Class, Class>();
         addBuiltinDelegates(AbsListViewDelegate.SUPPORTED_VIEW_CLASSES, AbsListViewDelegate.class);
@@ -48,7 +49,7 @@ class InstanceCreationUtils {
     }
 
     private static void addBuiltinDelegates(Class[] supportedViews, Class<?> delegateClass) {
-        for (int i = 0, z = supportedViews.length; i< z ; i++) {
+        for (int i = 0, z = supportedViews.length; i < z; i++) {
             BUILT_IN_DELEGATES.put(supportedViews[i], delegateClass);
         }
     }
@@ -85,7 +86,7 @@ class InstanceCreationUtils {
     }
 
     private static <T> T newInstance(Context context, Class clazz, Class[] constructorSig,
-            Object... arguments) {
+                                     Object... arguments) {
         try {
             Constructor<?> constructor = clazz.getConstructor(constructorSig);
             return (T) constructor.newInstance(arguments);

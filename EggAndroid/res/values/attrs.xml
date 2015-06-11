@@ -12,22 +12,21 @@
     </declare-styleable>
 
 
-
     <declare-styleable name="FontAwesomeTextView">
-        <attr name="faIconName" format="string"/>
+        <attr name="faIconName" format="string" />
     </declare-styleable>
 
     <declare-styleable name="FontAwesomeTabView">
-        <attr name="faTabIconName" format="string"/>
-        <attr name="faTabLabel" format="string"/>
-        <attr name="faTabLayout" format="reference"/>
+        <attr name="faTabIconName" format="string" />
+        <attr name="faTabLabel" format="string" />
+        <attr name="faTabLayout" format="reference" />
         <!--<attr name="faTabIconTextSize" format="dimension"/>-->
         <!--<attr name="faTabTextColor" format="color"/>-->
         <!--<attr name="faTabLabelTextSize" format="dimension"/>-->
     </declare-styleable>
 
     <declare-styleable name="SquareLayout">
-        <attr name="slWeight" format="float"/>
+        <attr name="slWeight" format="float" />
     </declare-styleable>
 
 </resources>

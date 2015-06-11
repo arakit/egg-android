@@ -7,6 +7,7 @@ public interface UrlFactor {
 
 
     public int method();
+
     public String url();
 
 

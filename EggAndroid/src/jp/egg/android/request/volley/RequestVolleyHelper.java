@@ -5,9 +5,9 @@ import java.util.Map;
 public class RequestVolleyHelper {
 
 
-	public static Object requestBodyWithParamas(Map<String, String> map){
-		return map;
-	}
+    public static Object requestBodyWithParamas(Map<String, String> map) {
+        return map;
+    }
 
 
 }

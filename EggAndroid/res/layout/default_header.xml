@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2013 Chris Banes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,24 +15,24 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_gravity="top"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_gravity="top">
 
     <FrameLayout
         android:id="@id/ptr_content"
-        android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:layout_gravity="bottom"
         android:background="?android:attr/colorBackground">
 
         <TextView
             android:id="@id/ptr_text"
-            android:layout_gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:gravity="center" />
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </FrameLayout>
 
@@ -41,7 +40,7 @@
         android:id="@id/ptr_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/ptr_progress_bar_stroke_width"/>
+        android:minHeight="@dimen/ptr_progress_bar_stroke_width" />
 
 </RelativeLayout>
 

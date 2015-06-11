@@ -1,6 +1,6 @@
 package jp.egg.android.util;
 
-public class Tupple2 <A,B>{
+public class Tupple2<A, B> {
 
     public A i1;
     public B i2;

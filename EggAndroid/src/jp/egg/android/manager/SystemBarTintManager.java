@@ -38,15 +38,20 @@ import android.widget.FrameLayout.LayoutParams;
 import java.lang.reflect.Method;
 
 /**
- * Class to manage status and navigation bar tint effects when using KitKat 
+ * Class to manage status and navigation bar tint effects when using KitKat
  * translucent system UI modes.
  *
  * @see <a href="https://github.com/jgilfelt/SystemBarTint#systembarconfig">https://github.com/jgilfelt/SystemBarTint#systembarconfig</a>
- *
+ * <p/>
  * thank's jgilfelt,
- *
  */
 public class SystemBarTintManager {
+
+    /**
+     * The default system bar tint color value.
+     */
+    public static final int DEFAULT_TINT_COLOR = 0x99000000;
+    private static String sNavBarOverride;
 
     static {
         // Android allows a system property to override the presence of the navigation bar.
@@ -63,14 +68,6 @@ public class SystemBarTintManager {
             }
         }
     }
-
-
-    /**
-     * The default system bar tint color value.
-     */
-    public static final int DEFAULT_TINT_COLOR = 0x99000000;
-
-    private static String sNavBarOverride;
 
     private final SystemBarConfig mConfig;
     private boolean mStatusBarAvailable;
@@ -133,24 +130,8 @@ public class SystemBarTintManager {
     }
 
     /**
-     * Enable tinting of the system status bar.
-     *
-     * If the platform is running Jelly Bean or earlier, or translucent system
-     * UI modes have not been enabled in either the theme or via window flags,
-     * then this method does nothing.
-     *
-     * @param enabled True to enable tinting, false to disable it (default).
-     */
-    public void setStatusBarTintEnabled(boolean enabled) {
-        mStatusBarTintEnabled = enabled;
-        if (mStatusBarAvailable) {
-            mStatusBarTintView.setVisibility(enabled ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    /**
      * Enable tinting of the system navigation bar.
-     *
+     * <p/>
      * If the platform does not have soft navigation keys, is running Jelly Bean
      * or earlier, or translucent system UI modes have not been enabled in either
      * the theme or via window flags, then this method does nothing.
@@ -315,6 +296,22 @@ public class SystemBarTintManager {
     }
 
     /**
+     * Enable tinting of the system status bar.
+     * <p/>
+     * If the platform is running Jelly Bean or earlier, or translucent system
+     * UI modes have not been enabled in either the theme or via window flags,
+     * then this method does nothing.
+     *
+     * @param enabled True to enable tinting, false to disable it (default).
+     */
+    public void setStatusBarTintEnabled(boolean enabled) {
+        mStatusBarTintEnabled = enabled;
+        if (mStatusBarAvailable) {
+            mStatusBarTintView.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    /**
      * Is tinting enabled for the system navigation bar?
      *
      * @return True if enabled, False otherwise.
@@ -355,7 +352,6 @@ public class SystemBarTintManager {
     /**
      * Class which describes system bar sizing and other characteristics for the current
      * device configuration.
-     *
      */
     public static class SystemBarConfig {
 

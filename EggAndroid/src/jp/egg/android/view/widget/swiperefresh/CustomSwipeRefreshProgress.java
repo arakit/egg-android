@@ -11,11 +11,11 @@ import android.view.animation.Interpolator;
 
 /**
  * Created by chikara on 2014/07/25.
- *
+ * <p/>
  * supportv4からコピーしてきました。publicクラスではないため。
- *
+ * <p/>
  * SwipeRefreshLayoutの中で使われてた更新のエフェクト描画のためのクラス
- *
+ * <p/>
  * 　※基本的にこのクラスはいじらなくて大丈夫です。
  */
 final class CustomSwipeRefreshProgress {
@@ -231,10 +231,10 @@ final class CustomSwipeRefreshProgress {
      * Draws a circle centered in the view.
      *
      * @param canvas the canvas to draw on
-     * @param cx the center x coordinate
-     * @param cy the center y coordinate
-     * @param color the color to draw
-     * @param pct the percentage of the view that the circle should cover
+     * @param cx     the center x coordinate
+     * @param cy     the center y coordinate
+     * @param color  the color to draw
+     * @param pct    the percentage of the view that the circle should cover
      */
     private void drawCircle(Canvas canvas, float cx, float cy, int color, float pct) {
         mPaint.setColor(color);

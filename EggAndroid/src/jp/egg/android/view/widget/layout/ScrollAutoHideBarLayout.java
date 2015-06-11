@@ -9,18 +9,7 @@ import android.widget.FrameLayout;
 /**
  * Created by chikara on 2014/08/07.
  */
-public class ScrollAutoHideBarLayout extends FrameLayout{
-
-
-    public interface OnScrolledListener {
-        public void onSwipeScrollingDown();
-        public void onSwipeScrollingUp();
-
-
-        public void onScrollStart(int px);
-        public void onScrolling(int px);
-        public void onScrollEnd(int px);
-    }
+public class ScrollAutoHideBarLayout extends FrameLayout {
 
 
     private VelocityTracker mVelocityTracker;
@@ -28,14 +17,13 @@ public class ScrollAutoHideBarLayout extends FrameLayout{
     private float mDownedX;
     private float mDownedY;
     private boolean mIsFirstMove = false;
-
     private OnScrolledListener mOnScrolledListener;
-
 
     public ScrollAutoHideBarLayout(Context context) {
         super(context);
         init();
     }
+
 
     public ScrollAutoHideBarLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -47,16 +35,14 @@ public class ScrollAutoHideBarLayout extends FrameLayout{
         init();
     }
 
-    private void init(){
+    private void init() {
         //setFillViewport(true);
         mDensity = getResources().getDisplayMetrics().density;
     }
 
-
-    public void setOnScrolledListener(OnScrolledListener listener){
+    public void setOnScrolledListener(OnScrolledListener listener) {
         mOnScrolledListener = listener;
     }
-
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
@@ -70,28 +56,20 @@ public class ScrollAutoHideBarLayout extends FrameLayout{
         return super.onInterceptTouchEvent(ev);
     }
 
-
-
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         //Log.d("test33", "onTouchEvent");
         return super.onTouchEvent(ev);
     }
 
-//    @Override
-//    public boolean arrowScroll(int direction) {
-//        //Log.d("test33", "arrowScroll");
-//        return super.arrowScroll(direction);
-//    }
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         //Log.d("test33", "dispatchTouchEvent");
 
         int action = event.getAction();
-        switch(action) {
+        switch (action) {
             case MotionEvent.ACTION_DOWN:
-                if(mVelocityTracker == null) {
+                if (mVelocityTracker == null) {
                     mVelocityTracker = VelocityTracker.obtain();
                 }
                 mVelocityTracker.clear();
@@ -107,16 +85,15 @@ public class ScrollAutoHideBarLayout extends FrameLayout{
 
                 //ue
 
-                if(mIsFirstMove){
+                if (mIsFirstMove) {
                     mIsFirstMove = false;
-                    onScrollStart((int)(event.getY() - mDownedY));
+                    onScrollStart((int) (event.getY() - mDownedY));
                 }
-                onScrolling((int)(event.getY() - mDownedY));
+                onScrolling((int) (event.getY() - mDownedY));
 
-                if(vy > 75 * mDensity){
+                if (vy > 75 * mDensity) {
                     onScrollDown();
-                }
-                else if( vy < -75 * mDensity ){
+                } else if (vy < -75 * mDensity) {
                     onScrollUp();
                 }
                 //Log.d("test33", "X velocity is " + mVelocityTracker.getXVelocity() +" pixels per second");
@@ -126,7 +103,7 @@ public class ScrollAutoHideBarLayout extends FrameLayout{
             case MotionEvent.ACTION_CANCEL:
                 mVelocityTracker.recycle();
                 mVelocityTracker = null;
-                if(!mIsFirstMove) {
+                if (!mIsFirstMove) {
                     onScrollEnd((int) (event.getY() - mDownedY));
                 }
                 break;
@@ -135,29 +112,48 @@ public class ScrollAutoHideBarLayout extends FrameLayout{
         return super.dispatchTouchEvent(event);
     }
 
-    protected void onScrollStart(int px){
-        if( mOnScrolledListener!=null )
+//    @Override
+//    public boolean arrowScroll(int direction) {
+//        //Log.d("test33", "arrowScroll");
+//        return super.arrowScroll(direction);
+//    }
+
+    protected void onScrollStart(int px) {
+        if (mOnScrolledListener != null)
             mOnScrolledListener.onScrollStart(px);
     }
-    protected void onScrollEnd(int px){
-        if( mOnScrolledListener!=null )
+
+    protected void onScrollEnd(int px) {
+        if (mOnScrolledListener != null)
             mOnScrolledListener.onScrollEnd(px);
     }
 
-
-    protected void onScrolling(int px){
-        if( mOnScrolledListener!=null )
+    protected void onScrolling(int px) {
+        if (mOnScrolledListener != null)
             mOnScrolledListener.onScrolling(px);
     }
 
-    protected void onScrollDown(){
-        if( mOnScrolledListener!=null )
+    protected void onScrollDown() {
+        if (mOnScrolledListener != null)
             mOnScrolledListener.onSwipeScrollingDown();
     }
 
-    protected void onScrollUp(){
-        if( mOnScrolledListener!=null )
+    protected void onScrollUp() {
+        if (mOnScrolledListener != null)
             mOnScrolledListener.onSwipeScrollingUp();
+    }
+
+    public interface OnScrolledListener {
+        public void onSwipeScrollingDown();
+
+        public void onSwipeScrollingUp();
+
+
+        public void onScrollStart(int px);
+
+        public void onScrolling(int px);
+
+        public void onScrollEnd(int px);
     }
 
 

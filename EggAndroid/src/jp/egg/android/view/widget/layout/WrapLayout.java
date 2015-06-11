@@ -7,7 +7,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,34 +39,35 @@ public class WrapLayout extends ViewGroup {
     }
 
 
-    private void init(){
+    private void init() {
         Resources res = getResources();
         float density = res.getDisplayMetrics().density;
-        if(mSpaceWidth<0)   mSpaceWidth = (int) (DEFAULT_SPACE_WIDTH_DP  * density);
-        if(mSpaceHeight<0)  mSpaceHeight = (int) (DEFAULT_SPACE_HEIGHT_DP  * density);
+        if (mSpaceWidth < 0) mSpaceWidth = (int) (DEFAULT_SPACE_WIDTH_DP * density);
+        if (mSpaceHeight < 0) mSpaceHeight = (int) (DEFAULT_SPACE_HEIGHT_DP * density);
     }
 
-    public void setSpaceWidth(int width){
+    public void setSpaceWidth(int width) {
         mSpaceWidth = width;
     }
-    public void setSpaceHeight(int height){
+
+    public void setSpaceHeight(int height) {
         mSpaceHeight = height;
     }
 
-    public Pair<View, TextView> addTextChild(int layoutId, CharSequence text){
+    public Pair<View, TextView> addTextChild(int layoutId, CharSequence text) {
         return addTextChild(layoutId, android.R.id.text1, text, getChildCount());
     }
 
-    public Pair<View, TextView> addTextChild(int layoutId, int textViewId, CharSequence text, int index){
+    public Pair<View, TextView> addTextChild(int layoutId, int textViewId, CharSequence text, int index) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         final View view = inflater.inflate(layoutId, this, false);
         TextView textView = null;
-        if( view instanceof ViewGroup){
+        if (view instanceof ViewGroup) {
             textView = (TextView) ((ViewGroup) view).findViewById(textViewId);
-        }else if(view instanceof TextView){
+        } else if (view instanceof TextView) {
             textView = (TextView) view;
         }
-        if(textView!=null){
+        if (textView != null) {
             textView.setText(text);
         }
         addView(view, index);
@@ -85,13 +85,13 @@ public class WrapLayout extends ViewGroup {
         //super.onLayout(changed, l, t, r, b);
 
         int childCount = this.getChildCount();
-        int layoutWidth = r-l - getPaddingLeft() - getPaddingRight();
+        int layoutWidth = r - l - getPaddingLeft() - getPaddingRight();
         int lineTop = getPaddingTop();
         int currentTotal = 0;
         int lineMaxHeight = 0;
         List<View> lineChild = new ArrayList<View>();
 
-        if(layoutWidth<0) layoutWidth=0;
+        if (layoutWidth < 0) layoutWidth = 0;
         //if(layoutHeight<0) layoutHeight=0;
 
         final int spaceWidth = mSpaceWidth;
@@ -104,20 +104,20 @@ public class WrapLayout extends ViewGroup {
                 int height = child.getMeasuredHeight();
                 if (i != 0 && layoutWidth > currentTotal + width + spaceWidth) {
                     child.layout(
-                            currentTotal+spaceWidth+getPaddingLeft(),
+                            currentTotal + spaceWidth + getPaddingLeft(),
                             lineTop,
-                            currentTotal+width+spaceWidth+getPaddingLeft(),
-                            lineTop+height);
+                            currentTotal + width + spaceWidth + getPaddingLeft(),
+                            lineTop + height);
                     currentTotal += width + spaceWidth;
                     lineMaxHeight = Math.max(lineMaxHeight, height);
                     lineChild.add(child);
                 } else {
-                    lineTop += lineMaxHeight + (i==0 ? 0 : spaceHeight);
+                    lineTop += lineMaxHeight + (i == 0 ? 0 : spaceHeight);
                     child.layout(
                             getPaddingLeft(),
                             lineTop,
-                            width+getPaddingLeft(),
-                            lineTop+height);
+                            width + getPaddingLeft(),
+                            lineTop + height);
                     currentTotal = width;
                     lineMaxHeight = height;
                     lineChild.clear();
@@ -129,7 +129,7 @@ public class WrapLayout extends ViewGroup {
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
         int childCount = this.getChildCount();
         //int layoutWidthMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -140,8 +140,8 @@ public class WrapLayout extends ViewGroup {
         int currentTotal = 0;
         List<View> lineChild = new ArrayList<View>();
 
-        if(layoutWidth<0) layoutWidth=0;
-        if(layoutHeight<0) layoutHeight=0;
+        if (layoutWidth < 0) layoutWidth = 0;
+        if (layoutHeight < 0) layoutHeight = 0;
 
         final int spaceWidth = mSpaceWidth;
         final int spaceHeight = mSpaceHeight;
@@ -155,12 +155,12 @@ public class WrapLayout extends ViewGroup {
                 );
                 int width = child.getMeasuredWidth();
                 int height = child.getMeasuredHeight();
-                if (i!=0 && layoutWidth > currentTotal + width + spaceWidth) {
+                if (i != 0 && layoutWidth > currentTotal + width + spaceWidth) {
                     currentTotal += width + spaceWidth;
                     lineMaxHeight = Math.max(lineMaxHeight, height);
                     lineChild.add(child);
                 } else {
-                    lineTop += lineMaxHeight + (i==0 ? 0 : spaceHeight);
+                    lineTop += lineMaxHeight + (i == 0 ? 0 : spaceHeight);
                     currentTotal = width;
                     lineMaxHeight = height;
                     lineChild.clear();

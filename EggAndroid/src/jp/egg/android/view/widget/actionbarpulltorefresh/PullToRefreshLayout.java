@@ -35,6 +35,7 @@ import jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates.ViewDeleg
 /**
  * The main component of the library. You wrap the views you wish to be 'pullable' within this layout.
  * This layout is setup by using the {@link ActionBarPullToRefresh} setup-wizard return by
+ *
  * @link ActionBarPullToRefresh#from(android.app.Activity)}.
  */
 public class PullToRefreshLayout extends FrameLayout {
@@ -57,18 +58,6 @@ public class PullToRefreshLayout extends FrameLayout {
     }
 
     /**
-     * Manually set this Attacher's refreshing state. The header will be
-     * displayed or hidden as requested.
-     *
-     * @param refreshing
-     *            - Whether the attacher should be in a refreshing state,
-     */
-    public final void setRefreshing(boolean refreshing) {
-        ensureAttacher();
-        mPullToRefreshAttacher.setRefreshing(refreshing);
-    }
-
-    /**
      * @return true if this Attacher is currently in a refreshing state.
      */
     public final boolean isRefreshing() {
@@ -77,9 +66,20 @@ public class PullToRefreshLayout extends FrameLayout {
     }
 
     /**
+     * Manually set this Attacher's refreshing state. The header will be
+     * displayed or hidden as requested.
+     *
+     * @param refreshing - Whether the attacher should be in a refreshing state,
+     */
+    public final void setRefreshing(boolean refreshing) {
+        ensureAttacher();
+        mPullToRefreshAttacher.setRefreshing(refreshing);
+    }
+
+    /**
      * Call this when your refresh is complete and this view should reset itself
      * (header view will be hidden).
-     *
+     * <p/>
      * This is the equivalent of calling <code>setRefreshing(false)</code>.
      */
     public final void setRefreshComplete() {
@@ -100,7 +100,7 @@ public class PullToRefreshLayout extends FrameLayout {
 
     /**
      * @return The Header View which is displayed when the user is pulling, or
-     *         we are refreshing.
+     * we are refreshing.
      */
     public final View getHeaderView() {
         ensureAttacher();
@@ -221,6 +221,7 @@ public class PullToRefreshLayout extends FrameLayout {
         attacher.initialize(options != null ? options : new Options());
         return attacher;
     }
+
     protected PullToRefreshAttacherForViewGroup createPullToRefreshAttacherForViewGroup(Activity activity, ViewGroup toolBar, Options options) {
         PullToRefreshAttacherForViewGroup attacher = new PullToRefreshAttacherForViewGroup(activity, toolBar);
         attacher.initialize(options != null ? options : new Options());

@@ -41,11 +41,9 @@ public interface HeaderViewListener {
     /**
      * Called when the visibility state of the Header View has changed.
      *
-     * @param headerView
-     *            HeaderView who's state has changed.
-     * @param state
-     *            The new state. One of {@link #STATE_VISIBLE},
-     *            {@link #STATE_MINIMIZED} and {@link #STATE_HIDDEN}
+     * @param headerView HeaderView who's state has changed.
+     * @param state      The new state. One of {@link #STATE_VISIBLE},
+     *                   {@link #STATE_MINIMIZED} and {@link #STATE_HIDDEN}
      */
     public void onStateChanged(View headerView, int state);
 }

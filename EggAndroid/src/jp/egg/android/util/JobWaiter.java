@@ -16,20 +16,20 @@ public class JobWaiter {
 
     }
 
-    public synchronized Object job () {
+    public synchronized Object job() {
         Object job = new Object();
         jobs.add(job);
         Log.d(TAG, "job start " + job);
         return job;
     }
 
-    public synchronized void complete (Object job) {
+    public synchronized void complete(Object job) {
         jobs.remove(job);
         Log.d(TAG, "job end " + job);
         this.notifyAll();
     }
 
-    public synchronized void waitForCompleteAll () {
+    public synchronized void waitForCompleteAll() {
         while (jobs.size() > 0) {
             try {
                 JobWaiter.this.wait();
@@ -40,7 +40,7 @@ public class JobWaiter {
         }
     }
 
-    public void listenCompleteAll (final Runnable callback) {
+    public void listenCompleteAll(final Runnable callback) {
         HandlerUtil.postBackground(new Runnable() {
             @Override
             public void run() {

@@ -3,7 +3,7 @@ package jp.egg.android.app.model.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 //@Table(name = "TestResult")
 public class GoogleImageSearchResult {
 
@@ -33,9 +33,6 @@ public class GoogleImageSearchResult {
 
     public String title;
     public String titleNoFormatting;
-
-
-
 
 
 }

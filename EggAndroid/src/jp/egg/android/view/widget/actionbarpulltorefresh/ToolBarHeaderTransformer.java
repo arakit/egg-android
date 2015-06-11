@@ -5,10 +5,9 @@ package jp.egg.android.view.widget.actionbarpulltorefresh;
  */
 public class ToolBarHeaderTransformer extends DefaultHeaderTransformer {
 
-    public ToolBarHeaderTransformer () {
+    public ToolBarHeaderTransformer() {
         super();
     }
-
 
 
 }

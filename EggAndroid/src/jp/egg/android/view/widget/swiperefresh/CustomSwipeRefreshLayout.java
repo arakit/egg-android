@@ -22,32 +22,35 @@ import android.widget.AbsListView;
 
 /**
  * Created by chikara on 2014/07/25.
- *
+ * <p/>
  * support v4からコピーしてきました。publicクラスではないため。
- *
+ * <p/>
  * 普通のSwipeRefreshLayoutとは違うのは、
- *        ーgetProgressBar()があることと、
- *        ーdrawCallListenerがあること
- *        ーProgressBarはdraw()で描画しないこと。
- *
- *  ProgressBarの描画をこのViewの外側で描画したいために、getProgressBarがあり、drawCallListenerで外部で描画させます。
- *  ProgressBarを外部に持ち出して、外部で描画するための変更を加えました。
- *
- *  このViewは直接使わずに、SearchSwipeRefreshLayoutに継承させて使ってます。(直接の子のListViewでないと、上スワイプができないため。)
- *
- *  　基本的にこのクラスはいじらなくて大丈夫です。
+ * ーgetProgressBar()があることと、
+ * ーdrawCallListenerがあること
+ * ーProgressBarはdraw()で描画しないこと。
+ * <p/>
+ * ProgressBarの描画をこのViewの外側で描画したいために、getProgressBarがあり、drawCallListenerで外部で描画させます。
+ * ProgressBarを外部に持ち出して、外部で描画するための変更を加えました。
+ * <p/>
+ * このViewは直接使わずに、SearchSwipeRefreshLayoutに継承させて使ってます。(直接の子のListViewでないと、上スワイプができないため。)
+ * <p/>
+ * 　基本的にこのクラスはいじらなくて大丈夫です。
  */
 public class CustomSwipeRefreshLayout extends ViewGroup {
+    public static final float PROGRESS_BAR_HEIGHT = 4;
     private static final String LOG_TAG = SwipeRefreshLayout.class.getSimpleName();
-
     private static final long RETURN_TO_ORIGINAL_POSITION_TIMEOUT = 300;
     private static final float ACCELERATE_INTERPOLATION_FACTOR = 1.5f;
     private static final float DECELERATE_INTERPOLATION_FACTOR = 2f;
-    public static final float PROGRESS_BAR_HEIGHT = 4;
     private static final float MAX_SWIPE_DISTANCE_FACTOR = .6f;
     private static final int REFRESH_TRIGGER_DISTANCE = 120;
     private static final int INVALID_POINTER = -1;
-
+    private static final int[] LAYOUT_ATTRS = new int[]{
+            android.R.attr.enabled
+    };
+    private final DecelerateInterpolator mDecelerateInterpolator;
+    private final AccelerateInterpolator mAccelerateInterpolator;
     private CustomSwipeRefreshProgress mProgressBar; //the thing that shows progress is going
     private View mTarget; //the content that gets pulled down
     private int mOriginalOffsetTop;
@@ -61,29 +64,20 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
     private int mMediumAnimationDuration;
     private float mFromPercentage = 0;
     private float mCurrPercentage = 0;
+    private final Animation.AnimationListener mShrinkAnimationListener = new BaseAnimationListener() {
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            mCurrPercentage = 0;
+        }
+    };
     private int mProgressBarHeight;
     private int mCurrentTargetOffsetTop;
-
-    private float mInitialMotionY;
-    private float mLastMotionY;
-    private boolean mIsBeingDragged;
-    private int mActivePointerId = INVALID_POINTER;
-
-    // Target is returning to its start offset because it was cancelled or a
-    // refresh was triggered.
-    private boolean mReturningToStart;
-    private final DecelerateInterpolator mDecelerateInterpolator;
-    private final AccelerateInterpolator mAccelerateInterpolator;
-    private static final int[] LAYOUT_ATTRS = new int[] {
-            android.R.attr.enabled
-    };
-
     private final Animation mAnimateToStartPosition = new Animation() {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             int targetTop = 0;
             if (mFrom != mOriginalOffsetTop) {
-                targetTop = (mFrom + (int)((mOriginalOffsetTop - mFrom) * interpolatedTime));
+                targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
             }
             int offset = targetTop - mTarget.getTop();
             final int currentTop = mTarget.getTop();
@@ -93,16 +87,6 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
             setTargetOffsetTopAndBottom(offset);
         }
     };
-
-    private Animation mShrinkTrigger = new Animation() {
-        @Override
-        public void applyTransformation(float interpolatedTime, Transformation t) {
-            float percent = mFromPercentage + ((0 - mFromPercentage) * interpolatedTime);
-            mProgressBar.setTriggerPercentage(percent);
-            if(mRefreshStateListener!=null) mRefreshStateListener.onProgressPercentChanged(percent);
-        }
-    };
-
     private final Animation.AnimationListener mReturnToStartPositionListener = new BaseAnimationListener() {
         @Override
         public void onAnimationEnd(Animation animation) {
@@ -111,14 +95,13 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
             mCurrentTargetOffsetTop = 0;
         }
     };
-
-    private final Animation.AnimationListener mShrinkAnimationListener = new BaseAnimationListener() {
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            mCurrPercentage = 0;
-        }
-    };
-
+    private float mInitialMotionY;
+    private float mLastMotionY;
+    private boolean mIsBeingDragged;
+    private int mActivePointerId = INVALID_POINTER;
+    // Target is returning to its start offset because it was cancelled or a
+    // refresh was triggered.
+    private boolean mReturningToStart;
     private final Runnable mReturnToStartPosition = new Runnable() {
 
         @Override
@@ -129,7 +112,15 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
         }
 
     };
-
+    private Animation mShrinkTrigger = new Animation() {
+        @Override
+        public void applyTransformation(float interpolatedTime, Transformation t) {
+            float percent = mFromPercentage + ((0 - mFromPercentage) * interpolatedTime);
+            mProgressBar.setTriggerPercentage(percent);
+            if (mRefreshStateListener != null)
+                mRefreshStateListener.onProgressPercentChanged(percent);
+        }
+    };
     // Cancel the refresh gesture and animate everything back to its original state.
     private final Runnable mCancel = new Runnable() {
 
@@ -154,6 +145,7 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
 
     /**
      * Simple constructor to use when creating a SwipeRefreshLayout from code.
+     *
      * @param context
      */
     public CustomSwipeRefreshLayout(Context context) {
@@ -162,6 +154,7 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
 
     /**
      * Constructor that is called when inflating SwipeRefreshLayout from XML.
+     *
      * @param context
      * @param attrs
      */
@@ -216,10 +209,12 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
     public void setOnRefreshListener(OnRefreshListener listener) {
         mListener = listener;
     }
-    public void setOnDrawCallListener(OnDrawCallListener listener){
+
+    public void setOnDrawCallListener(OnDrawCallListener listener) {
         mDrawCallListener = listener;
     }
-    public void setOnRefreshStateListener(OnRefreshStateListener listener){
+
+    public void setOnRefreshStateListener(OnRefreshStateListener listener) {
         mRefreshStateListener = listener;
     }
 
@@ -232,26 +227,7 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
         }
         mCurrPercentage = percent;
         mProgressBar.setTriggerPercentage(percent);
-        if(mRefreshStateListener!=null) mRefreshStateListener.onProgressPercentChanged(percent);
-    }
-
-    /**
-     * Notify the widget that refresh state has changed. Do not call this when
-     * refresh is triggered by a swipe gesture.
-     *
-     * @param refreshing Whether or not the view should show refresh progress.
-     */
-    public void setRefreshing(boolean refreshing) {
-        if (mRefreshing != refreshing) {
-            ensureTarget();
-            mCurrPercentage = 0;
-            mRefreshing = refreshing;
-            if (mRefreshing) {
-                mProgressBar.start();
-            } else {
-                mProgressBar.stop();
-            }
-        }
+        if (mRefreshStateListener != null) mRefreshStateListener.onProgressPercentChanged(percent);
     }
 
     /**
@@ -286,10 +262,29 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
 
     /**
      * @return Whether the SwipeRefreshWidget is actively showing refresh
-     *         progress.
+     * progress.
      */
     public boolean isRefreshing() {
         return mRefreshing;
+    }
+
+    /**
+     * Notify the widget that refresh state has changed. Do not call this when
+     * refresh is triggered by a swipe gesture.
+     *
+     * @param refreshing Whether or not the view should show refresh progress.
+     */
+    public void setRefreshing(boolean refreshing) {
+        if (mRefreshing != refreshing) {
+            ensureTarget();
+            mCurrPercentage = 0;
+            mRefreshing = refreshing;
+            if (mRefreshing) {
+                mProgressBar.start();
+            } else {
+                mProgressBar.stop();
+            }
+        }
     }
 
     private void ensureTarget() {
@@ -303,29 +298,29 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
             mOriginalOffsetTop = mTarget.getTop() + getPaddingTop();
         }
         if (mDistanceToTriggerSync == -1) {
-            if (getParent() != null && ((View)getParent()).getHeight() > 0) {
+            if (getParent() != null && ((View) getParent()).getHeight() > 0) {
                 final DisplayMetrics metrics = getResources().getDisplayMetrics();
                 mDistanceToTriggerSync = (int) Math.min(
-                        ((View) getParent()) .getHeight() * MAX_SWIPE_DISTANCE_FACTOR,
+                        ((View) getParent()).getHeight() * MAX_SWIPE_DISTANCE_FACTOR,
                         REFRESH_TRIGGER_DISTANCE * metrics.density);
             }
         }
     }
 
-    public CustomSwipeRefreshProgress getProgressBar(){
+    public CustomSwipeRefreshProgress getProgressBar() {
         return mProgressBar;
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if(mDrawCallListener!=null) mDrawCallListener.onDrawCall();
+        if (mDrawCallListener != null) mDrawCallListener.onDrawCall();
         //mProgressBar.draw(canvas); //CHANGED PAIRS
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        final int width =  getMeasuredWidth();
+        final int width = getMeasuredWidth();
         final int height = getMeasuredHeight();
         //mProgressBar.setBounds(0, 0, width, mProgressBarHeight); //CHANGED PAIRS
         if (getChildCount() == 0) {
@@ -358,7 +353,7 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
 
     /**
      * @return Whether it is possible for the child view of this layout to
-     *         scroll up. Override this if the child view is a custom view.
+     * scroll up. Override this if the child view is a custom view.
      */
     public boolean canChildScrollUp() {
         if (android.os.Build.VERSION.SDK_INT < 14) {
@@ -566,13 +561,15 @@ public class CustomSwipeRefreshLayout extends ViewGroup {
         public void onRefresh();
     }
 
-    public interface OnDrawCallListener{
+    public interface OnDrawCallListener {
         public void onDrawCall();
     }
 
-    public interface OnRefreshStateListener{
+    public interface OnRefreshStateListener {
         public void onProgressPercentChanged(float percent);
+
         public void onRefreshStart();
+
         public void onRefreshEnd();
     }
 

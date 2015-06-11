@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2013 Chris Banes
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,8 +46,8 @@
             <flag name="outside" value="0x1" />
         </attr>
 
-	    <!-- The height of the Progress Bar -->
-	    <attr name="ptrProgressBarHeight" format="reference|dimension" />
+        <!-- The height of the Progress Bar -->
+        <attr name="ptrProgressBarHeight" format="reference|dimension" />
 
         <!-- Text to show to prompt the user is pull (or keep pulling) -->
         <attr name="ptrPullText" format="reference|string" />
@@ -60,7 +59,7 @@
         <attr name="ptrReleaseText" format="reference|string" />
 
         <!--indeterminate progressbar style-->
-        <attr name="ptrSmoothProgressBarStyle" format="reference"/>
+        <attr name="ptrSmoothProgressBarStyle" format="reference" />
 
     </declare-styleable>
 

@@ -11,12 +11,6 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
 
 
-
-
-
-
-
-
     <!-- Elevation when button is pressed -->
     <dimen name="button_elevation_material">1dp</dimen>
     <!-- Z translation to apply when button is pressed -->
@@ -34,7 +28,6 @@
     <dimen name="control_padding_material">4dp</dimen>
     <!-- Default rounded corner for controls -->
     <dimen name="control_corner_material">2dp</dimen>
-
 
 
 </resources>

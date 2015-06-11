@@ -7,7 +7,7 @@ import android.widget.CheckBox;
 /**
  * Created by chikara on 2014/07/25.
  */
-public class ManualCheckBox extends CheckBox{
+public class ManualCheckBox extends CheckBox {
 
     public ManualCheckBox(Context context) {
         super(context);

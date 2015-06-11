@@ -8,6 +8,7 @@ public class CustomShapeSquareImageView extends CustomShapeImageView {
     public CustomShapeSquareImageView(Context context, int resourceId, int shape, int svgRawResourceId) {
         super(context, resourceId, shape, svgRawResourceId);
     }
+
     public CustomShapeSquareImageView(Context context) {
         super(context);
     }

@@ -3,17 +3,15 @@ package jp.egg.android.view.widget.swiperefresh;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.AbsListView;
-import android.widget.ListView;
 
 /**
  * Created by chikara on 2014/07/24.
- *
- *   ListViewで上へのスワイプができないため、その変更をした、スワイプリフレッシュ。
- *   Progressの描画は、SearchSwipeRefreshDrawProgressViewに、横取りさせることができます。
- *
- *   How to use.
- *     子の中にいる対象のListViewをsetListViewでsetしてください。
- *
+ * <p/>
+ * ListViewで上へのスワイプができないため、その変更をした、スワイプリフレッシュ。
+ * Progressの描画は、SearchSwipeRefreshDrawProgressViewに、横取りさせることができます。
+ * <p/>
+ * How to use.
+ * 子の中にいる対象のListViewをsetListViewでsetしてください。
  */
 public class NonDirectListViewSwipeRefreshLayout extends CustomSwipeRefreshLayout {
 
@@ -29,26 +27,23 @@ public class NonDirectListViewSwipeRefreshLayout extends CustomSwipeRefreshLayou
     }
 
 
-
-
-    public void setListView(AbsListView listView){
+    public void setListView(AbsListView listView) {
         mListView = listView;
     }
 
 
-    private boolean canPullOnListView(){
+    private boolean canPullOnListView() {
         return mListView.getFirstVisiblePosition() == 0 && mListView.getChildAt(0).getTop() >= 0;
     }
 
     @Override
-    public boolean canChildScrollUp(){
-        if(mListView!=null) {
+    public boolean canChildScrollUp() {
+        if (mListView != null) {
             return !canPullOnListView();
-        }else{
+        } else {
             return super.canChildScrollUp();
         }
     }
-
 
 
 }

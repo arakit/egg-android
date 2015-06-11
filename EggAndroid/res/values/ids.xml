@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <item type="id" name="tag_loading_image" />
+    <item name="tag_loading_image" type="id" />
 
 </resources>

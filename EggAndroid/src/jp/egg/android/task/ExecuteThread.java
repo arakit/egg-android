@@ -7,26 +7,28 @@ import android.os.Process;
 
 import com.android.volley.Request;
 
-public class ExecuteThread extends Thread{
+public class ExecuteThread extends Thread {
 
 
-	private EggTaskQueue mQueue;
+    private EggTaskQueue mQueue;
 //	   /** The queue of requests to service. */
 //    private final BlockingQueue<EggTask<?, ?>> mQueue;
 //    /** The network interface for processing requests. */
 //    private final Network mNetwork;
 //    /** For posting responses and errors. */
 //    private final ResponseDelivery mDelivery;
-    /** Used for telling us to die. */
+    /**
+     * Used for telling us to die.
+     */
     private volatile boolean mQuit = false;
 
     /**
      * Creates a new network dispatcher thread.  You must call {@link #start()}
      * in order to begin processing.
      *
-     * @param queue Queue of incoming requests for triage
-     * @param network Network interface to use for performing requests
-     * @param cache Cache interface to use for writing responses to cache
+     * @param queue    Queue of incoming requests for triage
+     * @param network  Network interface to use for performing requests
+     * @param cache    Cache interface to use for writing responses to cache
      * @param delivery Delivery interface to use for posting responses
      */
     public ExecuteThread(EggTaskQueue queue) {
@@ -75,7 +77,7 @@ public class ExecuteThread extends Thread{
                 // If the request was cancelled already, do not perform the
                 // network request.
                 if (request.isCanceled()) {
-                	finishRequest(request, "network-discard-cancelled");
+                    finishRequest(request, "network-discard-cancelled");
                     //request.finish("network-discard-cancelled");
                     continue;
                 }
@@ -128,12 +130,12 @@ public class ExecuteThread extends Thread{
 
     /**
      * Notifies the request queue that this request has finished (successfully or with error).
-     *
+     * <p/>
      * <p>Also dumps all events from this request's event log; for debugging.</p>
      */
     private void finishRequest(EggTask<?, ?> task, final String tag) {
 
-    	task.postStop();
+        task.postStop();
 
 //        if (mQueue != null) {
 //            mQueue.finish(this);

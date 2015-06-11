@@ -18,27 +18,24 @@ import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.adapter.EggDefaultListAdapter;
 import jp.egg.android.ui.fragment.EggBaseFragment;
 
-public class TestListFragment extends EggBaseFragment{
+public class TestListFragment extends EggBaseFragment {
 
-	public static final TestListFragment newInstance(){
-		TestListFragment f = new TestListFragment();
-		Bundle args = new Bundle();
-		f.setArguments(args);
-		return f;
-	}
+    private final ListViewAdapter mAdapter = new ListViewAdapter();
+    private EggApplication mApp;
+    private LayoutInflater mLayoutInflater;
 
+    //private String mRequestUrl;
 
+    public TestListFragment() {
+        // TODO 自動生成されたコンストラクター・スタブ
+    }
 
-	public TestListFragment() {
-		// TODO 自動生成されたコンストラクター・スタブ
-	}
-
-
-	private EggApplication mApp;
-
-	//private String mRequestUrl;
-
-	private LayoutInflater mLayoutInflater;
+    public static final TestListFragment newInstance() {
+        TestListFragment f = new TestListFragment();
+        Bundle args = new Bundle();
+        f.setArguments(args);
+        return f;
+    }
 
     /*
      * (non-Javadoc)
@@ -53,29 +50,29 @@ public class TestListFragment extends EggBaseFragment{
         ListView listView = (ListView) v.findViewById(R.id.fragment_test_listview_listview);
         Button btn1 = (Button) v.findViewById(R.id.button1);
 
-		listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-			@Override
-			public void onScrollStateChanged(AbsListView absListView, int i) {
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
 
-			}
+            }
 
-			@Override
-			public void onScroll(AbsListView absListView, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
-				if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
-					// 最後尾までスクロールしたので、何かデータ取得する処理
+            @Override
+            public void onScroll(AbsListView absListView, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
+                    // 最後尾までスクロールしたので、何かデータ取得する処理
 
-				}
-			}
-		});
+                }
+            }
+        });
 
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-			}
-		});
+            }
+        });
 
 //		btn1.setOnClickListener(new View.OnClickListener() {
 //			@Override
@@ -99,30 +96,23 @@ public class TestListFragment extends EggBaseFragment{
 //			}
 //		});
 
-		listView.setAdapter(mAdapter);
-		mAdapter.notifyDataSetChanged();
+        listView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
 
         return v;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+        mApp = (EggApplication) getActivity().getApplication();
 
-		mApp = (EggApplication) getActivity().getApplication();
+        mLayoutInflater = getLayoutInflater(savedInstanceState);
 
-		mLayoutInflater = getLayoutInflater(savedInstanceState);
+        //mRequestUrl = "http://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&safe=off&q=hatsune";
 
-		//mRequestUrl = "http://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&safe=off&q=hatsune";
-
-	}
-
-
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
+    }
 
 
 //	private class TestData{
@@ -148,55 +138,51 @@ public class TestListFragment extends EggBaseFragment{
 //		public Integer width;
 //	}
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    private static class Holder {
+
+        ImageView icon1;
+        TextView text1;
+        TextView text2;
+
+    }
+
+    private class ListViewAdapter extends EggDefaultListAdapter<GoogleImageSearchResult> {
 
 
-	private static class Holder{
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
 
-		ImageView icon1;
-		TextView text1;
-		TextView text2;
+            Holder holder;
+            if (convertView == null) {
+                holder = new Holder();
+                convertView = mLayoutInflater.inflate(R.layout.item_test_list, null);
+                convertView.setTag(holder);
 
-	}
+                holder.text1 = (TextView) convertView.findViewById(R.id.text_1);
+                holder.text2 = (TextView) convertView.findViewById(R.id.text_2);
+                holder.icon1 = (ImageView) convertView.findViewById(R.id.icon_1);
 
-	private class ListViewAdapter extends EggDefaultListAdapter<GoogleImageSearchResult>{
+            } else {
+                holder = (Holder) convertView.getTag();
+            }
 
+            GoogleImageSearchResult item = getItem(position);
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+            holder.text1.setText(item.url);
+            holder.text2.setText("" + item.height);
 
-			Holder holder;
-			if(convertView == null){
-				holder = new Holder();
-				convertView = mLayoutInflater.inflate(R.layout.item_test_list, null);
-				convertView.setTag(holder);
+            EggTaskCentral.getInstance().displayImage(holder.icon1, item.url, R.drawable.ic_launcher);
 
-				holder.text1 = (TextView) convertView.findViewById(R.id.text_1);
-				holder.text2 = (TextView)  convertView.findViewById(R.id.text_2);
-				holder.icon1 = (ImageView)  convertView.findViewById(R.id.icon_1);
-
-			}else{
-				holder = (Holder) convertView.getTag();
-			}
-
-			GoogleImageSearchResult item = getItem(position);
-
-			holder.text1.setText(item.url);
-			holder.text2.setText(""+item.height);
-
-			EggTaskCentral.getInstance().displayImage(holder.icon1, item.url, R.drawable.ic_launcher);
-
-			return convertView;
-		}
+            return convertView;
+        }
 
 
-
-
-	}
-
-	private final ListViewAdapter mAdapter = new ListViewAdapter();
-
-
-
+    }
 
 
 }

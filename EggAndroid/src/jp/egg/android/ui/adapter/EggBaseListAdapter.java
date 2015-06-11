@@ -2,23 +2,23 @@ package jp.egg.android.ui.adapter;
 
 import android.widget.BaseAdapter;
 
-public abstract class EggBaseListAdapter<I> extends BaseAdapter{
+public abstract class EggBaseListAdapter<I> extends BaseAdapter {
 
 //	private Class mHolderClazz;
 //	public EggListAdapter(Class clazz) {
 //		mHolderClazz = clazz;
 //	}
 
-	@Override
-	public abstract int getCount();
+    @Override
+    public abstract int getCount();
 
-	@Override
-	public abstract I getItem(int position) ;
+    @Override
+    public abstract I getItem(int position);
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
 //	@SuppressWarnings("unchecked")
 //	@Override

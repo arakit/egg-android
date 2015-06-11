@@ -6,14 +6,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.util.Base64;
 
-import com.activeandroid.ActiveAndroid;
-import com.activeandroid.Configuration;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import jp.egg.android.task.EggTaskCentral;
-import jp.egg.android.util.Log;
 
 public class EggAndroid {
 
@@ -29,7 +25,7 @@ public class EggAndroid {
 ////        }
 //    }
 
-    public static final void initialize(Context context){
+    public static final void initialize(Context context) {
         Context appContext = context.getApplicationContext();
         //sIsEnableDb = aaConfiguration!=null;
         EggTaskCentral.initialize(appContext);
@@ -39,16 +35,13 @@ public class EggAndroid {
     }
 
 
-    public static final void terminate(){
+    public static final void terminate() {
         //if(sIsEnableDb) ActiveAndroid.dispose();
         EggTaskCentral.destroy();
     }
 
 
-
-
-
-    public static String getAppKeyHash(Context context){
+    public static String getAppKeyHash(Context context) {
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(
                     context.getPackageName(),
