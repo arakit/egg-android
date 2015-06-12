@@ -29,4 +29,9 @@
         <attr name="slWeight" format="float" />
     </declare-styleable>
 
+
+    <declare-styleable name="WrapLayout">
+        <attr name="android:gravity" />
+    </declare-styleable>
+
 </resources>
