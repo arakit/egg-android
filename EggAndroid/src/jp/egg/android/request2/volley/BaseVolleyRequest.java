@@ -9,6 +9,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -35,9 +36,18 @@ import jp.egg.android.util.ReflectionUtils;
  */
 public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
-
+    public static final int REQUEST_TYPE_DEFAULT = 0;
+    public static final int REQUEST_TYPE_JSON = 1;
     public static final String SET_COOKIE = "Set-Cookie";
-
+    /**
+     * Charset for request.
+     */
+    private static final String JSON_PROTOCOL_CHARSET = "utf-8";
+    /**
+     * Content type for request.
+     */
+    private static final String JSON_PROTOCOL_CONTENT_TYPE =
+            String.format("application/json; charset=%s", JSON_PROTOCOL_CHARSET);
     private Context mContext;
     private Response.Listener<O> mResponseListener;
     private Response.ErrorListener mErrorListener;
@@ -47,6 +57,9 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     private Priority mPriority = Priority.NORMAL;
     private Class<O> mBackedOutputType;
     private String mDeNormalizedUrl;
+
+    private int mRequestType = REQUEST_TYPE_DEFAULT;
+
 
     protected BaseVolleyRequest(Context context, int method, String url) {
         this(context, method, url, null, null);
@@ -100,6 +113,10 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
     public void setErrorListener(Response.ErrorListener errorListener) {
         mErrorListener = errorListener;
+    }
+
+    protected void setRequestType(int requestType) {
+        mRequestType = requestType;
     }
 
     protected abstract I getInput();
@@ -170,9 +187,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
 
         if (Log.isDebug()) {
-            Log.d("request", "------------------------------------");
             Log.d("request-input", "" + mDeNormalizedUrl + " params => " + DUtil.toStringPairList((List) params2, false));
-            Log.d("input", "" + mDeNormalizedUrl + " params => " + DUtil.toStringPairList((List) params2, false));
         }
         return params2;
     }
@@ -196,12 +211,78 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
      */
     @Override
     public byte[] getBody() throws AuthFailureError {
-        List<Pair<String, String>> params = getParams2();
-        if (params != null && params.size() > 0) {
-            return encodeParameters(params, getParamsEncoding());
+        switch (mRequestType) {
+            case REQUEST_TYPE_DEFAULT: {
+                List<Pair<String, String>> params = getParams2();
+                if (params != null && params.size() > 0) {
+                    return encodeParameters(params, getParamsEncoding());
+                }
+                return null;
+            }
+            case REQUEST_TYPE_JSON: {
+                return getBodyForJson();
+            }
+            default: {
+                return null;
+            }
         }
-        return null;
     }
+
+    public String getBodyContentType() {
+        switch (mRequestType) {
+            case REQUEST_TYPE_DEFAULT:
+                return super.getBodyContentType();
+            case REQUEST_TYPE_JSON:
+                return getBodyContentTypeForJson();
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * JSONでのリクエスト用のリクエストボディ
+     * REQUEST_TYPE_JSONのときのみ
+     *
+     * @return json string
+     */
+    private byte[] getBodyForJson() {
+        String requestBody = getParamsJson();
+        try {
+            return requestBody == null ? null : requestBody.getBytes(JSON_PROTOCOL_CHARSET);
+        } catch (UnsupportedEncodingException uee) {
+            VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
+                    requestBody, JSON_PROTOCOL_CHARSET);
+            return null;
+        }
+    }
+
+    /**
+     * JSONでのリクエスよ用のコンテントタイプ
+     *
+     * @return
+     */
+    private String getBodyContentTypeForJson() {
+        return JSON_PROTOCOL_CONTENT_TYPE;
+    }
+
+
+    /**
+     * 入力されたInputをもとに、リクエスト用のJSONを返す
+     *
+     * @return
+     */
+    protected String getParamsJson() {
+        I in = getInput();
+
+        JsonNode jsonNode = Json.toJson(in);
+        String string = Json.stringify(jsonNode);
+
+        if (Log.isDebug()) {
+            Log.d("request-input", "" + mDeNormalizedUrl + " params => " + string);
+        }
+        return string;
+    }
+
 
     /**
      * Converts <code>params</code> into an application/x-www-form-urlencoded encoded string.
@@ -248,20 +329,27 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
             e.printStackTrace();
         }
 
-        if (Log.isDebug()) {
-            Log.d("output-raw", "" + mDeNormalizedUrl + " > " + data);
+        JsonNode node;
+        try {
+            node = Json.parse(data);
+        } catch (Exception ex) {
+            node = null;
         }
 
-        JsonNode node = Json.parse(data);
-
         if (Log.isDebug()) {
-            Log.d("output", "" + node);
-            Log.d("request-response", "" + node + "; " + mDeNormalizedUrl);
+            if (node!=null) {
+                Log.d("output", "" + mDeNormalizedUrl + " > " + Json.stringify(node));
+            } else {
+                Log.d("output", "" + mDeNormalizedUrl + " > " + data);
+            }
         }
 
-        O bean = getOutput(node);
-
-        return Response.success(bean, HttpHeaderParser.parseCacheHeaders(response));
+        if (node!=null) {
+            O bean = getOutput(node);
+            return Response.success(bean, HttpHeaderParser.parseCacheHeaders(response));
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -294,7 +382,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         String cookieStr = getCookie();
         if (cookieStr != null && cookieStr.length() > 0) {
             headers.put("cookie", cookieStr);
-            //if(Config.isDebug()) Log.d("cookie", "send cookie = " + cookieStr);
         }
 
         return headers;
