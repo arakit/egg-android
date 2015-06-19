@@ -206,6 +206,14 @@ public class WrapLayout extends ViewGroup {
                 );
                 int width = child.getMeasuredWidth();
                 int height = child.getMeasuredHeight();
+                if (width > layoutWidth) {
+                    child.measure(
+                            View.MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(layoutHeight, MeasureSpec.UNSPECIFIED)
+                    );
+                    width = child.getMeasuredWidth();
+                    height = child.getMeasuredHeight();
+                }
                 if (i != 0 && layoutWidth > currentTotal + width + spaceWidth) {
                     currentTotal += width + spaceWidth;
                     lineMaxHeight = Math.max(lineMaxHeight, height);
