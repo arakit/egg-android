@@ -16,6 +16,7 @@
 
 package jp.egg.android.view.widget.actionbarpulltorefresh.viewdelegates;
 
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -71,14 +72,30 @@ public class RecyclerViewDelegate implements ViewDelegate {
 
             if (vp instanceof CoordinatorLayout) {
                 CoordinatorLayout coordinatorLayout = (CoordinatorLayout) vp;
-                View content = (View) vpPrev;
+                View scrolling = (View) vpPrev;
 
-                List<View> children = coordinatorLayout.getDependencies(content);
-                View appBar = children.get(0);
-                int appBarHeight = appBar.getHeight();
+                CoordinatorLayout.LayoutParams scrollingParams =
+                        (scrolling.getLayoutParams() instanceof CoordinatorLayout.LayoutParams) ?
+                                (CoordinatorLayout.LayoutParams) scrolling.getLayoutParams() : null;
 
-                if (content.getY() != appBarHeight) {
-                    return false;
+                if (scrollingParams!=null) {
+                    AppBarLayout.ScrollingViewBehavior scrollingViewBehavior =
+                            (scrollingParams.getBehavior() instanceof  AppBarLayout.ScrollingViewBehavior) ?
+                                    (AppBarLayout.ScrollingViewBehavior) scrollingParams.getBehavior() : null;
+                    if (scrollingViewBehavior!=null) {
+                        int scrollingOffset = scrollingViewBehavior.getTopAndBottomOffset();
+
+                        List<View> children = coordinatorLayout.getDependencies(scrolling);
+                        AppBarLayout appBar = findFirstAppBarLayout(children);
+
+                        if (appBar != null) {
+                            int appBarHeight = appBar.getHeight();
+
+                            if (scrollingOffset != appBarHeight) {
+                                return false;
+                            }
+                        }
+                    }
                 }
 
             }
@@ -88,6 +105,19 @@ public class RecyclerViewDelegate implements ViewDelegate {
         }
 
         return true;
+    }
+
+    private static AppBarLayout findFirstAppBarLayout(List<View> views) {
+        int i = 0;
+
+        for(int z = views.size(); i < z; ++i) {
+            View view = (View)views.get(i);
+            if(view instanceof AppBarLayout) {
+                return (AppBarLayout)view;
+            }
+        }
+
+        return null;
     }
 
 
