@@ -109,13 +109,14 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         int retryCount = 0;
         retry_loop:
         while (retryCount <= mRetryLimit) {
-            int result = handleRequest(client, retryCount);
+            int result = handleRequest(client);
             switch (result) {
                 case REQUEST_RESULT_FINISH:
                     // 終了
                     break retry_loop;
                 case REQUEST_RESULT_RETRY:
                     // リトライする
+                    retryCount++;
                     continue retry_loop;
                 default:
                     throw new IllegalStateException("unknown result code.");
@@ -125,7 +126,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
 
     }
 
-    private int handleRequest(OkHttpClient client, int currentRetryCount) {
+    private int handleRequest(OkHttpClient client) {
 
         String url = mUrl;
         I input = getInput();
@@ -203,20 +204,23 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
             String message = response.message();
             Log.d(TAG, "response is error. response code is " + code + ". " + message);
 
-            if (code == 401 || code == 403) {
+            if (code == 401) {
                 boolean retry = onRetryAuthorizedInBackground();
                 if (retry) {
                     Log.d(TAG, "retry");
                     return REQUEST_RESULT_RETRY;
                 } else {
                     Log.d(TAG, "unauthorized error.");
-                    setError(null);
+                    DefaultUploadTaskError error = new DefaultUploadTaskError(code, message);
+                    setError(error);
                     return REQUEST_RESULT_FINISH;
                 }
             }
 
+
             Log.d(TAG, "response is null error.");
-            setError(null);
+            DefaultUploadTaskError error = new DefaultUploadTaskError(code, message);
+            setError(error);
             return REQUEST_RESULT_FINISH;
         } else {
             Log.d(TAG, "result is error.");
