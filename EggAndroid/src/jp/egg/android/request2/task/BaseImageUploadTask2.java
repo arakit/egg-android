@@ -203,7 +203,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
             String message = response.message();
             Log.d(TAG, "response is error. response code is " + code + ". " + message);
 
-            if (code == 401) {
+            if (code == 401 || code == 403) {
                 boolean retry = onRetryAuthorizedInBackground();
                 if (retry) {
                     Log.d(TAG, "retry");
