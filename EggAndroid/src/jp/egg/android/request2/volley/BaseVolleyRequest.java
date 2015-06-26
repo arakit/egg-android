@@ -174,6 +174,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
                         if (Modifier.isStatic(modifiers)) return false;
                         if (Modifier.isPrivate(modifiers)) return false;
                         if (Modifier.isProtected(modifiers)) return false;
+                        if (field.getName().contains("$")) return false;
                         return true;
                     }
                 },
@@ -337,14 +338,14 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
 
         if (Log.isDebug()) {
-            if (node!=null) {
+            if (node != null) {
                 Log.d("output", "" + mDeNormalizedUrl + " > " + Json.stringify(node));
             } else {
                 Log.d("output", "" + mDeNormalizedUrl + " > " + data);
             }
         }
 
-        if (node!=null) {
+        if (node != null) {
             O bean = getOutput(node);
             return Response.success(bean, HttpHeaderParser.parseCacheHeaders(response));
         } else {
