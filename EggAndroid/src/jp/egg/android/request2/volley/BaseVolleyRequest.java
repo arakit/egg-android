@@ -393,7 +393,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         return mPriority;
     }
 
-    protected void setPriority(Priority priority) {
+    public void setPriority(Priority priority) {
         mPriority = priority;
     }
 }
