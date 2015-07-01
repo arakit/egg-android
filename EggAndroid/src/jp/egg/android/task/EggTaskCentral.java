@@ -31,7 +31,7 @@ import jp.egg.android.request2.task.BaseFileDownloadTask;
 
 public class EggTaskCentral {
 
-    private static final int DEFAULT_VOLLEY_CACHE_SIZE = 4 * 1024 * 1024;
+    public static final int DEFAULT_VOLLEY_CACHE_SIZE = 4 * 1024 * 1024;
     private static final int DEFAULT_IMAGE_CACHE_SIZE = 4 * 1024 * 1024;
     private static final int DEFAULT_IMAGE_DISC_CACHE_SIZE = 32 * 1024 * 1024;
 
@@ -99,24 +99,24 @@ public class EggTaskCentral {
     private void onDestroy() {
         mContext = null;
         cancelVolleyRequestAll();
-        stopVolleyRquest();
+        stopVolleyRequest();
         stopTask();
 
         mUnivImageLoader.stop();
         mUnivImageLoader.destroy();
     }
 
-    private void startVolleyRequest() {
+    public void startVolleyRequest() {
         mVolleyQueue.start();
     }
 
-    private void stopVolleyRquest() {
+    public void stopVolleyRequest() {
         mVolleyQueue.stop();
     }
 
     public void resetVolley() {
         cancelVolleyRequestAll();
-        stopVolleyRquest();
+        stopVolleyRequest();
         mVolleyQueue = EggVolley.newRequestQueue(mContext, DEFAULT_VOLLEY_CACHE_SIZE);
         startVolleyRequest();
     }

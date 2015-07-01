@@ -34,6 +34,9 @@ import java.io.File;
 
 public class EggVolley {
 
+    /** Number of network request dispatcher threads to start. */
+    private static final int DEFAULT_NETWORK_THREAD_POOL_SIZE = 4;
+
     /**
      * Default on-disk cache directory.
      */
@@ -46,7 +49,7 @@ public class EggVolley {
      * @param stack   An {@link HttpStack} to use for the network, or null for default.
      * @return A started {@link RequestQueue} instance.
      */
-    protected static RequestQueue newRequestQueue(Context context, HttpStack stack, int cacheSizeInBytes) {
+    protected static RequestQueue newRequestQueue(Context context, HttpStack stack, int cacheSizeInBytes, int threadPoolSize) {
         File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
 
         String userAgent = "volley/0";
@@ -97,7 +100,17 @@ public class EggVolley {
 //        client.setCookieStore(store);
 //        HttpClientStack stack = new HttpClientStack(client);
 //        return newRequestQueue(context, stack, cacheSizeInBytes);
-        return newRequestQueue(context, null, cacheSizeInBytes);
+        return newRequestQueue(context, null, cacheSizeInBytes, DEFAULT_NETWORK_THREAD_POOL_SIZE);
+    }
+
+    /**
+     * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
+     *
+     * @param context A {@link Context} to use for creating the cache dir.
+     * @return A started {@link RequestQueue} instance.
+     */
+    public static RequestQueue newRequestQueue(Context context, int cacheSizeInBytes, int threadPoolSize) {
+        return newRequestQueue(context, null, cacheSizeInBytes, threadPoolSize);
     }
 
 
