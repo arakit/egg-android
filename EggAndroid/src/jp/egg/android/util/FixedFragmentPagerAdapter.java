@@ -162,8 +162,11 @@ public abstract class FixedFragmentPagerAdapter extends PagerAdapter {
     }
 
     public Fragment findFragmentByPosition(ViewGroup container, int position) {
+        return findFragmentByPosition(container.getId(), position);
+    }
+    public Fragment findFragmentByPosition(int viewId, int position) {
         final long itemId = getItemId(position);
-        String name = makeFragmentName(container.getId(), itemId);
+        String name = makeFragmentName(viewId, itemId);
         return mFragmentManager.findFragmentByTag(name);
     }
 
