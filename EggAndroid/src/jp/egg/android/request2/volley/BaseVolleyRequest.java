@@ -322,13 +322,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
         parseCookie(response);
 
-        String data = null;
-        try {
-            data = new String(response.data,
-                    HttpHeaderParser.parseCharset(response.headers));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String data = parseToString(response);
 
         JsonNode node;
         try {
@@ -351,6 +345,17 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         } else {
             return null;
         }
+    }
+
+    protected String parseToString (NetworkResponse response) {
+        String data = null;
+        try {
+            data = new String(response.data,
+                    HttpHeaderParser.parseCharset(response.headers));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return data;
     }
 
     @Override
