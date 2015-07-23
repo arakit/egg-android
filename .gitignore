@@ -25,3 +25,6 @@ proguard/
 # intelij idea 
 .idea/
 *.iml
+
+# mac
+.DS_Store

@@ -11,7 +11,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RequestQueue.RequestFilter;
 import com.loopj.android.http.RequestParams;
-import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiscCache;
+import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -33,7 +33,7 @@ public class EggTaskCentral {
 
     public static final int DEFAULT_VOLLEY_CACHE_SIZE = 4 * 1024 * 1024;
     private static final int DEFAULT_IMAGE_CACHE_SIZE = 4 * 1024 * 1024;
-    private static final int DEFAULT_IMAGE_DISC_CACHE_SIZE = 32 * 1024 * 1024;
+    private static final int DEFAULT_IMAGE_DISK_CACHE_SIZE = 32 * 1024 * 1024;
 
 
     public static EggTaskCentral sInstance = null;
@@ -45,6 +45,7 @@ public class EggTaskCentral {
     //インスタンス
     //private ImageLoader mVolleyImageLoader;
     private com.nostra13.universalimageloader.core.ImageLoader mUnivImageLoader;
+
     private EggTaskCentral() {
 
     }
@@ -84,7 +85,7 @@ public class EggTaskCentral {
                 .memoryCache(new LruMemoryCache(DEFAULT_IMAGE_CACHE_SIZE))
                         //.memoryCacheExtraOptions( (int)(dm.widthPixels / dm.density / 2), (int)(dm.heightPixels / dm.density / 2) )
                         //.memoryCacheSize(DEFAULT_IMAGE_CACHE_SIZE)
-                .diskCache(new LimitedAgeDiscCache(cacheDir, DEFAULT_IMAGE_DISC_CACHE_SIZE))
+                .diskCache(new LimitedAgeDiskCache(cacheDir, DEFAULT_IMAGE_DISK_CACHE_SIZE))
                         //.diskCacheSize(DEFAULT_IMAGE_DISC_CACHE_SIZE)
                 .build();
 
