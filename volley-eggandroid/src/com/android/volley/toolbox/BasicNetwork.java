@@ -17,6 +17,7 @@
 package com.android.volley.toolbox;
 
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.Pair;
 
 import com.android.volley.AuthFailureError;
@@ -263,8 +264,7 @@ public class BasicNetwork implements Network {
     private static List<Pair<String, String>> convertHeaders(Header[] headers) {
         List<Pair<String, String>> result = new ArrayList<Pair<String, String>>();
         for (int i = 0; i < headers.length; i++) {
-            result.add(new Pair<String, String>(headers[i].getName(),
-                    headers[i].getValue()));
+            result.add(new Pair<String, String>(headers[i].getName(), headers[i].getValue()));
         }
         return result;
     }

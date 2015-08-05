@@ -2,6 +2,7 @@ package jp.egg.android.request2.volley;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import com.android.volley.AuthFailureError;
@@ -19,6 +20,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.CookieStore;
+import java.net.HttpCookie;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,6 +34,7 @@ import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Json;
 import jp.egg.android.util.Log;
 import jp.egg.android.util.ReflectionUtils;
+import jp.egg.android.util.StringUtil;
 
 /**
  * Created by chikara on 2014/07/10.
@@ -307,18 +311,20 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     protected abstract O getOutput(JsonNode jn);
 
     protected final void parseCookie(NetworkResponse response) {
-        List<Pair<String, String>> headers = response.headers;
-        for (Pair<String, String> header : headers) {
-            Log.d("test", "header "+header.first+" -> "+header.second);
 
+        List<Pair<String, String>> headers = response.headers;
+        List<String> result = new ArrayList<String>();
+        for (Pair<String, String> header : headers) {
             if (SET_COOKIE.equalsIgnoreCase(header.first)) {
-                String cookie = header.second;
-                onReceivedCookie(cookie);
+                result.add(header.second);
             }
+        }
+        if (result.size() > 0) {
+            onReceivedCookie(result);
         }
     }
 
-    protected void onReceivedCookie(String strCookie) {
+    protected void onReceivedCookie(List<String> cookies) {
 
     }
 
@@ -377,17 +383,14 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
 
-    protected final List<String> getCookies() {
-        List<String> strCookies = onSendCookie();
+    protected List<String> getCookies() {
+        List<String> strCookies = null;
         if (strCookies == null) {
             strCookies = new ArrayList<String>();
         }
         return strCookies;
     }
 
-    protected List<String> onSendCookie() {
-        return null;
-    }
 
     @Override
     public List<Pair<String, String>> getHeaders() throws AuthFailureError {
