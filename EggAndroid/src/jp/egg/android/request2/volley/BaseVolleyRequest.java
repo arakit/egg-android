@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -306,10 +307,14 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     protected abstract O getOutput(JsonNode jn);
 
     protected final void parseCookie(NetworkResponse response) {
-        Map<String, String> headers = response.headers;
-        if (headers.containsKey(SET_COOKIE)) {
-            String cookie = headers.get(SET_COOKIE);
-            onReceivedCookie(cookie);
+        List<Pair<String, String>> headers = response.headers;
+        for (Pair<String, String> header : headers) {
+            Log.d("test", "header "+header.first+" -> "+header.second);
+
+            if (SET_COOKIE.equalsIgnoreCase(header.first)) {
+                String cookie = header.second;
+                onReceivedCookie(cookie);
+            }
         }
     }
 
@@ -372,22 +377,27 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
 
-    protected final String getCookie() {
-        String strCookie = onSendCookie();
-        return strCookie;
+    protected final List<String> getCookies() {
+        List<String> strCookies = onSendCookie();
+        if (strCookies == null) {
+            strCookies = new ArrayList<String>();
+        }
+        return strCookies;
     }
 
-    protected String onSendCookie() {
+    protected List<String> onSendCookie() {
         return null;
     }
 
     @Override
-    public Map<String, String> getHeaders() throws AuthFailureError {
-        Map<String, String> headers = new LinkedHashMap<String, String>(super.getHeaders());
+    public List<Pair<String, String>> getHeaders() throws AuthFailureError {
+        List<Pair<String, String>> headers = new ArrayList<>(super.getHeaders());
 
-        String cookieStr = getCookie();
-        if (cookieStr != null && cookieStr.length() > 0) {
-            headers.put("cookie", cookieStr);
+        List<String> strCookies = getCookies();
+        if (strCookies != null) {
+            for (String cookie : strCookies) {
+                headers.add(new Pair<String, String>("cookie", cookie));
+            }
         }
 
         return headers;

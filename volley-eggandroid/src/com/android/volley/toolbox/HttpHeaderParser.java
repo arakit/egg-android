@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import android.util.Pair;
+
 import com.android.volley.Cache;
 import com.android.volley.NetworkResponse;
 
@@ -23,6 +25,7 @@ import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.protocol.HTTP;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,7 +42,7 @@ public class HttpHeaderParser {
     public static Cache.Entry parseCacheHeaders(NetworkResponse response) {
         long now = System.currentTimeMillis();
 
-        Map<String, String> headers = response.headers;
+        List<Pair<String, String>> headers = response.headers;
 
         long serverDate = 0;
         long serverExpires = 0;
@@ -50,12 +53,27 @@ public class HttpHeaderParser {
         String serverEtag = null;
         String headerValue;
 
-        headerValue = headers.get("Date");
+        //headerValue = headers.get("Date");
+        headerValue = null;
+        for(Pair<String, String> p : headers){
+            if(p.first.equals("Date")){
+                headerValue = p.second;
+                break;
+            }
+        }
         if (headerValue != null) {
             serverDate = parseDateAsEpoch(headerValue);
         }
 
-        headerValue = headers.get("Cache-Control");
+        //headerValue = headers.get("Cache-Control");
+        headerValue = null;
+        for(Pair<String, String> p : headers){
+            if(p.first.equals("Cache-Control")){
+                headerValue = p.second;
+                break;
+            }
+        }
+
         if (headerValue != null) {
             hasCacheControl = true;
             String[] tokens = headerValue.split(",");
@@ -74,12 +92,26 @@ public class HttpHeaderParser {
             }
         }
 
-        headerValue = headers.get("Expires");
+        //headerValue = headers.get("Expires");
+        headerValue = null;
+        for(Pair<String, String> p : headers){
+            if(p.first.equals("Expires")){
+                headerValue = p.second;
+                break;
+            }
+        }
         if (headerValue != null) {
             serverExpires = parseDateAsEpoch(headerValue);
         }
 
-        serverEtag = headers.get("ETag");
+        //serverEtag = headers.get("ETag");
+        serverEtag = null;
+        for(Pair<String, String> p : headers){
+            if(p.first.equals("ETag")){
+                serverEtag = p.second;
+                break;
+            }
+        }
 
         // Cache-Control takes precedence over an Expires header, even if both exist and Expires
         // is more restrictive.
@@ -134,4 +166,30 @@ public class HttpHeaderParser {
 
         return HTTP.DEFAULT_CONTENT_CHARSET;
     }
+
+    public static String parseCharset(List<Pair<String, String>> headers) {
+        // String contentType = headers.get(HTTP.CONTENT_TYPE);
+        String contentType = null;
+        for(Pair<String, String> pair : headers){
+            if(pair.first.equals("HTTP.CONTENT_TYPE")){
+                contentType = pair.second;
+                break;
+            }
+        }
+
+        if (contentType != null) {
+            String[] params = contentType.split(";");
+            for (int i = 1; i < params.length; i++) {
+                String[] pair = params[i].trim().split("=");
+                if (pair.length == 2) {
+                    if (pair[0].equals("charset")) {
+                        return pair[1];
+                    }
+                }
+            }
+        }
+
+        return HTTP.DEFAULT_CONTENT_CHARSET;
+    }
+
 }

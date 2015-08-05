@@ -72,7 +72,7 @@ public class EggVolley {
 
         Network network = new BasicNetwork(stack);
 
-        RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir, cacheSizeInBytes), network);
+        RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir, cacheSizeInBytes), network, threadPoolSize);
         queue.start();
 
         return queue;

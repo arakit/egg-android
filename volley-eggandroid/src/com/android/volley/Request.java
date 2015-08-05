@@ -22,12 +22,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.android.volley.VolleyLog.MarkerLog;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -332,8 +334,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * provide these values.
      * @throws AuthFailureError In the event of auth failure
      */
-    public Map<String, String> getHeaders() throws AuthFailureError {
-        return Collections.emptyMap();
+    public List<Pair<String, String>> getHeaders() throws AuthFailureError {
+        return Collections.emptyList();
     }
 
     /**

@@ -17,6 +17,7 @@
 package com.android.volley.toolbox;
 
 import android.os.SystemClock;
+import android.util.Pair;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
@@ -44,9 +45,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -88,10 +91,10 @@ public class BasicNetwork implements Network {
         while (true) {
             HttpResponse httpResponse = null;
             byte[] responseContents = null;
-            Map<String, String> responseHeaders = Collections.emptyMap();
+            List<Pair<String, String>> responseHeaders = new ArrayList<Pair<String, String>>();
             try {
                 // Gather headers.
-                Map<String, String> headers = new HashMap<String, String>();
+                List<Pair<String, String>> headers = new ArrayList<Pair<String, String>>();
                 addCacheHeaders(headers, request.getCacheEntry());
                 httpResponse = mHttpStack.performRequest(request, headers);
                 StatusLine statusLine = httpResponse.getStatusLine();
@@ -101,19 +104,22 @@ public class BasicNetwork implements Network {
                 // Handle cache validation.
                 if (statusCode == HttpStatus.SC_NOT_MODIFIED) {
 
-                    Entry entry = request.getCacheEntry();
-                    if (entry == null) {
-                        return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, null,
-                                responseHeaders, true);
-                    }
+                    return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED,
+                            request.getCacheEntry().data, responseHeaders, true);
 
-                    // A HTTP 304 response does not have all header fields. We
-                    // have to use the header fields from the cache entry plus
-                    // the new ones from the response.
-                    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
-                    entry.responseHeaders.putAll(responseHeaders);
-                    return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, entry.data,
-                            entry.responseHeaders, true);
+//                    Entry entry = request.getCacheEntry();
+//                    if (entry == null) {
+//                        return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, null,
+//                                responseHeaders, true);
+//                    }
+//
+//                    // A HTTP 304 response does not have all header fields. We
+//                    // have to use the header fields from the cache entry plus
+//                    // the new ones from the response.
+//                    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
+//                    entry.responseHeaders.putAll(responseHeaders);
+//                    return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, entry.data,
+//                            entry.responseHeaders, true);
                 }
 
                 // Some responses such as 204s do not have content.  We must check.
@@ -199,19 +205,19 @@ public class BasicNetwork implements Network {
         request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
     }
 
-    private void addCacheHeaders(Map<String, String> headers, Cache.Entry entry) {
+    private void addCacheHeaders(List<Pair<String, String>> headers, Cache.Entry entry) {
         // If there's no cache entry, we're done.
         if (entry == null) {
             return;
         }
 
         if (entry.etag != null) {
-            headers.put("If-None-Match", entry.etag);
+            headers.add(new Pair<String, String>("If-None-Match", entry.etag));
         }
 
         if (entry.serverDate > 0) {
             Date refTime = new Date(entry.serverDate);
-            headers.put("If-Modified-Since", DateUtils.formatDate(refTime));
+            headers.add(new Pair<String, String>("If-Modified-Since", DateUtils.formatDate(refTime)));
         }
     }
 
@@ -253,11 +259,14 @@ public class BasicNetwork implements Network {
     /**
      * Converts Headers[] to Map<String, String>.
      */
-    protected static Map<String, String> convertHeaders(Header[] headers) {
-        Map<String, String> result = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+
+    private static List<Pair<String, String>> convertHeaders(Header[] headers) {
+        List<Pair<String, String>> result = new ArrayList<Pair<String, String>>();
         for (int i = 0; i < headers.length; i++) {
-            result.put(headers[i].getName(), headers[i].getValue());
+            result.add(new Pair<String, String>(headers[i].getName(),
+                    headers[i].getValue()));
         }
         return result;
     }
+
 }

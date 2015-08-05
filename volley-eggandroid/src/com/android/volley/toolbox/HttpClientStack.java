@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import android.util.Pair;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Request.Method;
@@ -61,6 +63,11 @@ public class HttpClientStack implements HttpStack {
             httpRequest.setHeader(key, headers.get(key));
         }
     }
+    private static void addHeaders(HttpUriRequest httpRequest, List<Pair<String, String>> headers) {
+        for (Pair<String, String> header : headers) {
+            httpRequest.setHeader(header.first, header.second);
+        }
+    }
 
     @SuppressWarnings("unused")
     private static List<NameValuePair> getPostParameterPairs(Map<String, String> postParams) {
@@ -72,7 +79,7 @@ public class HttpClientStack implements HttpStack {
     }
 
     @Override
-    public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
+    public HttpResponse performRequest(Request<?> request, List<Pair<String, String>> additionalHeaders)
             throws IOException, AuthFailureError {
         HttpUriRequest httpRequest = createHttpRequest(request, additionalHeaders);
         addHeaders(httpRequest, additionalHeaders);
@@ -92,7 +99,7 @@ public class HttpClientStack implements HttpStack {
      */
     @SuppressWarnings("deprecation")
     /* protected */ static HttpUriRequest createHttpRequest(Request<?> request,
-            Map<String, String> additionalHeaders) throws AuthFailureError {
+                                                            List<Pair<String, String>> additionalHeaders) throws AuthFailureError {
         switch (request.getMethod()) {
             case Method.DEPRECATED_GET_OR_POST: {
                 // This is the deprecated way that needs to be handled for backwards compatibility.

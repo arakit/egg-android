@@ -82,12 +82,15 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
 
     protected abstract O getOutput(JsonNode node);
 
-    protected final String getCookie() {
-        String strCookie = onSendCookie();
-        return strCookie;
+    protected final List<String> getCookies() {
+        List<String> strCookies = onSendCookies();
+        if (strCookies == null) {
+            strCookies = new ArrayList<String>();
+        }
+        return strCookies;
     }
 
-    protected String onSendCookie() {
+    protected List<String> onSendCookies() {
         return null;
     }
 
@@ -132,18 +135,17 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         I input = getInput();
 
         try {
-            String strCookie = getCookie();
-            if (!TextUtils.isEmpty(strCookie)) {
-                CookieManager cookieManager = new CookieManager();
-                cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-                client.setCookieHandler(cookieManager);
+            List<String> strCookies = getCookies();
 
-                List<String> values = new ArrayList<String>(Arrays.asList(strCookie));
-                Map<String, List<String>> cookies = new HashMap<String, List<String>>();
-                cookies.put("Set-Cookie", values);
+            CookieManager cookieManager = new CookieManager();
+            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+            client.setCookieHandler(cookieManager);
 
-                client.getCookieHandler().put(new URI(url), cookies);
-            }
+            List<String> values = new ArrayList<String>(strCookies);
+            Map<String, List<String>> cookies = new HashMap<String, List<String>>();
+            cookies.put("Set-Cookie", values);
+
+            client.getCookieHandler().put(new URI(url), cookies);
         } catch (Exception ex) {
             Log.e(TAG, "cookie setup error.", ex);
         }
