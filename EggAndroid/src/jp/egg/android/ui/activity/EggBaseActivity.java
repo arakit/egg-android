@@ -268,7 +268,7 @@ public class EggBaseActivity extends AppCompatActivity {
         }
     }
 
-    protected Object newStartRefreshRequest() {
+    public Object newStartRefreshRequest() {
         Object tag = new Object();
         mRefreshRequest.add(tag);
         updateRefreshRequest();
@@ -280,7 +280,7 @@ public class EggBaseActivity extends AppCompatActivity {
         updateRefreshRequest();
     }
 
-    protected void finishRefreshRequest(Object request) {
+    public void finishRefreshRequest(Object request) {
         mRefreshRequest.remove(request);
         updateRefreshRequest();
     }
