@@ -168,10 +168,9 @@ public class HttpHeaderParser {
     }
 
     public static String parseCharset(List<Pair<String, String>> headers) {
-        // String contentType = headers.get(HTTP.CONTENT_TYPE);
         String contentType = null;
         for(Pair<String, String> pair : headers){
-            if(pair.first.equals("HTTP.CONTENT_TYPE")){
+            if(pair.first.equals(HTTP.CONTENT_TYPE)){
                 contentType = pair.second;
                 break;
             }
