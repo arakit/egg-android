@@ -8,7 +8,6 @@ package jp.egg.android.ui.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -16,7 +15,6 @@ import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 
 import com.android.volley.Request;
 
@@ -27,8 +25,6 @@ import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.activity.EggBaseActivity;
 import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
-import jp.egg.android.view.widget.layout.ParallaxListViewEx;
-import uk.co.chrisjenx.paralloid.OnScrollChangedListener;
 
 /**
  * フラグメント共通基底クラス。
@@ -44,24 +40,6 @@ public abstract class EggBaseFragment extends Fragment {
     private boolean mIsStopped = false;
 
     private boolean mIsDestroyed = false;
-    private int mActionBarHeight;
-    private int mParallaxHeaderHeight;
-    private Drawable mActionBarBackgroundDrawable;
-    private View mParallaxHeaderView;
-    private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
-        @Override
-        public void invalidateDrawable(Drawable who) {
-            setActionBarBackgroundDrawable(getEggActivity(), who);
-        }
-
-        @Override
-        public void scheduleDrawable(Drawable who, Runnable what, long when) {
-        }
-
-        @Override
-        public void unscheduleDrawable(Drawable who, Runnable what) {
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -268,72 +246,6 @@ public abstract class EggBaseFragment extends Fragment {
 
     }
 
-    private void updateParallax(int scrollPosition) {
-
-        int headerHeight = mParallaxHeaderHeight - mActionBarHeight;
-        double ratio = Math.min(Math.max(scrollPosition, 0), headerHeight) / (double) headerHeight;
-        int newAlpha = (int) (ratio * 255);
-        mActionBarBackgroundDrawable.setAlpha(newAlpha);
-        if (mParallaxHeaderView != null) {
-            if (ratio < 1.0) {
-                mParallaxHeaderView.setVisibility(View.VISIBLE);
-            } else {
-                mParallaxHeaderView.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
-
-    protected void setUpParallax(int abHeight, int parallaxHeaderHeight, ParallaxListViewEx listView, View headerView, final AbsListView.OnScrollListener listener) {
-
-        mActionBarHeight = abHeight;
-        mParallaxHeaderHeight = parallaxHeaderHeight;
-        mParallaxHeaderView = headerView;
-
-        listView.parallaxViewBy(headerView, 0.5f);
-
-        listView.setOnScrollChangeListener(new OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged(Object who, int l, int t, int oldl, int oldt) {
-                updateParallax(t);
-            }
-        });
-
-        listView.addOnScrollLister(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                if (listener != null) {
-                    listener.onScrollStateChanged(view, scrollState);
-                }
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                //updateParallax(view.getSc);
-                if (listener != null) {
-                    listener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
-                }
-            }
-
-        });
-
-
-    }
-
-    protected void initFadingActionBar(EggBaseActivity activity, int abDrawable) {
-
-        if (mActionBarBackgroundDrawable == null) {
-            mActionBarBackgroundDrawable = activity.getResources().getDrawable(abDrawable);
-        }
-        setActionBarBackgroundDrawable(activity, mActionBarBackgroundDrawable);
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-            mActionBarBackgroundDrawable.setCallback(mDrawableCallback);
-        }
-        mActionBarBackgroundDrawable.setAlpha(0);
-    }
-
-    protected void releaseFadingActionBar() {
-
-    }
 
     private void setActionBarBackgroundDrawable(EggBaseActivity activity, Drawable drawable) {
         if (activity != null) {
