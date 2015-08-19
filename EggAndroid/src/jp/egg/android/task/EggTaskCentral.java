@@ -75,7 +75,6 @@ public class EggTaskCentral {
         mContext = context.getApplicationContext();
         mVolleyQueue = EggVolley.newRequestQueue(mContext, DEFAULT_VOLLEY_CACHE_SIZE);
         mQueue = new EggTaskQueue();
-        //mVolleyImageLoader = new ImageLoader(mVolleyQueue, new BitmapLruCache(DEFAULT_IMAGE_CACHE_SIZE));
 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
@@ -123,7 +122,7 @@ public class EggTaskCentral {
     }
 
 
-    public void cancelVolleyRquest(RequestFilter filter) {
+    public void cancelVolleyRequest(RequestFilter filter) {
         mVolleyQueue.cancelAll(filter);
     }
 
@@ -194,12 +193,6 @@ public class EggTaskCentral {
     public LoadImageContainer displayImageThumbOrDetail(final ImageView view, String url, String detailUrl, int defRes, boolean isDetail) {
 
         String curLoadUrl = (String) view.getTag(R.id.tag_loading_image);
-
-//        boolean hasDetail = false;
-//        if( mUnivImageLoader.getMemoryCache().get(detailUrl)!=null ||
-//                mUnivImageLoader.getDiskCache().get(detailUrl)!=null ){
-//            hasDetail = true;
-//        }
 
         boolean curIsDetail = false;
         boolean reset = true;
@@ -400,12 +393,6 @@ public class EggTaskCentral {
     }
 
     public static class LoadImageContainer {
-
-//		final ImageContainer ic;
-//
-//		LoadImageContainer(ImageContainer ic) {
-//			this.ic = ic;
-//		}
 
         public void cancelRequest() {
             //ic.cancelRequest();
