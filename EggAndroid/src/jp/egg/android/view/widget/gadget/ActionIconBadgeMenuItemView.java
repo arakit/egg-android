@@ -9,47 +9,45 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import jp.egg.android.R;
 import jp.egg.android.util.ToastUtil;
 
 /**
- * Created by chikara on 2014/09/13.
+ * Created by chikara on 2015/08/21.
  */
-public class ActionBadgeMenuItemView extends FrameLayout {
+public class ActionIconBadgeMenuItemView extends FrameLayout {
 
-    //private View mContentView;
 
     private CharSequence mTitle;
 
     private OnClickListener mOnClickListener;
     private OnLongClickListener mOnLongClickListener;
 
-    public ActionBadgeMenuItemView(Context context) {
+    public ActionIconBadgeMenuItemView(Context context) {
         super(context);
         init(context);
     }
 
-    public ActionBadgeMenuItemView(Context context, AttributeSet attrs) {
+    public ActionIconBadgeMenuItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public ActionBadgeMenuItemView(Context context, AttributeSet attrs, int defStyle) {
+    public ActionIconBadgeMenuItemView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
     }
 
 
     private void init(Context context) {
-        View child = LayoutInflater.from(context).inflate(R.layout.ab_action_menu_text_badge_layout, this, true);
+        View child = LayoutInflater.from(context).inflate(R.layout.ab_action_menu_icon_badge_layout, this, true);
 
         getIconView().setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mOnClickListener != null) {
-                    mOnClickListener.onClick(ActionBadgeMenuItemView.this);
+                    mOnClickListener.onClick(ActionIconBadgeMenuItemView.this);
                 }
             }
         });
@@ -58,19 +56,14 @@ public class ActionBadgeMenuItemView extends FrameLayout {
             public boolean onLongClick(View v) {
                 boolean ret = false;
                 if (mOnLongClickListener != null) {
-                    ret = mOnLongClickListener.onLongClick(ActionBadgeMenuItemView.this);
+                    ret = mOnLongClickListener.onLongClick(ActionIconBadgeMenuItemView.this);
                 }
                 if (ret) {
                     return true;
                 }
                 CharSequence title = mTitle;
                 if (!TextUtils.isEmpty(title)) {
-                    CharSequence badgeText = getBadgeText();
-                    if (TextUtils.isEmpty(badgeText)) {
-                        ToastUtil.popupToast(v, title);
-                    } else {
-                        ToastUtil.popupToast(v, title + " " + badgeText + "");
-                    }
+                    ToastUtil.popupToast(v, title);
                     return true;
                 }
                 return false;
@@ -79,24 +72,13 @@ public class ActionBadgeMenuItemView extends FrameLayout {
 
     }
 
-    public void setColor(int badgeBackgroundResource, int textColor) {
-        TextView view = getBadgeTextView();
-        view.setBackgroundResource(badgeBackgroundResource);
-        view.setTextColor(textColor);
-    }
-
-    public CharSequence getBadgeText() {
-        return getBadgeTextView().getText();
-    }
-
-    public void setBadgeText(CharSequence text) {
-        TextView badgeView = getBadgeTextView();
-        if (text != null) {
-            badgeView.setText(text);
+    public void setBadgeIcon(int badgeIconResource) {
+        ImageView badgeView = getBadgeImageView();
+        badgeView.setImageResource(badgeIconResource);
+        if (badgeIconResource != 0) {
             badgeView.setVisibility(View.VISIBLE);
         } else {
-            badgeView.setText("");
-            badgeView.setVisibility(View.INVISIBLE);
+            badgeView.setVisibility(View.GONE);
         }
     }
 
@@ -110,8 +92,8 @@ public class ActionBadgeMenuItemView extends FrameLayout {
         iconView.setImageDrawable(drawable);
     }
 
-    protected TextView getBadgeTextView() {
-        TextView badgeView = (TextView) findViewById(R.id.badge);
+    protected ImageView getBadgeImageView() {
+        ImageView badgeView = (ImageView) findViewById(R.id.badge);
         return badgeView;
     }
 
@@ -120,15 +102,6 @@ public class ActionBadgeMenuItemView extends FrameLayout {
         return iconView;
     }
 
-    public void setBadgeForNumber(int num) {
-        if (num >= 1000) {
-            setBadgeText("999+");
-        } else if (num > 0) {
-            setBadgeText(Integer.toString(num));
-        } else {
-            setBadgeText(null);
-        }
-    }
 
     public void setTitle(CharSequence title) {
         mTitle = title;
@@ -136,9 +109,7 @@ public class ActionBadgeMenuItemView extends FrameLayout {
 
     public void setUpActionView(MenuItem item) {
         setImageDrawable(item.getIcon());
-        setBadgeText(null);
         setTitle(item.getTitle());
-        //item.setCheckable(true);
     }
 
     public void setUpActionView(MenuItem item, final OnClickListener listener) {
@@ -147,7 +118,9 @@ public class ActionBadgeMenuItemView extends FrameLayout {
         item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (listener != null) listener.onClick(ActionBadgeMenuItemView.this);
+                if (listener != null) {
+                    listener.onClick(ActionIconBadgeMenuItemView.this);
+                }
                 return true;
             }
         });

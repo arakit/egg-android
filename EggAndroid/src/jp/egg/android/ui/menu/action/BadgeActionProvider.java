@@ -35,7 +35,7 @@ public class BadgeActionProvider extends ActionProvider {
     @Override
     public View onCreateActionView(MenuItem forItem) {
         //View view = super.onCreateActionView(forItem);
-        View view = LayoutInflater.from(mContext).inflate(R.layout.ab_action_menu_layout, null);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.ab_action_menu_text_badge_layout, null);
         ImageView iconView = (ImageView) view.findViewById(android.R.id.icon);
         TextView badgeView = (TextView) view.findViewById(R.id.badge);
         iconView.setImageDrawable(forItem.getIcon());

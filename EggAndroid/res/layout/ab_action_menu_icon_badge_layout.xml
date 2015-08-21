@@ -21,18 +21,16 @@
         android:src="@android:drawable/ic_menu_help"
         android:textColor="?attr/actionMenuTextColor" />
 
-    <TextView
+    <ImageView
         android:id="@+id/badge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@android:id/icon"
         android:layout_alignRight="@android:id/icon"
         android:layout_margin="4dp"
-        android:background="@drawable/bg_ab_menu_action_badge"
         android:clickable="false"
-        android:scrollHorizontally="true"
-        android:textColor="@android:color/white"
-        android:textSize="9sp" />
+        />
+
 
     <!--
 
