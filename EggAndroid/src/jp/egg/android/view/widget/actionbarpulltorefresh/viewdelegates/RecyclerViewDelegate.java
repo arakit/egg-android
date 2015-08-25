@@ -20,6 +20,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewParent;
 
@@ -41,15 +42,25 @@ public class RecyclerViewDelegate implements ViewDelegate {
         // First we check whether we're scrolled to the top
         RecyclerView recyclerView = (RecyclerView) view;
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        LinearLayoutManager linearLayoutManager = layoutManager instanceof LinearLayoutManager ? (LinearLayoutManager) layoutManager : null;
-        if (linearLayoutManager == null) {
-            ready = true;
-        } else if (linearLayoutManager.getItemCount() == 0) {
-            ready = true;
-        } else if (linearLayoutManager.findFirstVisibleItemPosition() == 0) {
-            final View firstVisibleChild = linearLayoutManager.getChildAt(0);
-            ready = firstVisibleChild != null && firstVisibleChild.getTop() >= linearLayoutManager.getPaddingTop();
+
+        if (layoutManager instanceof LinearLayoutManager) {
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
+            if (linearLayoutManager.getItemCount() == 0) {
+                ready = true;
+            } else if (linearLayoutManager.findFirstVisibleItemPosition() == 0) {
+                final View firstVisibleChild = linearLayoutManager.getChildAt(0);
+                ready = firstVisibleChild != null && firstVisibleChild.getTop() >= linearLayoutManager.getPaddingTop();
+            }
+        } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+            StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) layoutManager;
+            if (staggeredGridLayoutManager.getItemCount() == 0) {
+                ready = true;
+            } else if (staggeredGridLayoutManager.findFirstVisibleItemPositions(null)[0] == 0) {
+                final View firstVisibleChild = staggeredGridLayoutManager.getChildAt(0);
+                ready = firstVisibleChild != null && firstVisibleChild.getTop() >= staggeredGridLayoutManager.getPaddingTop();
+            }
         }
+
 
         if (ready) {
             ready = checkCoordinatorLayoutTop(recyclerView);
