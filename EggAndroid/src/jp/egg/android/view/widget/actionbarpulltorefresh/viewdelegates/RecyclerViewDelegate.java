@@ -35,6 +35,19 @@ public class RecyclerViewDelegate implements ViewDelegate {
 
     public static final Class[] SUPPORTED_VIEW_CLASSES = {RecyclerView.class};
 
+    private static AppBarLayout findFirstAppBarLayout(List<View> views) {
+        int i = 0;
+
+        for (int z = views.size(); i < z; ++i) {
+            View view = (View) views.get(i);
+            if (view instanceof AppBarLayout) {
+                return (AppBarLayout) view;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public boolean isReadyForPull(View view, final float x, final float y) {
         boolean ready = false;
@@ -45,19 +58,41 @@ public class RecyclerViewDelegate implements ViewDelegate {
 
         if (layoutManager instanceof LinearLayoutManager) {
             LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
+            int firstVisiblePosition;
             if (linearLayoutManager.getItemCount() == 0) {
                 ready = true;
-            } else if (linearLayoutManager.findFirstVisibleItemPosition() == 0) {
+            } else if ((firstVisiblePosition = linearLayoutManager.findFirstVisibleItemPosition()) == 0) {
                 final View firstVisibleChild = linearLayoutManager.getChildAt(0);
                 ready = firstVisibleChild != null && firstVisibleChild.getTop() >= linearLayoutManager.getPaddingTop();
+            } else {
+                for (int i = firstVisiblePosition - 1; i >= 0; i--) {
+                    View child = linearLayoutManager.getChildAt(i);
+                    if (child == null || child.getHeight() != 0) {
+                        break;
+                    }
+                    if (i == 0) {
+                        ready = true;
+                    }
+                }
             }
         } else if (layoutManager instanceof StaggeredGridLayoutManager) {
             StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) layoutManager;
+            int firstVisiblePosition;
             if (staggeredGridLayoutManager.getItemCount() == 0) {
                 ready = true;
-            } else if (staggeredGridLayoutManager.findFirstVisibleItemPositions(null)[0] == 0) {
+            } else if ((firstVisiblePosition = staggeredGridLayoutManager.findFirstVisibleItemPositions(null)[0]) == 0) {
                 final View firstVisibleChild = staggeredGridLayoutManager.getChildAt(0);
                 ready = firstVisibleChild != null && firstVisibleChild.getTop() >= staggeredGridLayoutManager.getPaddingTop();
+            } else {
+                for (int i = firstVisiblePosition - 1; i >= 0; i--) {
+                    View child = staggeredGridLayoutManager.getChildAt(i);
+                    if (child == null || child.getHeight() != 0) {
+                        break;
+                    }
+                    if (i == 0) {
+                        ready = true;
+                    }
+                }
             }
         }
 
@@ -68,7 +103,6 @@ public class RecyclerViewDelegate implements ViewDelegate {
 
         return ready;
     }
-
 
     /**
      * @param recyclerView
@@ -89,11 +123,11 @@ public class RecyclerViewDelegate implements ViewDelegate {
                         (scrolling.getLayoutParams() instanceof CoordinatorLayout.LayoutParams) ?
                                 (CoordinatorLayout.LayoutParams) scrolling.getLayoutParams() : null;
 
-                if (scrollingParams!=null) {
+                if (scrollingParams != null) {
                     AppBarLayout.ScrollingViewBehavior scrollingViewBehavior =
-                            (scrollingParams.getBehavior() instanceof  AppBarLayout.ScrollingViewBehavior) ?
+                            (scrollingParams.getBehavior() instanceof AppBarLayout.ScrollingViewBehavior) ?
                                     (AppBarLayout.ScrollingViewBehavior) scrollingParams.getBehavior() : null;
-                    if (scrollingViewBehavior!=null) {
+                    if (scrollingViewBehavior != null) {
                         int scrollingOffset = scrollingViewBehavior.getTopAndBottomOffset();
 
                         List<View> children = coordinatorLayout.getDependencies(scrolling);
@@ -117,20 +151,6 @@ public class RecyclerViewDelegate implements ViewDelegate {
 
         return true;
     }
-
-    private static AppBarLayout findFirstAppBarLayout(List<View> views) {
-        int i = 0;
-
-        for(int z = views.size(); i < z; ++i) {
-            View view = (View)views.get(i);
-            if(view instanceof AppBarLayout) {
-                return (AppBarLayout)view;
-            }
-        }
-
-        return null;
-    }
-
 
     private void debugViewInfo(String name, View v) {
         int top = v.getTop();
