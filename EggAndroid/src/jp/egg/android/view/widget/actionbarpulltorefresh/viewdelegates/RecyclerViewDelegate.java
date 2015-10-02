@@ -64,6 +64,8 @@ public class RecyclerViewDelegate implements ViewDelegate {
             } else if ((firstVisiblePosition = linearLayoutManager.findFirstVisibleItemPosition()) == 0) {
                 final View firstVisibleChild = linearLayoutManager.getChildAt(0);
                 ready = firstVisibleChild != null && firstVisibleChild.getTop() >= linearLayoutManager.getPaddingTop();
+            } else if (firstVisiblePosition==RecyclerView.NO_POSITION) {
+                ready = true;
             } else {
                 for (int i = firstVisiblePosition - 1; i >= 0; i--) {
                     View child = linearLayoutManager.getChildAt(i);
@@ -83,6 +85,8 @@ public class RecyclerViewDelegate implements ViewDelegate {
             } else if ((firstVisiblePosition = staggeredGridLayoutManager.findFirstVisibleItemPositions(null)[0]) == 0) {
                 final View firstVisibleChild = staggeredGridLayoutManager.getChildAt(0);
                 ready = firstVisibleChild != null && firstVisibleChild.getTop() >= staggeredGridLayoutManager.getPaddingTop();
+            } else if (firstVisiblePosition==RecyclerView.NO_POSITION) {
+                ready = true;
             } else {
                 for (int i = firstVisiblePosition - 1; i >= 0; i--) {
                     View child = staggeredGridLayoutManager.getChildAt(i);
