@@ -2,6 +2,7 @@ package jp.egg.android.request2.volley;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -20,11 +21,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.CookieStore;
-import java.net.HttpCookie;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +32,6 @@ import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Json;
 import jp.egg.android.util.Log;
 import jp.egg.android.util.ReflectionUtils;
-import jp.egg.android.util.StringUtil;
 
 /**
  * Created by chikara on 2014/07/10.
@@ -44,6 +41,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     public static final int REQUEST_TYPE_DEFAULT = 0;
     public static final int REQUEST_TYPE_JSON = 1;
     public static final String SET_COOKIE = "Set-Cookie";
+    public static final String COOKIE = "Cookie";
     /**
      * Charset for request.
      */
@@ -97,6 +95,27 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
 
         setListeners(successListener, errorListener);
+    }
+
+    /**
+     * Set-Cookieの値をクッキーのキーと値に
+     *
+     * @param cookie
+     * @return
+     */
+    protected static Pair<String, String> parseSetCookieToNameValuePair(String cookie) {
+        if (TextUtils.isEmpty(cookie)) {
+            return null;
+        }
+        String[] arr = cookie.split(";", 0);
+        if (arr.length == 0) {
+            return null;
+        }
+        String[] pair = arr[0].trim().split("=", 2);
+        if (pair.length != 2) {
+            return null;
+        }
+        return new Pair<String, String>(pair[0], pair[1]);
     }
 
     protected Context getContext() {
@@ -271,7 +290,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         return JSON_PROTOCOL_CONTENT_TYPE;
     }
 
-
     /**
      * 入力されたInputをもとに、リクエスト用のJSONを返す
      *
@@ -288,7 +306,6 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
         return string;
     }
-
 
     /**
      * Converts <code>params</code> into an application/x-www-form-urlencoded encoded string.
@@ -358,7 +375,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
 
-    protected String parseToString (NetworkResponse response) {
+    protected String parseToString(NetworkResponse response) {
         String data = null;
         try {
             data = new String(response.data,
@@ -383,23 +400,32 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
 
-    protected List<String> getCookies() {
-        List<String> strCookies = null;
-        if (strCookies == null) {
-            strCookies = new ArrayList<String>();
-        }
+    protected List<Pair<String, String>> getCookies() {
+        List<Pair<String, String>> strCookies = new ArrayList<Pair<String, String>>();
         return strCookies;
     }
 
+    private String makeCookieHeader(@NonNull List<Pair<String, String>> cookies) {
+        StringBuilder builder = new StringBuilder();
+        for (Pair<String, String> e : cookies) {
+            if (builder.length() != 0) {
+                builder.append("; ");
+            }
+            builder.append(e.first).append("=").append(e.second);
+        }
+        return builder.toString();
+    }
 
     @Override
     public List<Pair<String, String>> getHeaders() throws AuthFailureError {
         List<Pair<String, String>> headers = new ArrayList<>(super.getHeaders());
 
-        List<String> strCookies = getCookies();
-        if (strCookies != null) {
-            for (String cookie : strCookies) {
-                headers.add(new Pair<String, String>("cookie", cookie));
+        List<Pair<String, String>> cookies = getCookies();
+        if (cookies != null && cookies.size() > 0) {
+            String cookiesHeaderValue = makeCookieHeader(cookies);
+            headers.add(new Pair<String, String>(COOKIE, cookiesHeaderValue));
+            if (Log.isDebug()) {
+                Log.d("header", "send cookie header, " + cookiesHeaderValue);
             }
         }
 
