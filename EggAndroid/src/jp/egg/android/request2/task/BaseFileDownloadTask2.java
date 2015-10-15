@@ -1,26 +1,20 @@
 package jp.egg.android.request2.task;
 
 import android.content.Context;
-import android.text.TextUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 
-import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,18 +23,17 @@ import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskError;
 import jp.egg.android.util.HandlerUtil;
 import jp.egg.android.util.JUtil;
-import jp.egg.android.util.Json;
 import jp.egg.android.util.Log;
 
 /**
  * Created by chikara on 2014/09/06.
  */
-public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUploadTask2.UploadTaskError> {
+public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDownloadTask2.UploadTaskError> {
 
     protected static final int DEFAULT_RETRY_LIMIT = 1;
     private static final int REQUEST_RESULT_FINISH = 0;
     private static final int REQUEST_RESULT_RETRY = 1;
-    private static String TAG = "BaseImageUploadTask2";
+    private static String TAG = "BaseFileDownloadTask2";
     private Context mContext;
     private int mMethod;
     private String mUrl;
@@ -48,24 +41,12 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
     private Call mCurrentRequest;
     private int mRetryLimit = DEFAULT_RETRY_LIMIT;
 
-    protected BaseImageUploadTask2(Context context, int method, String url) {
+    protected BaseFileDownloadTask2(Context context, int method, String url) {
         mContext = context.getApplicationContext();
         mMethod = method;
         mUrl = url;
-        Type[] types = ((ParameterizedType) JUtil.getClass(BaseImageUploadTask2.this).getGenericSuperclass()).getActualTypeArguments();
+        Type[] types = ((ParameterizedType) JUtil.getClass(BaseFileDownloadTask2.this).getGenericSuperclass()).getActualTypeArguments();
         mBackedOutputType = (Class) types[1];
-    }
-
-    protected static MultipartBuilder addPart(MultipartBuilder builder, String name, String value) {
-        return builder.addPart(
-                Headers.of("Content-Disposition", String.format("form-data; name=\"%s\"", name)),
-                RequestBody.create(null, value));
-    }
-
-    protected static MultipartBuilder addPart(MultipartBuilder builder, String name, File file, MediaType contentType) {
-        return builder.addPart(
-                Headers.of("Content-Disposition", String.format("form-data; name=\"%s\""), name),
-                RequestBody.create(contentType, file));
     }
 
     protected Context getContext() {
@@ -76,11 +57,15 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         return mBackedOutputType;
     }
 
+    protected final int getMethod() {
+        return mMethod;
+    }
+
     protected abstract I getInput();
 
-    protected abstract MultipartBuilder getRequestParams(I in);
+    protected abstract RequestBody getRequestBody(I in);
 
-    protected abstract O getOutput(JsonNode node);
+    protected abstract O getOutput(ResponseBody body);
 
     protected final List<String> getCookies() {
         List<String> strCookies = onSendCookies();
@@ -152,12 +137,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
             }
         }
 
-        MultipartBuilder builder = getRequestParams(input);
-        if (builder == null) {
-            builder = new MultipartBuilder();
-        }
-
-        RequestBody requestBody = builder.build();
+        RequestBody requestBody = getRequestBody(input);
         if (Log.isDebug()) {
             Log.d(TAG, "requestBody = " + requestBody);
         }
@@ -205,12 +185,8 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         } else if (response != null && response.isSuccessful()) {
             // success!!
             try {
-                String body = response.body().string();
-                if (Log.isDebug()) {
-                    Log.d(TAG, "response body = " + body);
-                }
-                JsonNode jn = Json.parse(body);
-                setSucces(getOutput(jn));
+                ResponseBody body = response.body();
+                setSucces(getOutput(body));
             } catch (Exception ex) {
                 if (Log.isDebug()) {
                     Log.e(TAG, "failed parse.", ex);
@@ -243,7 +219,6 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
                 }
             }
 
-
             if (Log.isDebug()) {
                 Log.d(TAG, "response is null error.");
             }
@@ -267,7 +242,6 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
     @Override
     protected void onRequestCancel() {
 
-
         HandlerUtil.postBackground(new Runnable() {
             @Override
             public void run() {
@@ -276,7 +250,6 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
                 }
             }
         });
-
 
         super.onRequestCancel();
     }
