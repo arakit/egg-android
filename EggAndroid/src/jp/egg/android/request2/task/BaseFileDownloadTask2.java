@@ -1,6 +1,7 @@
 package jp.egg.android.request2.task;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
@@ -14,6 +15,7 @@ import java.lang.reflect.Type;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,9 +116,14 @@ public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDow
 
     }
 
+
+    protected Uri.Builder buildUrl () {
+        return Uri.parse(mUrl).buildUpon();
+    }
+
     private int handleRequest(OkHttpClient client) {
 
-        String url = mUrl;
+        String url = buildUrl().build().toString();
         I input = getInput();
 
         try {
