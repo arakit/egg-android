@@ -267,21 +267,31 @@ public class EggTaskCentral {
 
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
+                        if (listener != null) {
+                            listener.onStart();
+                        }
                     }
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view,
                                                 FailReason failReason) {
-                        if (listener != null) listener.onError();
+                        if (listener != null) {
+                            listener.onError();
+                        }
                     }
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if (listener != null) listener.onLoaded(loadedImage, (ImageView) view);
+                        if (listener != null) {
+                            listener.onLoaded(loadedImage, (ImageView) view);
+                        }
                     }
 
                     @Override
                     public void onLoadingCancelled(String imageUri, View view) {
+                        if (listener != null) {
+                            listener.onCancel();
+                        }
                     }
                 }
         );
@@ -377,10 +387,14 @@ public class EggTaskCentral {
 
 
     public interface LoadImageListener {
-        //public
-        public void onLoaded(Bitmap bmp, ImageView view);
 
-        public void onError();
+        void onStart();
+
+        void onLoaded(Bitmap bmp, ImageView view);
+
+        void onError();
+
+        void onCancel();
     }
 
     public interface OnDownloadFileListener {
