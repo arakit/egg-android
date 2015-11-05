@@ -107,25 +107,20 @@ public abstract class BaseFileDownloadTask<I> extends EggTask<File, EggTaskError
         }
 
         @Override
-        protected File getTargetFile() {
+        public File getTargetFile() {
             return super.getTargetFile();
         }
 
         @Override
-        public void onFailure(int i, Header[] headers, Throwable throwable, File file) {
+        public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, File file) {
             isFailure = true;
             response = file;
         }
 
         @Override
-        public void onSuccess(int i, Header[] headers, File file) {
+        public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, File file) {
             isSuccess = true;
             response = file;
-        }
-
-        @Override
-        protected byte[] getResponseData(HttpEntity entity) throws IOException {
-            return super.getResponseData(entity);
         }
 
 

@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskError;
@@ -108,6 +109,9 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         super.onDoInBackground();
 
         OkHttpClient client = new OkHttpClient();
+        client.setConnectTimeout(30, TimeUnit.SECONDS);
+        client.setReadTimeout(30, TimeUnit.SECONDS);
+        client.setWriteTimeout(30, TimeUnit.SECONDS);
 
         int retryCount = 0;
         retry_loop:
@@ -179,6 +183,10 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
             }
             setCancel();
             return REQUEST_RESULT_FINISH;
+        }
+
+        if (Log.isDebug()) {
+            Log.d(TAG, "call = "+call);
         }
 
         mCurrentRequest = call;

@@ -146,17 +146,17 @@ public abstract class BaseImageUploadTask<I, O> extends EggTask<O, EggTaskError>
         boolean isFailure;
         boolean isSuccess;
 
+
         @Override
-        public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+        public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
             isFailure = true;
-            response = s;
+            response = responseString;
         }
 
         @Override
-        public void onSuccess(int i, Header[] headers, String s) {
+        public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString) {
             isSuccess = true;
-            response = s;
+            response = responseString;
         }
-
     }
 }
