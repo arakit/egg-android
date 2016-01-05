@@ -1,7 +1,6 @@
 package jp.egg.android.request2.task;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.okhttp.Call;
@@ -14,13 +13,13 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,11 @@ import jp.egg.android.util.HandlerUtil;
 import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Json;
 import jp.egg.android.util.Log;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSink;
+import okio.Okio;
+import okio.Sink;
 
 /**
  * Created by chikara on 2014/09/06.
@@ -165,6 +169,12 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         if (Log.isDebug()) {
             Log.d(TAG, "requestBody = " + requestBody);
         }
+        requestBody = new CountingRequestBody(requestBody, new CountingRequestBody.Listener() {
+            @Override
+            public void onRequestProgress(long bytesWritten, long contentLength) {
+                BaseImageUploadTask2.this.onRequestProgress(bytesWritten, contentLength);
+            }
+        });
 
         Request request = new Request.Builder()
                 //.header("Authorization", "Client-ID " + IMGUR_CLIENT_ID)
@@ -186,7 +196,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         }
 
         if (Log.isDebug()) {
-            Log.d(TAG, "call = "+call);
+            Log.d(TAG, "call = " + call);
         }
 
         mCurrentRequest = call;
@@ -267,6 +277,9 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         }
     }
 
+    protected void onRequestProgress(long bytesWritten, long contentLength) {
+
+    }
 
     protected boolean onRetryAuthorizedInBackground() {
         return false;
@@ -289,12 +302,70 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         super.onRequestCancel();
     }
 
-
     @Override
     protected void onError(UploadTaskError result) {
         super.onError(result);
     }
 
+    public static class CountingRequestBody extends RequestBody {
+
+        protected RequestBody delegate;
+        protected Listener listener;
+
+        protected CountingSink countingSink;
+
+        public CountingRequestBody(RequestBody delegate, Listener listener) {
+            this.delegate = delegate;
+            this.listener = listener;
+        }
+
+        @Override
+        public MediaType contentType() {
+            return delegate.contentType();
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return delegate.contentLength();
+        }
+
+        @Override
+        public void writeTo(BufferedSink sink) throws IOException {
+            BufferedSink bufferedSink;
+
+            countingSink = new CountingSink(sink);
+            bufferedSink = Okio.buffer(countingSink);
+
+            delegate.writeTo(bufferedSink);
+
+            bufferedSink.flush();
+        }
+
+        public static interface Listener {
+
+            public void onRequestProgress(long bytesWritten, long contentLength);
+
+        }
+
+        protected final class CountingSink extends ForwardingSink {
+
+            private long bytesWritten = 0;
+
+            public CountingSink(Sink delegate) {
+                super(delegate);
+            }
+
+            @Override
+            public void write(Buffer source, long byteCount) throws IOException {
+                super.write(source, byteCount);
+
+                bytesWritten += byteCount;
+                listener.onRequestProgress(bytesWritten, contentLength());
+            }
+
+        }
+
+    }
 
     public abstract static class UploadTaskError extends EggTaskError {
 
