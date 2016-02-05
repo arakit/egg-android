@@ -307,6 +307,11 @@ public class EggTaskCentral {
         };
     }
 
+
+    public Bitmap loadImageSync(String url, int maxWidth, int maxHeight) {
+        return mUnivImageLoader.loadImageSync(url, new ImageSize(maxWidth, maxHeight));
+    }
+
     public void loadImage(String url, final LoadImageListener listener, int maxWidth, int maxHeight) {
 
 
