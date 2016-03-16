@@ -43,15 +43,17 @@ import java.util.regex.Pattern;
  */
 public class AUtil {
 
-    public static void makeAboutSpannable(SpannableStringBuilder span, String str_link, String replace, final Runnable on_click) {
-        Pattern pattern = Pattern.compile(str_link);
+    public static void makeAboutSpannable(SpannableStringBuilder span, String strLink, String replace, int color, final Runnable onClick) {
+        Pattern pattern = Pattern.compile(strLink);
         Matcher matcher = pattern.matcher(span);
-        ForegroundColorSpan color_theme = new ForegroundColorSpan(Color.parseColor("#53b7bb"));
+        ForegroundColorSpan color_theme = new ForegroundColorSpan(color);
         if (matcher.find()) {
             span.setSpan(new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    if (on_click != null) on_click.run();
+                    if (onClick != null) {
+                        onClick.run();
+                    }
                 }
             }, matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             span.setSpan(color_theme,
@@ -60,7 +62,7 @@ public class AUtil {
         }
     }
 
-    public static void makeClickableTagsSpannable(Context context, SpannableStringBuilder span, String word, int textAppearance, final Runnable on_click) {
+    public static void makeClickableTagsSpannable(Context context, SpannableStringBuilder span, String word, int textAppearance, final Runnable onClick) {
         //ForegroundColorSpan color_theme = new ForegroundColorSpan(color);
         TextAppearanceSpan appearanceSpan = new TextAppearanceSpan(context, textAppearance);
         int start = span.length();
@@ -69,7 +71,9 @@ public class AUtil {
         span.setSpan(new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                if (on_click != null) on_click.run();
+                if (onClick != null) {
+                    onClick.run();
+                }
             }
 
             @Override
