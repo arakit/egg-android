@@ -33,6 +33,8 @@ import jp.egg.android.util.Log;
  */
 public class RecyclerViewDelegate implements ViewDelegate {
 
+    protected static final String TAG = "RecyclerViewDelegate";
+
     public static final Class[] SUPPORTED_VIEW_CLASSES = {RecyclerView.class};
 
     private static AppBarLayout findFirstAppBarLayout(List<View> views) {
