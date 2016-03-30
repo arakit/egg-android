@@ -68,31 +68,62 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         this(context, method, url, null, null);
     }
 
+    @NonNull
+    private Class findGenericOutputTypes (Class clazz) {
+        Type genericSuperClass = clazz.getGenericSuperclass();
+        if (genericSuperClass instanceof ParameterizedType) {
+            Type[] types = ((ParameterizedType) genericSuperClass).getActualTypeArguments();
+            if (types[1] instanceof Class) {
+                return  (Class) types[1];
+            } else if (types[1] instanceof GenericArrayType) {
+                GenericArrayType genericArrayType = (GenericArrayType) types[1];
+                Class c1 = (Class) genericArrayType.getGenericComponentType();
+                Class c2;
+                try {
+                    String cn = "[L" + c1.getName() + ";";
+                    c2 = Class.forName(cn);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    throw new IllegalArgumentException("can not use type " + types[1]);
+                }
+                return c2;
+            } else {
+                throw new IllegalArgumentException("can not use type " + types[1]);
+            }
+        } else {
+            throw new IllegalArgumentException("can not use type " + genericSuperClass);
+        }
+    }
+
+    @NonNull
+    private Class findTargetClass (Class clazz) {
+        Class c = clazz;
+        Class parameterizedTypeClass = null;
+        while (c!=null && c!=BaseVolleyRequest.class) {
+            Type genericSuperclass = c.getGenericSuperclass();
+            if (genericSuperclass instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
+                Type[] types = parameterizedType.getActualTypeArguments();
+                if (types!=null && types.length == 2) {
+                    if (types[1] instanceof Class || types[1] instanceof GenericArrayType) {
+                        parameterizedTypeClass = c;
+                    }
+                }
+            }
+            Class superClass = c.getSuperclass();
+            c = superClass;
+        }
+        return parameterizedTypeClass;
+    }
+
     protected BaseVolleyRequest(Context context, int method, String url, Response.Listener<O> successListener, Response.ErrorListener errorListener) {
         super(method,
                 url,
                 null);
         mContext = context.getApplicationContext();
         mDeNormalizedUrl = url;
-        Type[] types = ((ParameterizedType) JUtil.getClass(BaseVolleyRequest.this).getGenericSuperclass()).getActualTypeArguments();
-        if (types[1] instanceof Class) {
-            mBackedOutputType = (Class) types[1];
-        } else if (types[1] instanceof GenericArrayType) {
-            GenericArrayType genericArrayType = (GenericArrayType) types[1];
-            Class c1 = (Class) genericArrayType.getGenericComponentType();
-            Class c2;
-            try {
-                String cn = "[L" + c1.getName() + ";";
-                c2 = Class.forName(cn);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("can not use type " + types[1]);
-            }
-            mBackedOutputType = c2;
-        } else {
-            throw new IllegalArgumentException("can not use type " + types[1]);
-        }
-
+        mBackedOutputType = findGenericOutputTypes(
+                findTargetClass(JUtil.getClass(BaseVolleyRequest.this)));
 
         setListeners(successListener, errorListener);
     }
