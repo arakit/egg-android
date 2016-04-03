@@ -33,15 +33,14 @@ import jp.egg.android.util.Log;
  */
 public class RecyclerViewDelegate implements ViewDelegate {
 
-    protected static final String TAG = "RecyclerViewDelegate";
-
     public static final Class[] SUPPORTED_VIEW_CLASSES = {RecyclerView.class};
+    protected static final String TAG = "RecyclerViewDelegate";
 
     private static AppBarLayout findFirstAppBarLayout(List<View> views) {
         int i = 0;
 
         for (int z = views.size(); i < z; ++i) {
-            View view = (View) views.get(i);
+            View view = views.get(i);
             if (view instanceof AppBarLayout) {
                 return (AppBarLayout) view;
             }
@@ -66,7 +65,7 @@ public class RecyclerViewDelegate implements ViewDelegate {
             } else if ((firstVisiblePosition = linearLayoutManager.findFirstVisibleItemPosition()) == 0) {
                 final View firstVisibleChild = linearLayoutManager.getChildAt(0);
                 ready = firstVisibleChild != null && firstVisibleChild.getTop() >= linearLayoutManager.getPaddingTop();
-            } else if (firstVisiblePosition==RecyclerView.NO_POSITION) {
+            } else if (firstVisiblePosition == RecyclerView.NO_POSITION) {
                 ready = true;
             } else {
                 for (int i = firstVisiblePosition - 1; i >= 0; i--) {
@@ -87,7 +86,7 @@ public class RecyclerViewDelegate implements ViewDelegate {
             } else if ((firstVisiblePosition = staggeredGridLayoutManager.findFirstVisibleItemPositions(null)[0]) == 0) {
                 final View firstVisibleChild = staggeredGridLayoutManager.getChildAt(0);
                 ready = firstVisibleChild != null && firstVisibleChild.getTop() >= staggeredGridLayoutManager.getPaddingTop();
-            } else if (firstVisiblePosition==RecyclerView.NO_POSITION) {
+            } else if (firstVisiblePosition == RecyclerView.NO_POSITION) {
                 ready = true;
             } else {
                 for (int i = firstVisiblePosition - 1; i >= 0; i--) {
@@ -123,27 +122,49 @@ public class RecyclerViewDelegate implements ViewDelegate {
 
             if (vp instanceof CoordinatorLayout) {
                 CoordinatorLayout coordinatorLayout = (CoordinatorLayout) vp;
-                View scrolling = (View) vpPrev;
+
+//                for (int i =0; i<coordinatorLayout.getChildCount(); i++) {
+//                    View c = coordinatorLayout.getChildAt(i);
+//                    CoordinatorLayout.LayoutParams scrollingParams =
+//                            (c.getLayoutParams() instanceof CoordinatorLayout.LayoutParams) ?
+//                                    (CoordinatorLayout.LayoutParams) c.getLayoutParams() : null;
+//                    Log.d(TAG, "no." +i + " " +c+ " c.getLayoutParams() = " + c.getLayoutParams() + " "
+//                            + ", behavior="+(scrollingParams!=null ? scrollingParams.getBehavior() : null)
+//                                    + ", offset=" + (scrollingParams!=null && scrollingParams.getBehavior() instanceof AppBarLayout.Behavior ? ((AppBarLayout.Behavior) scrollingParams.getBehavior()).getTopAndBottomOffset() : null)
+//                    );
+//                }
+
+                final View scrolling = (View) vpPrev;
 
                 CoordinatorLayout.LayoutParams scrollingParams =
                         (scrolling.getLayoutParams() instanceof CoordinatorLayout.LayoutParams) ?
                                 (CoordinatorLayout.LayoutParams) scrolling.getLayoutParams() : null;
 
                 if (scrollingParams != null) {
-                    AppBarLayout.ScrollingViewBehavior scrollingViewBehavior =
+                    final AppBarLayout.ScrollingViewBehavior scrollingViewBehavior =
                             (scrollingParams.getBehavior() instanceof AppBarLayout.ScrollingViewBehavior) ?
                                     (AppBarLayout.ScrollingViewBehavior) scrollingParams.getBehavior() : null;
                     if (scrollingViewBehavior != null) {
-                        int scrollingOffset = scrollingViewBehavior.getTopAndBottomOffset();
+                        //int scrollingOffset = scrollingViewBehavior.getTopAndBottomOffset();
+                        //Log.d(TAG, "scrollingOffset = " + scrollingOffset + ", scrollingViewBehavior =" + scrollingViewBehavior + ", scrollingParams = " + scrollingParams + ", scrolling = " + scrolling);
 
                         List<View> children = coordinatorLayout.getDependencies(scrolling);
                         AppBarLayout appBar = findFirstAppBarLayout(children);
+                        //Log.d(TAG, "getDependencies  = " + children+ " "+children.size());
 
                         if (appBar != null) {
-                            int appBarHeight = appBar.getHeight();
+                            AppBarLayout.Behavior appBarBehavior =
+                                    (appBar.getLayoutParams() instanceof CoordinatorLayout.LayoutParams && ((CoordinatorLayout.LayoutParams) appBar.getLayoutParams()).getBehavior() instanceof AppBarLayout.Behavior)
+                                            ? (AppBarLayout.Behavior) ((CoordinatorLayout.LayoutParams) appBar.getLayoutParams()).getBehavior() : null;
+                            if (appBarBehavior != null) {
+                                int totalScrollRange = appBar.getTotalScrollRange();
+                                int appBarHeight = appBar.getHeight();
+                                int scrollingOffset = appBarBehavior.getTopAndBottomOffset();
+                                //Log.d(TAG, "appBar = "+appBar+ ", " + scrollingOffset + " / " + totalScrollRange + ", h=" +appBarHeight);
 
-                            if (scrollingOffset != appBarHeight) {
-                                return false;
+                                if (scrollingOffset != 0) {
+                                    return false;
+                                }
                             }
                         }
                     }
