@@ -34,7 +34,7 @@ public class TemplateFragment extends EggBaseFragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_content, null, false);
+        View v = inflater.inflate(R.layout.fragment_content, container, false);
 
 //        getFragmentManager().beginTransaction()
 //                .replace(R.id.tab_content, f)
