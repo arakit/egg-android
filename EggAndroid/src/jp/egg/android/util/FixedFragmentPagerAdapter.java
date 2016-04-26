@@ -48,7 +48,7 @@ import android.view.ViewGroup;
  */
 public abstract class FixedFragmentPagerAdapter extends PagerAdapter {
     private static final String TAG = "FixFragmentPagerAdapter";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = jp.egg.android.util.Log.isDebug();
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
@@ -78,6 +78,7 @@ public abstract class FixedFragmentPagerAdapter extends PagerAdapter {
         }
 
         final long itemId = getItemId(position);
+        if (DEBUG) Log.v(TAG, "instantiateItem item #" + itemId + ": container=" + container);
 
         // Do we already have this fragment?
         String name = makeFragmentName(container.getId(), itemId);
