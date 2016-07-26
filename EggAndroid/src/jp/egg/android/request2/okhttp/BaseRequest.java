@@ -1,4 +1,4 @@
-package jp.egg.android.request2.volley;
+package jp.egg.android.request2.okhttp;
 
 import android.content.Context;
 import android.net.Uri;
@@ -8,8 +8,8 @@ import android.util.Pair;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
@@ -34,9 +34,9 @@ import jp.egg.android.util.Log;
 import jp.egg.android.util.ReflectionUtils;
 
 /**
- * Created by chikara on 2014/07/10.
+ * Created by chikara on 2016/07/26.
  */
-public abstract class BaseVolleyRequest<I, O> extends Request<O> {
+public abstract class BaseRequest<I, O> implements Request<O> {
 
     public static final int REQUEST_TYPE_DEFAULT = 0;
     public static final int REQUEST_TYPE_JSON = 1;
@@ -51,31 +51,52 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
      */
     private static final String JSON_PROTOCOL_CONTENT_TYPE =
             String.format("application/json; charset=%s", JSON_PROTOCOL_CHARSET);
+    /**
+     * Default encoding for POST or PUT parameters. See {@link #getParamsEncoding()}.
+     */
+    private static final String DEFAULT_PARAMS_ENCODING = "UTF-8";
     private Context mContext;
     private Response.Listener<O> mResponseListener;
     private Response.ErrorListener mErrorListener;
-
     private String mFinalUrl = null;
-
     private Priority mPriority = Priority.NORMAL;
     private Class<O> mBackedOutputType;
-    private String mDeNormalizedUrl;
-
+    private String mBaseUrl;
+    private int mMethod;
     private int mRequestType = REQUEST_TYPE_DEFAULT;
+    /**
+     * The retry policy for this request.
+     */
+    private RetryPolicy mRetryPolicy;
+    /**
+     * Sequence number of this request, used to enforce FIFO ordering.
+     */
+    private Integer mSequence;
+    /**
+     * Whether or not this request has been canceled.
+     */
+    private boolean mCanceled = false;
+    /**
+     * Whether or not a response has been delivered for this request yet.
+     */
+    private boolean mResponseDelivered = false;
+    private QueueHandler mQueueHandler;
+    /**
+     * An opaque token tagging this request; used for bulk cancellation.
+     */
+    private Object mTag;
+    private boolean mShouldCache;
 
-
-    protected BaseVolleyRequest(Context context, int method, String url) {
+    protected BaseRequest(Context context, int method, String url) {
         this(context, method, url, null, null);
     }
 
-    protected BaseVolleyRequest(Context context, int method, String url, Response.Listener<O> successListener, Response.ErrorListener errorListener) {
-        super(method,
-                url,
-                null);
+    protected BaseRequest(Context context, int method, String url, Response.Listener<O> successListener, Response.ErrorListener errorListener) {
+        mMethod = method;
         mContext = context.getApplicationContext();
-        mDeNormalizedUrl = url;
+        mBaseUrl = url;
         mBackedOutputType = findGenericOutputTypes(
-                findTargetClass(JUtil.getClass(BaseVolleyRequest.this)));
+                findTargetClass(JUtil.getClass(BaseRequest.this)));
 
         setListeners(successListener, errorListener);
     }
@@ -132,7 +153,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     private Class findTargetClass(Class clazz) {
         Class c = clazz;
         Class parameterizedTypeClass = null;
-        while (c != null && c != BaseVolleyRequest.class) {
+        while (c != null && c != BaseRequest.class) {
             Type genericSuperclass = c.getGenericSuperclass();
             if (genericSuperclass instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
@@ -176,16 +197,19 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
     protected abstract I getInput();
 
-    @Override
+    public final int getMethod() {
+        return mMethod;
+    }
+
     public String getUrl() {
         if (mFinalUrl != null) return mFinalUrl;
 
         int method = getMethod();
         if (method == Method.GET) {
-            String baseUrl = super.getUrl();
+            String baseUrl = mBaseUrl;
             try {
                 Uri.Builder builder = Uri.parse(baseUrl).buildUpon();
-                List<Pair<String, String>> params2 = getParams2();
+                List<Pair<String, String>> params2 = getParams();
                 for (Pair<String, String> e : params2) {
                     if (e.second != null) {
                         builder.appendQueryParameter(e.first, e.second);
@@ -197,7 +221,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
                 return mFinalUrl = null;
             }
         } else {
-            return mFinalUrl = super.getUrl();
+            return mFinalUrl = mBaseUrl;
         }
     }
 
@@ -216,7 +240,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
 
-    protected List<Pair<String, String>> getParams2() {
+    protected List<Pair<String, String>> getParams() {
         I in = getInput();
 
         List<Pair<String, String>> params2 = new LinkedList<Pair<String, String>>();
@@ -243,21 +267,9 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
 
         if (Log.isDebug()) {
-            Log.d("request-input", "" + mDeNormalizedUrl + " params => " + DUtil.toStringPairList((List) params2, false));
+            Log.d("request-input", "" + mBaseUrl + " params => " + DUtil.toStringPairList((List) params2, false));
         }
         return params2;
-    }
-
-    @Override
-    @Deprecated
-    protected final Map<String, String> getParams() throws AuthFailureError {
-        throw new RuntimeException("not use!!!!!");
-    }
-
-    @Override
-    @Deprecated
-    public final byte[] getPostBody() throws AuthFailureError {
-        throw new RuntimeException("not use!!!!!");
     }
 
     /**
@@ -265,11 +277,10 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
      *
      * @throws AuthFailureError in the event of auth failure
      */
-    @Override
-    public byte[] getBody() throws AuthFailureError {
+    public byte[] getBody() {
         switch (mRequestType) {
             case REQUEST_TYPE_DEFAULT: {
-                List<Pair<String, String>> params = getParams2();
+                List<Pair<String, String>> params = getParams();
                 if (params != null && params.size() > 0) {
                     return encodeParameters(params, getParamsEncoding());
                 }
@@ -284,10 +295,18 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
     }
 
+    protected String getParamsEncoding() {
+        return DEFAULT_PARAMS_ENCODING;
+    }
+
+    protected String getBodyContentTypeForDefault() {
+        return "application/x-www-form-urlencoded; charset=" + getParamsEncoding();
+    }
+
     public String getBodyContentType() {
         switch (mRequestType) {
             case REQUEST_TYPE_DEFAULT:
-                return super.getBodyContentType();
+                return getBodyContentTypeForDefault();
             case REQUEST_TYPE_JSON:
                 return getBodyContentTypeForJson();
             default:
@@ -333,7 +352,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         String string = Json.stringify(jsonNode);
 
         if (Log.isDebug()) {
-            Log.d("request-input", "" + mDeNormalizedUrl + " params => " + string);
+            Log.d("request-input", "" + mBaseUrl + " params => " + string);
         }
         return string;
     }
@@ -377,7 +396,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     }
 
     @Override
-    protected Response<O> parseNetworkResponse(NetworkResponse response) {
+    public Response<O> parseNetworkResponse(NetworkResponse response) {
 
         parseCookie(response);
 
@@ -392,9 +411,9 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
 
         if (Log.isDebug()) {
             if (node != null) {
-                Log.d("output", "" + mDeNormalizedUrl + " > " + Json.stringify(node));
+                Log.d("output", "" + mBaseUrl + " > " + Json.stringify(node));
             } else {
-                Log.d("output", "" + mDeNormalizedUrl + " > " + data);
+                Log.d("output", "" + mBaseUrl + " > " + data);
             }
         }
 
@@ -418,7 +437,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     }
 
     @Override
-    protected void deliverResponse(O response) {
+    public void deliverResponse(O response) {
         if (mResponseListener != null) {
             mResponseListener.onResponse(response);
         }
@@ -447,9 +466,8 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         return builder.toString();
     }
 
-    @Override
-    public List<Pair<String, String>> getHeaders() throws AuthFailureError {
-        List<Pair<String, String>> headers = new ArrayList<>(super.getHeaders());
+    public List<Pair<String, String>> getHeaders() {
+        List<Pair<String, String>> headers = new ArrayList<>();
 
         List<Pair<String, String>> cookies = getCookies();
         if (cookies != null && cookies.size() > 0) {
@@ -464,12 +482,159 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
     }
 
     @Override
-    public Priority getPriority() {
+    public final Priority getPriority() {
         return mPriority;
     }
 
     public void setPriority(Priority priority) {
         mPriority = priority;
+    }
+
+    /**
+     * Returns the sequence number of this request.
+     */
+    @Override
+    public final int getSequence() {
+        if (mSequence == null) {
+            throw new IllegalStateException("getSequence called before setSequence");
+        }
+        return mSequence;
+    }
+
+    /**
+     * Returns the retry policy that should be used  for this request.
+     */
+    public RetryPolicy getRetryPolicy() {
+        return mRetryPolicy;
+    }
+
+    /**
+     * Sets the retry policy for this request.
+     *
+     * @return This Request object to allow for chaining.
+     */
+    @Override
+    public void setRetryPolicy(RetryPolicy retryPolicy) {
+        mRetryPolicy = retryPolicy;
+    }
+
+    /**
+     * Mark this request as having a response delivered on it.  This can be used
+     * later in the request's lifetime for suppressing identical responses.
+     */
+    @Override
+    public void markDelivered() {
+        mResponseDelivered = true;
+    }
+
+    /**
+     * Returns true if this request has had a response delivered for it.
+     */
+    @Override
+    public boolean hasHadResponseDelivered() {
+        return mResponseDelivered;
+    }
+
+    @Override
+    public VolleyError parseNetworkError(VolleyError volleyError) {
+        return volleyError;
+    }
+
+    /**
+     * Mark this request as canceled.  No callback will be delivered.
+     */
+    @Override
+    public void cancel() {
+        mCanceled = true;
+    }
+
+    /**
+     * Returns true if this request has been canceled.
+     */
+    @Override
+    public boolean isCanceled() {
+        return mCanceled;
+    }
+
+    /**
+     * Returns this request's tag.
+     *
+     * @see Request#setTag(Object)
+     */
+    @Override
+    public Object getTag() {
+        return mTag;
+    }
+
+    /**
+     * Set a tag on this request. Can be used to cancel all requests with this
+     * tag by {@link com.android.volley.RequestQueue#cancelAll(Object)}.
+     *
+     * @return This Request object to allow for chaining.
+     */
+    @Override
+    public void setTag(Object tag) {
+        mTag = tag;
+    }
+
+    /**
+     * Notifies the request queue that this request has finished (successfully or with error).
+     * <p/>
+     * <p>Also dumps all events from this request's event log; for debugging.</p>
+     */
+    @Override
+    public void finish(final String tag) {
+        if (mQueueHandler != null) {
+            mQueueHandler.finish(this);
+        }
+//        if (VolleyLog.MarkerLog.ENABLED) {
+//            final long threadId = Thread.currentThread().getId();
+//            if (Looper.myLooper() != Looper.getMainLooper()) {
+//                // If we finish marking off of the main thread, we need to
+//                // actually do it on the main thread to ensure correct ordering.
+//                Handler mainThread = new Handler(Looper.getMainLooper());
+//                mainThread.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mEventLog.add(tag, threadId);
+//                        mEventLog.finish(this.toString());
+//                    }
+//                });
+//                return;
+//            }
+//
+//            mEventLog.add(tag, threadId);
+//            mEventLog.finish(this.toString());
+//        } else {
+//            long requestTime = SystemClock.elapsedRealtime() - mRequestBirthTime;
+//            if (requestTime >= SLOW_REQUEST_THRESHOLD_MS) {
+//                VolleyLog.d("%d ms: %s", requestTime, this.toString());
+//            }
+//        }
+    }
+
+    @Override
+    public void enqueued(QueueHandler queueHandler, int sequence) {
+        mQueueHandler = queueHandler;
+        mSequence = sequence;
+    }
+
+    /**
+     * Set whether or not responses to this request should be cached.
+     *
+     * @return This Request object to allow for chaining.
+     */
+    @Override
+    public final void setShouldCache(boolean shouldCache) {
+        mShouldCache = shouldCache;
+    }
+
+    /**
+     * Returns true if responses to this request should be cached.
+     */
+    @Override
+    public final boolean shouldCache() {
+        return mShouldCache;
     }
 
 

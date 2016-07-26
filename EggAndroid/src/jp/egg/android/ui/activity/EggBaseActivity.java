@@ -225,6 +225,9 @@ public class EggBaseActivity extends AppCompatActivity {
     public void addVolleyRequest(Request request) {
         EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
     }
+    public void addVolleyRequest(jp.egg.android.request2.okhttp.Request<?> request) {
+        EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
+    }
 
     public void addVolleyRequestInActivity(Request request) {
         EggTaskCentral.getInstance().addVolleyRequestByObject(request, EggBaseActivity.this);

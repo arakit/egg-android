@@ -3,29 +3,24 @@ package jp.egg.android.request2.task;
 import android.content.Context;
 import android.net.Uri;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskError;
 import jp.egg.android.util.HandlerUtil;
 import jp.egg.android.util.JUtil;
 import jp.egg.android.util.Log;
+import okhttp3.Call;
+import okhttp3.Cookie;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Created by chikara on 2014/09/06.
@@ -94,7 +89,9 @@ public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDow
     protected final void onDoInBackground() {
         super.onDoInBackground();
 
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient
+                .Builder()
+                .build();
 
         int retryCount = 0;
         retry_loop:
@@ -117,7 +114,7 @@ public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDow
     }
 
 
-    protected Uri.Builder buildUrl () {
+    protected Uri.Builder buildUrl() {
         return Uri.parse(mUrl).buildUpon();
     }
 
@@ -129,15 +126,24 @@ public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDow
         try {
             List<String> strCookies = getCookies();
 
-            CookieManager cookieManager = new CookieManager();
-            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-            client.setCookieHandler(cookieManager);
+//            CookieManager cookieManager = new CookieManager();
+//            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+//            client.setCookieHandler(cookieManager);
+//
+//            List<String> values = new ArrayList<String>(strCookies);
+//            Map<String, List<String>> cookies = new HashMap<String, List<String>>();
+//            cookies.put("Set-Cookie", values);
+//
+//            client.getCookieHandler().put(new URI(url), cookies);
 
-            List<String> values = new ArrayList<String>(strCookies);
-            Map<String, List<String>> cookies = new HashMap<String, List<String>>();
-            cookies.put("Set-Cookie", values);
+            HttpUrl httpUrl = HttpUrl.parse(url);
 
-            client.getCookieHandler().put(new URI(url), cookies);
+            List<Cookie> cookies = new ArrayList<>();
+            for (String str : strCookies) {
+                cookies.add(Cookie.parse(httpUrl, str));
+            }
+            client.cookieJar().saveFromResponse(HttpUrl.parse(url), cookies);
+
         } catch (Exception ex) {
             if (Log.isDebug()) {
                 Log.e(TAG, "cookie setup error.", ex);

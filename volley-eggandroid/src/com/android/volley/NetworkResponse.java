@@ -22,7 +22,6 @@ import org.apache.http.HttpStatus;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Data and headers returned from {@link Network#performRequest(Request)}.
@@ -30,13 +29,14 @@ import java.util.Map;
 public class NetworkResponse {
     /**
      * Creates a new network response.
-     * @param statusCode the HTTP status code
-     * @param data Response body
-     * @param headers Headers returned with this response, or null for none
+     *
+     * @param statusCode  the HTTP status code
+     * @param data        Response body
+     * @param headers     Headers returned with this response, or null for none
      * @param notModified True if the server returned a 304 and the data was already in cache
      */
     public NetworkResponse(int statusCode, byte[] data, List<Pair<String, String>> headers,
-            boolean notModified) {
+                           boolean notModified) {
         this.statusCode = statusCode;
         this.data = data;
         this.headers = headers;
@@ -51,15 +51,23 @@ public class NetworkResponse {
         this(HttpStatus.SC_OK, data, headers, false);
     }
 
-    /** The HTTP status code. */
+    /**
+     * The HTTP status code.
+     */
     public final int statusCode;
 
-    /** Raw data from this response. */
+    /**
+     * Raw data from this response.
+     */
     public final byte[] data;
 
-    /** Response headers. */
+    /**
+     * Response headers.
+     */
     public final List<Pair<String, String>> headers;
 
-    /** True if the server returned a 304 (Not Modified). */
+    /**
+     * True if the server returned a 304 (Not Modified).
+     */
     public final boolean notModified;
 }

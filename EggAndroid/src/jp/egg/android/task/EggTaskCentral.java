@@ -3,7 +3,6 @@ package jp.egg.android.task;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -27,7 +26,10 @@ import java.io.File;
 import jp.egg.android.R;
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
+import jp.egg.android.request2.okhttp.OkHttpNetwork;
+import jp.egg.android.request2.okhttp.RequestQueueImpl;
 import jp.egg.android.request2.task.BaseFileDownloadTask;
+import okhttp3.OkHttpClient;
 
 public class EggTaskCentral {
 
@@ -38,7 +40,8 @@ public class EggTaskCentral {
 
     public static EggTaskCentral sInstance = null;
     private Context mContext;
-    private RequestQueue mVolleyQueue;
+    @Deprecated private RequestQueue mVolleyQueue;
+    private jp.egg.android.request2.okhttp.RequestQueue mRequestQueue;
     private EggTaskQueue mQueue;
 
 
@@ -60,32 +63,41 @@ public class EggTaskCentral {
 
     public static void destroy() {
         EggTaskCentral central = sInstance;
-        if (central == null) return;
+        if (central == null) {
+            return;
+        }
         central.onDestroy();
         sInstance = null;
     }
 
     public static EggTaskCentral getInstance() {
-        if (sInstance == null)
+        if (sInstance == null) {
             throw new IllegalStateException("not initialize. must call EggTaskCentral.initialize().");
+        }
         return sInstance;
+    }
+
+    private jp.egg.android.request2.okhttp.RequestQueue createRequestQueue() {
+        return new RequestQueueImpl(
+                new OkHttpNetwork(
+                        new OkHttpClient.Builder().build()
+                ));
     }
 
     private void onInitialize(Context context) {
         mContext = context.getApplicationContext();
         mVolleyQueue = EggVolley.newRequestQueue(mContext, DEFAULT_VOLLEY_CACHE_SIZE);
         mQueue = new EggTaskQueue();
-
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        mRequestQueue = createRequestQueue();
 
         File cacheDir = StorageUtils.getCacheDirectory(mContext);
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mContext)
                 .memoryCache(new LruMemoryCache(DEFAULT_IMAGE_CACHE_SIZE))
-                        //.memoryCacheExtraOptions( (int)(dm.widthPixels / dm.density / 2), (int)(dm.heightPixels / dm.density / 2) )
-                        //.memoryCacheSize(DEFAULT_IMAGE_CACHE_SIZE)
+                //.memoryCacheExtraOptions( (int)(dm.widthPixels / dm.density / 2), (int)(dm.heightPixels / dm.density / 2) )
+                //.memoryCacheSize(DEFAULT_IMAGE_CACHE_SIZE)
                 .diskCache(new LimitedAgeDiskCache(cacheDir, DEFAULT_IMAGE_DISK_CACHE_SIZE))
-                        //.diskCacheSize(DEFAULT_IMAGE_DISC_CACHE_SIZE)
+                //.diskCacheSize(DEFAULT_IMAGE_DISC_CACHE_SIZE)
                 .build();
 
         mUnivImageLoader = com.nostra13.universalimageloader.core.ImageLoader.getInstance();
@@ -94,26 +106,59 @@ public class EggTaskCentral {
 
         startTask();
         startVolleyRequest();
+        startRequestQueue();
     }
 
     private void onDestroy() {
         mContext = null;
+
         cancelVolleyRequestAll();
         stopVolleyRequest();
+
+        cancelRequestQueueAll();
+        stopRequestQueue();
+
         stopTask();
 
         mUnivImageLoader.stop();
         mUnivImageLoader.destroy();
     }
 
+    @Deprecated
     public void startVolleyRequest() {
-        mVolleyQueue.start();
+        if (mVolleyQueue != null) {
+            mVolleyQueue.start();
+        }
     }
 
+    @Deprecated
     public void stopVolleyRequest() {
-        mVolleyQueue.stop();
+        if (mVolleyQueue != null) {
+            mVolleyQueue.stop();
+        }
     }
 
+
+    /**
+     * リクエスト開始
+     */
+    public void startRequestQueue() {
+        if (mRequestQueue != null) {
+            mRequestQueue.start();
+        }
+    }
+
+    /**
+     * リクエスト停止
+     */
+    public void stopRequestQueue() {
+        if (mRequestQueue != null) {
+            mRequestQueue.stop();
+        }
+    }
+
+
+    @Deprecated
     public void resetVolley() {
         cancelVolleyRequestAll();
         stopVolleyRequest();
@@ -121,11 +166,23 @@ public class EggTaskCentral {
         startVolleyRequest();
     }
 
+    /**
+     * リクエストをすべてクリアして、再生性して、リセットする
+     */
+    public void resetRequestQueue() {
+        cancelRequestQueueAll();
+        stopRequestQueue();
+        mRequestQueue = createRequestQueue();
+        startRequestQueue();
+    }
 
+
+    @Deprecated
     public void cancelVolleyRequest(RequestFilter filter) {
         mVolleyQueue.cancelAll(filter);
     }
 
+    @Deprecated
     public void cancelVolleyRquestByObject(final Object obj) {
         mVolleyQueue.cancelAll(new RequestFilter() {
             @Override
@@ -138,6 +195,7 @@ public class EggTaskCentral {
         });
     }
 
+    @Deprecated
     public void cancelVolleyRequestAll() {
         mVolleyQueue.cancelAll(new RequestFilter() {
             @Override
@@ -145,6 +203,15 @@ public class EggTaskCentral {
                 return true;
             }
         });
+    }
+
+
+    public void cancelRequestQueue(jp.egg.android.request2.okhttp.RequestQueue.RequestFilter filter) {
+        mRequestQueue.cancelAll(filter);
+    }
+
+    public void cancelRequestQueueAll() {
+        mRequestQueue.cancelAll(null);
     }
 
 
@@ -162,11 +229,22 @@ public class EggTaskCentral {
     }
 
 
+    @Deprecated
     public void addVolleyRequest(Request<?> request) {
-        if (request == null) return;
+        if (request == null) {
+            return;
+        }
         mVolleyQueue.add(request);
     }
 
+    public void addVolleyRequest(jp.egg.android.request2.okhttp.Request<?> request) {
+        if (request == null) {
+            return;
+        }
+        mRequestQueue.add(request);
+    }
+
+    @Deprecated
     public void addVolleyRequestByObject(Request<?> request, Object obj) {
         if (request == null) return;
 
@@ -177,6 +255,17 @@ public class EggTaskCentral {
         mVolleyQueue.add(request);
     }
 
+    public void addVolleyRequestByObject(jp.egg.android.request2.okhttp.Request<?> request, Object obj) {
+        if (request == null) return;
+
+        VolleyTag tag = new VolleyTag();
+        tag.object = obj;
+        request.setTag(tag);
+
+        mRequestQueue.add(request);
+    }
+
+    @Deprecated
     public void clearVolleyCache() {
         mVolleyQueue.getCache().clear();
     }
@@ -414,7 +503,7 @@ public class EggTaskCentral {
     public static class LoadImageContainer {
 
         public void cancelRequest() {
-            //ic.cancelRequest();
+            //ic.cancelRequestQueue();
         }
     }
 
