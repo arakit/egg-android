@@ -100,14 +100,14 @@ public abstract class EggBaseFragment extends Fragment {
     }
 
     public void addVolleyRequest(Request request) {
-        EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
+        EggTaskCentral.getInstance().addRequestByObject(request, null);
     }
     public void addVolleyRequest(jp.egg.android.request2.okhttp.Request<?> request) {
-        EggTaskCentral.getInstance().addVolleyRequestByObject(request, null);
+        EggTaskCentral.getInstance().addRequestByObject(request, null);
     }
 
     public void addVolleyRequestInFragment(Request request) {
-        EggTaskCentral.getInstance().addVolleyRequestByObject(request, EggBaseFragment.this);
+        EggTaskCentral.getInstance().addRequestByObject(request, EggBaseFragment.this);
     }
 
     public void cancelVolleyRequestInFragment() {

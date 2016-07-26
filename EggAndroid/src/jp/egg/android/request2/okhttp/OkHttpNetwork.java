@@ -66,7 +66,7 @@ public class OkHttpNetwork implements Network {
         //request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
     }
 
-    protected okhttp3.RequestBody handleBuildPostRequestBody(Request request) {
+    protected okhttp3.RequestBody handleBuildRequestBody(Request request) {
         return okhttp3.RequestBody.create(MediaType.parse(request.getBodyContentType()), request.getBody());
     }
 
@@ -78,12 +78,26 @@ public class OkHttpNetwork implements Network {
 
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
         builder.url(url);
+        okhttp3.RequestBody okHttpRequestBody;
         switch (method) {
             case Request.Method.GET:
                 builder.get();
                 break;
             case Request.Method.POST:
-                builder.post(handleBuildPostRequestBody(request));
+                okHttpRequestBody = handleBuildRequestBody(request);
+                builder.post(okHttpRequestBody);
+                break;
+            case Request.Method.DELETE:
+                okHttpRequestBody = handleBuildRequestBody(request);
+                if (okHttpRequestBody!=null) {
+                    builder.delete(okHttpRequestBody);
+                } else {
+                    builder.delete();
+                }
+                break;
+            case Request.Method.PUT:
+                okHttpRequestBody = handleBuildRequestBody(request);
+                builder.put(okHttpRequestBody);
                 break;
         }
 
