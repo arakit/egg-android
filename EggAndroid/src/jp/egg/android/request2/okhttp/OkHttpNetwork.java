@@ -13,8 +13,6 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.conn.ConnectTimeoutException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -22,6 +20,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import jp.egg.android.util.Log;
 import okhttp3.Call;
@@ -117,7 +116,12 @@ public class OkHttpNetwork implements Network {
             List<Pair<String, String>> responseHeaders = new ArrayList<>();
             try {
 
-                OkHttpClient client = mClient;
+                int timeout = request.getRetryPolicy().getCurrentTimeout();
+
+                OkHttpClient client = mClient.newBuilder()
+                        .connectTimeout(timeout, TimeUnit.MILLISECONDS)
+                        .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                        .build();
                 Call call = client.newCall(handleBuildRequest(request));
                 response = call.execute();
                 int statusCode = response.code();
@@ -174,14 +178,18 @@ public class OkHttpNetwork implements Network {
                 }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false);
 
-            } catch (SocketTimeoutException e) {
+            }
+            catch (SocketTimeoutException e) {
                 attemptRetryOnException("socket", request, new TimeoutError());
-            } catch (ConnectTimeoutException e) {
-                attemptRetryOnException("connection", request, new TimeoutError());
-            } catch (MalformedURLException e) {
+            }
+//            catch (ConnectTimeoutException e) {
+//                attemptRetryOnException("connection", request, new TimeoutError());
+//            }
+            catch (MalformedURLException e) {
                 throw new RuntimeException("Bad URL " + request.getUrl(), e);
-            } catch (IOException e) {
-                int statusCode = 0;
+            }
+            catch (IOException e) {
+                int statusCode;
                 NetworkResponse networkResponse = null;
                 if (request != null) {
                     statusCode = response.code();

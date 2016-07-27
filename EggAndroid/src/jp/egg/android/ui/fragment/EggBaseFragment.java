@@ -99,6 +99,7 @@ public abstract class EggBaseFragment extends Fragment {
         //TODO
     }
 
+    @Deprecated
     public void addVolleyRequest(Request request) {
         EggTaskCentral.getInstance().addRequestByObject(request, null);
     }
@@ -106,10 +107,12 @@ public abstract class EggBaseFragment extends Fragment {
         EggTaskCentral.getInstance().addRequestByObject(request, null);
     }
 
+    @Deprecated
     public void addVolleyRequestInFragment(Request request) {
         EggTaskCentral.getInstance().addRequestByObject(request, EggBaseFragment.this);
     }
 
+    @Deprecated
     public void cancelVolleyRequestInFragment() {
         EggTaskCentral.getInstance().cancelVolleyRquestByObject(EggBaseFragment.this);
     }
