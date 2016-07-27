@@ -210,6 +210,11 @@ public class OkHttpNetwork implements Network {
                     throw new NetworkError(networkResponse);
                 }
             }
+            finally {
+                if (response!=null) {
+                    response.close();
+                }
+            }
         }
     }
 
