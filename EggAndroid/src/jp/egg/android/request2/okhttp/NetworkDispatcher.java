@@ -109,6 +109,9 @@ public class NetworkDispatcher extends Thread {
 
                 // Parse the response here on the worker thread.
                 Response<?> response = request.parseNetworkResponse(networkResponse);
+                if (response==null) {
+                    throw new IllegalStateException ();
+                }
 
                 // Post the response back.
                 request.markDelivered();
