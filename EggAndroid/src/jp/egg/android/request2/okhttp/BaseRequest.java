@@ -426,14 +426,18 @@ public abstract class BaseRequest<I, O> implements Request<O> {
     }
 
     protected String parseToString(NetworkResponse response) {
-        String data = null;
+        return parseNetworkResponseToString(response);
+    }
+
+    public static String parseNetworkResponseToString (NetworkResponse response) {
+        String parsed;
         try {
-            data = new String(response.data,
-                    HttpHeaderParser.parseCharset(response.headers));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+        } catch (UnsupportedEncodingException var4) {
+            var4.printStackTrace();
+            parsed = new String(response.data);
         }
-        return data;
+        return parsed;
     }
 
 
