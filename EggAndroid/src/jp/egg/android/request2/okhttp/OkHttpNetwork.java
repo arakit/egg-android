@@ -154,14 +154,6 @@ public class OkHttpNetwork implements Network {
 ////                            entry.responseHeaders, true);
 //                }
 
-                // if the request is slow, log it.
-                long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
-                logSlowRequests(requestLifetime, request, responseContents, statusCode);
-
-                if (statusCode < 200 || statusCode > 299) {
-                    throw new IOException();
-                }
-
                 responseContents = response.body().bytes();
 
 //                // Some responses such as 204s do not have content.  We must check.
@@ -177,6 +169,13 @@ public class OkHttpNetwork implements Network {
                     responseContents = new byte[0];
                 }
 
+                // if the request is slow, log it.
+                long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
+                logSlowRequests(requestLifetime, request, responseContents, statusCode);
+
+                if (statusCode < 200 || statusCode > 299) {
+                    throw new IOException();
+                }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false);
 
             }
@@ -191,21 +190,13 @@ public class OkHttpNetwork implements Network {
             }
             catch (IOException e) {
                 int statusCode;
-                String responseString;
                 NetworkResponse networkResponse = null;
                 if (request != null) {
                     statusCode = response.code();
-                    try {
-                        responseString = response.body().string();
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                        responseString = null;
-                    }
                 } else {
                     throw new NoConnectionError(e);
                 }
-                VolleyLog.e("Unexpected response code %d for %s , response is %s",
-                        statusCode, request.getUrl(), responseString!=null ? responseString : "null");
+                VolleyLog.e("Unexpected response code %d for %s", statusCode, request.getUrl());
                 if (responseContents != null) {
                     networkResponse = new NetworkResponse(statusCode, responseContents, responseHeaders, false);
                     if (statusCode == HttpStatus.SC_UNAUTHORIZED ||
