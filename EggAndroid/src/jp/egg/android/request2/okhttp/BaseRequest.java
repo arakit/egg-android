@@ -125,6 +125,17 @@ public abstract class BaseRequest<I, O> implements Request<O> {
         return new Pair<String, String>(pair[0], pair[1]);
     }
 
+    public static String parseNetworkResponseToString(NetworkResponse response) {
+        String parsed;
+        try {
+            parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+        } catch (UnsupportedEncodingException var4) {
+            var4.printStackTrace();
+            parsed = new String(response.data);
+        }
+        return parsed;
+    }
+
     @NonNull
     private Class findGenericOutputTypes(Class clazz) {
         Type genericSuperClass = clazz.getGenericSuperclass();
@@ -257,7 +268,8 @@ public abstract class BaseRequest<I, O> implements Request<O> {
             params.add(convertFormData(type, key, value));
         }
     }
-    protected FormData convertFormData (Class type, String key, Object value) {
+
+    protected FormData convertFormData(Class type, String key, Object value) {
         if (type == File.class) {
             File file = (File) value;
             return FormData.file(key, file.getName(), file);
@@ -293,7 +305,7 @@ public abstract class BaseRequest<I, O> implements Request<O> {
         }
 
         if (Log.isDebug()) {
-            Log.d("request-input", "" + mBaseUrl + " params => " + DUtil.toStringPairList((List) params2, false));
+            Log.d("request-input", "" + mBaseUrl + " params => " + DUtil.toStringPairList(params2, false));
         }
         return params2;
     }
@@ -343,7 +355,7 @@ public abstract class BaseRequest<I, O> implements Request<O> {
         }
 
         if (Log.isDebug()) {
-            Log.d("request-input", "" + mBaseUrl + " params => " + DUtil.toStringPairList((List) params2, false));
+            Log.d("request-input", "" + mBaseUrl + " params => " + DUtil.toStringFormDataList(params2, false));
         }
         return params2;
     }
@@ -510,18 +522,6 @@ public abstract class BaseRequest<I, O> implements Request<O> {
         return parseNetworkResponseToString(response);
     }
 
-    public static String parseNetworkResponseToString (NetworkResponse response) {
-        String parsed;
-        try {
-            parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
-        } catch (UnsupportedEncodingException var4) {
-            var4.printStackTrace();
-            parsed = new String(response.data);
-        }
-        return parsed;
-    }
-
-
     @Override
     public void deliverResponse(O response) {
         if (mResponseListener != null) {
@@ -624,7 +624,7 @@ public abstract class BaseRequest<I, O> implements Request<O> {
     @Override
     public VolleyError parseNetworkError(VolleyError volleyError) {
 
-        if (volleyError!=null && volleyError.networkResponse!=null && volleyError.networkResponse!=null) {
+        if (volleyError != null && volleyError.networkResponse != null && volleyError.networkResponse != null) {
             String body = parseToString(volleyError.networkResponse);
             Log.e("error", "parseNetworkError " + body);
         }

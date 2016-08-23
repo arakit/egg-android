@@ -243,7 +243,7 @@ public abstract class BaseVolleyRequest<I, O> extends Request<O> {
         }
 
         if (Log.isDebug()) {
-            Log.d("request-input", "" + mDeNormalizedUrl + " params => " + DUtil.toStringPairList((List) params2, false));
+            Log.d("request-input", "" + mDeNormalizedUrl + " params => " + DUtil.toStringPairList(params2, false));
         }
         return params2;
     }
