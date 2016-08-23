@@ -15,6 +15,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -40,6 +41,8 @@ public abstract class BaseRequest<I, O> implements Request<O> {
 
     public static final int REQUEST_TYPE_DEFAULT = 0;
     public static final int REQUEST_TYPE_JSON = 1;
+    public static final int REQUEST_TYPE_FORM_DATA = 2;
+
     public static final String SET_COOKIE = "Set-Cookie";
     public static final String COOKIE = "Cookie";
     /**
@@ -240,6 +243,29 @@ public abstract class BaseRequest<I, O> implements Request<O> {
         }
     }
 
+    protected void convertInputToFormDataParams(List<FormData> params, Field field, Object value) {
+        Class type = field.getType();
+        String key = field.getName();
+        if (value == null) {
+            // なし
+        } else if (type.isArray()) {
+            Object[] arr = (Object[]) value;
+            for (Object valueOne : arr) {
+                params.add(convertFormData(type.getComponentType(), key, valueOne));
+            }
+        } else {
+            params.add(convertFormData(type, key, value));
+        }
+    }
+    protected FormData convertFormData (Class type, String key, Object value) {
+        if (type == File.class) {
+            File file = (File) value;
+            return FormData.file(key, file.getName(), file);
+        } else {
+            return FormData.text(key, value.toString());
+        }
+    }
+
     protected List<Pair<String, String>> getParams() {
         I in = getInput();
 
@@ -264,6 +290,56 @@ public abstract class BaseRequest<I, O> implements Request<O> {
             Field field = e.getKey();
             Object value = e.getValue();
             convertInputToParams(params2, field, value);
+        }
+
+        if (Log.isDebug()) {
+            Log.d("request-input", "" + mBaseUrl + " params => " + DUtil.toStringPairList((List) params2, false));
+        }
+        return params2;
+    }
+
+    @Override
+    public void onRequestProgress(long bytesWritten, long contentLength) {
+
+    }
+
+    @Override
+    public FormData[] getFormDataBody() {
+        if (mRequestType == REQUEST_TYPE_FORM_DATA) {
+            List<FormData> params = getFormDataParams();
+            if (params != null && params.size() > 0) {
+                return params.toArray(new FormData[params.size()]);
+            }
+            return null;
+        } else {
+            return null;
+        }
+    }
+
+    protected List<FormData> getFormDataParams() {
+        I in = getInput();
+
+        List<FormData> params2 = new LinkedList<FormData>();
+        Map<Field, Object> values = ReflectionUtils.getDeclaredFieldValues(
+                in,
+                new ReflectionUtils.FieldFilter() {
+                    @Override
+                    public boolean accept(Field field) {
+                        int modifiers = field.getModifiers();
+                        if (Modifier.isStatic(modifiers)) return false;
+                        if (Modifier.isPrivate(modifiers)) return false;
+                        if (Modifier.isProtected(modifiers)) return false;
+                        if (field.getName().contains("$")) return false;
+                        return true;
+                    }
+                },
+                null
+        );
+
+        for (Map.Entry<Field, Object> e : values.entrySet()) {
+            Field field = e.getKey();
+            Object value = e.getValue();
+            convertInputToFormDataParams(params2, field, value);
         }
 
         if (Log.isDebug()) {
@@ -312,6 +388,11 @@ public abstract class BaseRequest<I, O> implements Request<O> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public boolean isFormData() {
+        return mRequestType == REQUEST_TYPE_FORM_DATA;
     }
 
     /**

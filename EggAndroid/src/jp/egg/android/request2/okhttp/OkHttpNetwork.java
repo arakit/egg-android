@@ -25,8 +25,15 @@ import java.util.concurrent.TimeUnit;
 import jp.egg.android.util.Log;
 import okhttp3.Call;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSink;
+import okio.Okio;
+import okio.Sink;
 
 /**
  * Created by chikara on 16/07/26.
@@ -66,10 +73,33 @@ public class OkHttpNetwork implements Network {
     }
 
     protected okhttp3.RequestBody handleBuildRequestBody(Request request) {
-        return okhttp3.RequestBody.create(MediaType.parse(request.getBodyContentType()), request.getBody());
+
+        RequestBody requestBody;
+        if (request.isFormData()) {
+            MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+            for (Request.FormData e : request.getFormDataBody()) {
+                if (e instanceof Request.TextFormData) {
+                    Request.TextFormData content = (Request.TextFormData) e;
+                    builder.addFormDataPart(content.name, content.value);
+                }
+                else if (e instanceof Request.FileFormData) {
+                    Request.FileFormData content = (Request.FileFormData) e;
+                    MediaType mediaType = content.contentType!=null ? MediaType.parse(content.contentType) : null;
+                    builder.addFormDataPart(content.name, content.filename, RequestBody.create(mediaType, content.file));
+                }
+            }
+            requestBody = builder.build();
+        } else {
+            MediaType mediaType = MediaType.parse(request.getBodyContentType());
+            requestBody = okhttp3.RequestBody.create(mediaType, request.getBody());
+        }
+        if (requestBody!=null) {
+            requestBody = wrap(requestBody, request);
+        }
+        return requestBody;
     }
 
-    protected okhttp3.Request handleBuildRequest(Request request) {
+    protected okhttp3.Request handleBuildRequest(final Request request) {
 
         int method = request.getMethod();
         String url = request.getUrl();
@@ -103,8 +133,16 @@ public class OkHttpNetwork implements Network {
         for (Pair<String, String> header : headers) {
             builder.addHeader(header.first, header.second);
         }
-
         return builder.build();
+    }
+
+    private RequestBody wrap (final RequestBody requestBody, final Request request) {
+        return new CountingRequestBody(requestBody, new CountingRequestBody.OnRequestProgressListener() {
+            @Override
+            public void onRequestProgress(long bytesWritten, long contentLength) {
+                request.onRequestProgress(bytesWritten, contentLength);
+            }
+        });
     }
 
     @Override
@@ -122,6 +160,7 @@ public class OkHttpNetwork implements Network {
                         .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                         .readTimeout(timeout, TimeUnit.MILLISECONDS)
                         .build();
+
                 Call call = client.newCall(handleBuildRequest(request));
                 response = call.execute();
                 int statusCode = response.code();
@@ -218,6 +257,7 @@ public class OkHttpNetwork implements Network {
         }
     }
 
+
     /**
      * Logs requests that took over SLOW_REQUEST_THRESHOLD_MS to complete.
      */
@@ -229,6 +269,66 @@ public class OkHttpNetwork implements Network {
                     responseContents != null ? responseContents.length : "null",
                     statusCode, request.getRetryPolicy().getCurrentRetryCount()));
         }
+    }
+
+    public static class CountingRequestBody extends RequestBody {
+
+        protected RequestBody delegate;
+        protected OnRequestProgressListener listener;
+
+        protected CountingSink countingSink;
+
+        public CountingRequestBody(RequestBody delegate, OnRequestProgressListener listener) {
+            this.delegate = delegate;
+            this.listener = listener;
+        }
+
+        @Override
+        public MediaType contentType() {
+            return delegate.contentType();
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return delegate.contentLength();
+        }
+
+        @Override
+        public void writeTo(BufferedSink sink) throws IOException {
+            BufferedSink bufferedSink;
+
+            countingSink = new CountingSink(sink);
+            bufferedSink = Okio.buffer(countingSink);
+
+            delegate.writeTo(bufferedSink);
+
+            bufferedSink.flush();
+        }
+
+        public interface OnRequestProgressListener {
+
+            public void onRequestProgress(long bytesWritten, long contentLength);
+
+        }
+
+        protected final class CountingSink extends ForwardingSink {
+
+            private long bytesWritten = 0;
+
+            public CountingSink(Sink delegate) {
+                super(delegate);
+            }
+
+            @Override
+            public void write(Buffer source, long byteCount) throws IOException {
+                super.write(source, byteCount);
+
+                bytesWritten += byteCount;
+                listener.onRequestProgress(bytesWritten, contentLength());
+            }
+
+        }
+
     }
 
 
