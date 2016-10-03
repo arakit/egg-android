@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="jp.egg.android"
-    android:versionCode="1"
-    android:versionName="1.0">
+    package="jp.egg.android">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -26,11 +24,7 @@
             </intent-filter>
         </activity>
         -->
-        <activity
-            android:name="jp.egg.android.ui.activity.DatabaseViewerActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_database_viewer"
-            android:theme="@style/EggFullscreenTheme"></activity>
+
     </application>
 
 </manifest>

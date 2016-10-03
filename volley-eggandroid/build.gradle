@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
@@ -10,8 +10,8 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.3"
 
     useLibrary 'org.apache.http.legacy'
 
