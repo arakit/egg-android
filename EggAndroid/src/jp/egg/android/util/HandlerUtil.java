@@ -21,6 +21,11 @@ public class HandlerUtil {
         getHandler().postDelayed(run, delayMills);
     }
 
+    public static void postAtTime(Runnable run, long atTimeMills) {
+        if (run == null) return;
+        getHandler().postAtTime(run, atTimeMills);
+    }
+
     public static void postBackgroundAndUi(final Runnable background1, final Runnable ui2) {
         postBackground(new Runnable() {
             @Override
