@@ -37,7 +37,7 @@ public class HorizontalSquareLayout extends FrameLayout {
 
 
     public void setVerticalWeight (float weight) {
-        if (mVerticalWeight==weight) {
+        if (mVerticalWeight == weight) {
             return;
         }
         mVerticalWeight = weight;
@@ -49,7 +49,6 @@ public class HorizontalSquareLayout extends FrameLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int measureWidthMode = MeasureSpec.getMode(widthMeasureSpec);
         int measureWidthSize = MeasureSpec.getSize(widthMeasureSpec);
-
 
         super.onMeasure(
                 widthMeasureSpec,
