@@ -37,11 +37,15 @@ public class HorizontalSquareLayout extends FrameLayout {
 
 
     public void setVerticalWeight (float weight) {
-        if (mVerticalWeight==weight) {
+        if (mVerticalWeight == weight) {
             return;
         }
         mVerticalWeight = weight;
         requestLayout();
+    }
+
+    public float getVerticalWeight () {
+        return mVerticalWeight;
     }
 
 
