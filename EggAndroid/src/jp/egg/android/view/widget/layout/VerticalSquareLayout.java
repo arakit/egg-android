@@ -35,6 +35,13 @@ public class VerticalSquareLayout extends FrameLayout {
         mHorizontalWeight = a.getFloat(R.styleable.SquareLayout_slWeight, 1.0f);
     }
 
+    public void setHorizontalWeight (float weight) {
+        if (mHorizontalWeight == weight) {
+            return;
+        }
+        mHorizontalWeight = weight;
+        requestLayout();
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

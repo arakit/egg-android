@@ -54,7 +54,6 @@ public class HorizontalSquareLayout extends FrameLayout {
         int measureWidthMode = MeasureSpec.getMode(widthMeasureSpec);
         int measureWidthSize = MeasureSpec.getSize(widthMeasureSpec);
 
-
         super.onMeasure(
                 widthMeasureSpec,
                 MeasureSpec.makeMeasureSpec((int) (measureWidthSize * mVerticalWeight), measureWidthMode)
