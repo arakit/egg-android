@@ -10,6 +10,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -44,6 +45,8 @@ public class RoundedDrawable extends Drawable {
 
     public RoundedDrawable(Bitmap bitmap) {
 
+        jp.egg.android.util.Log.d(TAG, "bitmap "+bitmap.getWidth()+", "+bitmap.getHeight());
+
         mBitmapWidth = bitmap.getWidth();
         mBitmapHeight = bitmap.getHeight();
         mBitmapRect.set(0, 0, mBitmapWidth, mBitmapHeight);
@@ -52,6 +55,7 @@ public class RoundedDrawable extends Drawable {
         mBitmapShader.setLocalMatrix(mShaderMatrix);
 
         mBitmapPaint = new Paint();
+        mBitmapPaint.setColor(Color.WHITE);
         mBitmapPaint.setStyle(Paint.Style.FILL);
         mBitmapPaint.setAntiAlias(true);
         mBitmapPaint.setShader(mBitmapShader);
@@ -105,11 +109,12 @@ public class RoundedDrawable extends Drawable {
         }
 
         Bitmap bitmap;
-        int width = Math.max(drawable.getIntrinsicWidth(), 1);
-        int height = Math.max(drawable.getIntrinsicHeight(), 1);
+        int width = Math.max(drawable.getIntrinsicWidth(), 2);
+        int height = Math.max(drawable.getIntrinsicHeight(), 2);
         try {
             bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             drawable.draw(canvas);
         } catch (Exception e) {

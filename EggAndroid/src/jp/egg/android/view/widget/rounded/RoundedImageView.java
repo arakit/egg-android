@@ -10,12 +10,11 @@ import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.ImageView;
 
 import jp.egg.android.R;
 
 @SuppressWarnings("UnusedDeclaration")
-public class RoundedImageView extends ImageView {
+public class RoundedImageView extends android.support.v7.widget.AppCompatImageView {
 
     public static final String TAG = "RoundedImageView";
     public static final float DEFAULT_RADIUS = 0f;
@@ -31,12 +30,12 @@ public class RoundedImageView extends ImageView {
             ScaleType.CENTER_INSIDE
     };
 
-    private float cornerRadius = DEFAULT_RADIUS;
-    private float borderWidth = DEFAULT_BORDER_WIDTH;
-    private ColorStateList borderColor =
+    private float mCornerRadius = DEFAULT_RADIUS;
+    private float mBorderWidth = DEFAULT_BORDER_WIDTH;
+    private ColorStateList mBorderColor =
             ColorStateList.valueOf(RoundedDrawable.DEFAULT_BORDER_COLOR);
-    private boolean isOval = false;
-    private boolean mutateBackground = false;
+    private boolean mIsOval = false;
+    private boolean mMutateBackground = false;
 
     private int mResource;
     private Drawable mDrawable;
@@ -65,24 +64,24 @@ public class RoundedImageView extends ImageView {
             setScaleType(ScaleType.FIT_CENTER);
         }
 
-        cornerRadius = a.getDimensionPixelSize(R.styleable.RoundedImageView_corner_radius, -1);
-        borderWidth = a.getDimensionPixelSize(R.styleable.RoundedImageView_border_width, -1);
+        mCornerRadius = a.getDimensionPixelSize(R.styleable.RoundedImageView_corner_radius, -1);
+        mBorderWidth = a.getDimensionPixelSize(R.styleable.RoundedImageView_border_width, -1);
 
         // don't allow negative values for radius and border
-        if (cornerRadius < 0) {
-            cornerRadius = DEFAULT_RADIUS;
+        if (mCornerRadius < 0) {
+            mCornerRadius = DEFAULT_RADIUS;
         }
-        if (borderWidth < 0) {
-            borderWidth = DEFAULT_BORDER_WIDTH;
-        }
-
-        borderColor = a.getColorStateList(R.styleable.RoundedImageView_border_color);
-        if (borderColor == null) {
-            borderColor = ColorStateList.valueOf(RoundedDrawable.DEFAULT_BORDER_COLOR);
+        if (mBorderWidth < 0) {
+            mBorderWidth = DEFAULT_BORDER_WIDTH;
         }
 
-        mutateBackground = a.getBoolean(R.styleable.RoundedImageView_mutate_background, false);
-        isOval = a.getBoolean(R.styleable.RoundedImageView_oval, false);
+        mBorderColor = a.getColorStateList(R.styleable.RoundedImageView_border_color);
+        if (mBorderColor == null) {
+            mBorderColor = ColorStateList.valueOf(RoundedDrawable.DEFAULT_BORDER_COLOR);
+        }
+
+        mMutateBackground = a.getBoolean(R.styleable.RoundedImageView_mutate_background, false);
+        mIsOval = a.getBoolean(R.styleable.RoundedImageView_oval, false);
 
         updateDrawableAttrs();
         updateBackgroundDrawableAttrs(true);
@@ -204,7 +203,7 @@ public class RoundedImageView extends ImageView {
     }
 
     private void updateBackgroundDrawableAttrs(boolean convert) {
-        if (mutateBackground) {
+        if (mMutateBackground) {
             if (convert) {
                 mBackgroundDrawable = RoundedDrawable.fromDrawable(mBackgroundDrawable);
             }
@@ -220,10 +219,10 @@ public class RoundedImageView extends ImageView {
         if (drawable instanceof RoundedDrawable) {
             ((RoundedDrawable) drawable)
                     .setScaleType(mScaleType)
-                    .setCornerRadius(cornerRadius)
-                    .setBorderWidth(borderWidth)
-                    .setBorderColor(borderColor)
-                    .setOval(isOval);
+                    .setCornerRadius(mCornerRadius)
+                    .setBorderWidth(mBorderWidth)
+                    .setBorderColor(mBorderColor)
+                    .setOval(mIsOval);
         } else if (drawable instanceof LayerDrawable) {
             // loop through layers to and set drawable attrs
             LayerDrawable ld = ((LayerDrawable) drawable);
@@ -242,15 +241,15 @@ public class RoundedImageView extends ImageView {
     }
 
     public float getCornerRadius() {
-        return cornerRadius;
+        return mCornerRadius;
     }
 
     public void setCornerRadius(float radius) {
-        if (cornerRadius == radius) {
+        if (mCornerRadius == radius) {
             return;
         }
 
-        cornerRadius = radius;
+        mCornerRadius = radius;
         updateDrawableAttrs();
         updateBackgroundDrawableAttrs(false);
     }
@@ -260,15 +259,15 @@ public class RoundedImageView extends ImageView {
     }
 
     public float getBorderWidth() {
-        return borderWidth;
+        return mBorderWidth;
     }
 
     public void setBorderWidth(float width) {
-        if (borderWidth == width) {
+        if (mBorderWidth == width) {
             return;
         }
 
-        borderWidth = width;
+        mBorderWidth = width;
         updateDrawableAttrs();
         updateBackgroundDrawableAttrs(false);
         invalidate();
@@ -279,19 +278,19 @@ public class RoundedImageView extends ImageView {
     }
 
     public int getBorderColor() {
-        return borderColor.getDefaultColor();
+        return mBorderColor.getDefaultColor();
     }
 
     public void setBorderColor(ColorStateList colors) {
-        if (borderColor.equals(colors)) {
+        if (mBorderColor.equals(colors)) {
             return;
         }
 
-        borderColor =
+        mBorderColor =
                 (colors != null) ? colors : ColorStateList.valueOf(RoundedDrawable.DEFAULT_BORDER_COLOR);
         updateDrawableAttrs();
         updateBackgroundDrawableAttrs(false);
-        if (borderWidth > 0) {
+        if (mBorderWidth > 0) {
             invalidate();
         }
     }
@@ -301,30 +300,30 @@ public class RoundedImageView extends ImageView {
     }
 
     public ColorStateList getBorderColors() {
-        return borderColor;
+        return mBorderColor;
     }
 
     public boolean isOval() {
-        return isOval;
+        return mIsOval;
     }
 
     public void setOval(boolean oval) {
-        isOval = oval;
+        mIsOval = oval;
         updateDrawableAttrs();
         updateBackgroundDrawableAttrs(false);
         invalidate();
     }
 
     public boolean isMutateBackground() {
-        return mutateBackground;
+        return mMutateBackground;
     }
 
     public void setMutateBackground(boolean mutate) {
-        if (mutateBackground == mutate) {
+        if (mMutateBackground == mutate) {
             return;
         }
 
-        mutateBackground = mutate;
+        mMutateBackground = mutate;
         updateBackgroundDrawableAttrs(true);
         invalidate();
     }
