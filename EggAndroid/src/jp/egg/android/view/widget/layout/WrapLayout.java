@@ -30,6 +30,8 @@ public class WrapLayout extends ViewGroup {
     private int mSpaceHeight = -1;
 
     private int mGravity = Gravity.LEFT;
+    private ArrayList<Pair<View, Integer>> mTmpLineChildListForLayout = new ArrayList<>();
+    private ArrayList<Pair<View, Integer>> mTmpLineChildListForMeasure = new ArrayList<>();
 
     public WrapLayout(Context context) {
         this(context, null);
@@ -74,7 +76,6 @@ public class WrapLayout extends ViewGroup {
         }
     }
 
-
     public void setSpaceWidth(int width) {
         if (mSpaceWidth != width) {
             mSpaceWidth = width;
@@ -98,7 +99,7 @@ public class WrapLayout extends ViewGroup {
         final View view = inflater.inflate(layoutId, this, false);
         TextView textView = null;
         if (view instanceof ViewGroup) {
-            textView = (TextView) ((ViewGroup) view).findViewById(textViewId);
+            textView = (TextView) view.findViewById(textViewId);
         } else if (view instanceof TextView) {
             textView = (TextView) view;
         }
@@ -109,7 +110,6 @@ public class WrapLayout extends ViewGroup {
         return Pair.create(view, textView);
     }
 
-
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -118,66 +118,79 @@ public class WrapLayout extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
-        boolean isGravityRight = (mGravity & Gravity.RIGHT) == Gravity.RIGHT;
-        boolean isGravityLeft = !isGravityRight;
-
         int childCount = this.getChildCount();
         int layoutWidth = r - l - getPaddingLeft() - getPaddingRight();
-        int lineTop = getPaddingTop();
+        int lineTop = 0;
         int currentTotal = 0;
         int lineMaxHeight = 0;
-        List<View> lineChild = new ArrayList<>();
+        List<Pair<View, Integer>> lineChildren = mTmpLineChildListForLayout;
+        lineChildren.clear();
 
-        if (layoutWidth < 0) layoutWidth = 0;
+        if (layoutWidth < 0) {
+            layoutWidth = 0;
+        }
 
         final int spaceWidth = mSpaceWidth;
         final int spaceHeight = mSpaceHeight;
 
-        if (childCount > 0) {
-            for (int i = 0; i < childCount; i++) {
-                View child = this.getChildAt(i);
-                int width = child.getMeasuredWidth();
-                int height = child.getMeasuredHeight();
-                if (i != 0 && layoutWidth > currentTotal + width + spaceWidth) {
-                    if (isGravityLeft) {
-                        child.layout(
-                                currentTotal + spaceWidth + getPaddingLeft(),
-                                lineTop,
-                                currentTotal + width + spaceWidth + getPaddingLeft(),
-                                lineTop + height);
-                    } else {
-                        child.layout(
-                                layoutWidth - (currentTotal + width + spaceWidth + getPaddingRight()),
-                                lineTop,
-                                layoutWidth - (currentTotal + 0 + spaceWidth + getPaddingRight()),
-                                lineTop + height);
-                    }
-                    currentTotal += width + spaceWidth;
-                    lineMaxHeight = Math.max(lineMaxHeight, height);
-                    lineChild.add(child);
-                } else {
-                    lineTop += lineMaxHeight + (i == 0 ? 0 : spaceHeight);
-                    if (isGravityLeft) {
-                        child.layout(
-                                getPaddingLeft(),
-                                lineTop,
-                                width + getPaddingLeft(),
-                                lineTop + height);
-                    } else {
-                        child.layout(
-                                layoutWidth - (width + getPaddingRight()),
-                                lineTop,
-                                layoutWidth - (0 + getPaddingRight()),
-                                lineTop + height);
-                    }
-                    currentTotal = width;
-                    lineMaxHeight = height;
-                    lineChild.clear();
-                    lineChild.add(child);
-                }
+        for (int i = 0; i < childCount; i++) {
+
+            View child = this.getChildAt(i);
+            int width = child.getMeasuredWidth();
+            int height = child.getMeasuredHeight();
+
+            if (!lineChildren.isEmpty() && currentTotal + spaceWidth + width > layoutWidth) {
+                layoutLineChildrenWithLineTopAndCurrentTotalX(lineTop, currentTotal, lineChildren);
+
+                lineTop += lineMaxHeight + spaceHeight;
+                currentTotal = 0;
+                lineMaxHeight = 0;
+                lineChildren.clear();
             }
+
+            int startX = (lineChildren.isEmpty() ? 0 : spaceWidth) + currentTotal;
+            currentTotal = startX + width;
+            lineMaxHeight = Math.max(lineMaxHeight, height);
+            lineChildren.add(Pair.create(child, startX));
+
         }
 
+        if (!lineChildren.isEmpty()) {
+            layoutLineChildrenWithLineTopAndCurrentTotalX(lineTop, currentTotal, lineChildren);
+        }
+
+        lineChildren.clear();
+
+    }
+
+    private void layoutLineChildrenWithLineTopAndCurrentTotalX(int lineTop, int currentTotal, List<Pair<View, Integer>> lineChildren) {
+
+        boolean isGravityRight = (mGravity & Gravity.RIGHT) == Gravity.RIGHT;
+        boolean isGravityLeft = !isGravityRight;
+
+        int lineStartXOnView;
+        int lineStartYOnView = getPaddingTop() + lineTop;
+        if (isGravityLeft) {
+            lineStartXOnView = getPaddingLeft();
+        } else {
+            lineStartXOnView = getWidth() - getPaddingRight() - currentTotal;
+        }
+        layoutLineChildren(lineStartXOnView, lineStartYOnView, lineChildren);
+    }
+
+    private void layoutLineChildren(int lineStartX, int lineStartY, List<Pair<View, Integer>> lineChildren) {
+        for (Pair<View, Integer> lineChildInfo : lineChildren) {
+            int left = lineStartX + lineChildInfo.second;
+            View child = lineChildInfo.first;
+            int width = child.getMeasuredWidth();
+            int height = child.getMeasuredHeight();
+            child.layout(
+                    left,
+                    lineStartY,
+                    left + width,
+                    lineStartY + height
+            );
+        }
     }
 
     @Override
@@ -187,45 +200,52 @@ public class WrapLayout extends ViewGroup {
         int layoutWidth = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
         int layoutHeight = MeasureSpec.getSize(heightMeasureSpec) - getPaddingTop() - getPaddingBottom();
         int lineTop = 0;
-        int lineMaxHeight = 0;
         int currentTotal = 0;
-        List<View> lineChild = new ArrayList<View>();
+        int lineMaxHeight = 0;
+        List<Pair<View, Integer>> lineChildren = mTmpLineChildListForMeasure;
+        lineChildren.clear();
 
-        if (layoutWidth < 0) layoutWidth = 0;
-        if (layoutHeight < 0) layoutHeight = 0;
+        if (layoutWidth < 0) {
+            layoutWidth = 0;
+        }
+        if (layoutHeight < 0) {
+            layoutHeight = 0;
+        }
 
         final int spaceWidth = mSpaceWidth;
         final int spaceHeight = mSpaceHeight;
 
-        if (childCount > 0) {
-            for (int i = 0; i < childCount; i++) {
-                View child = this.getChildAt(i);
+        for (int i = 0; i < childCount; i++) {
+
+            View child = this.getChildAt(i);
+            child.measure(
+                    View.MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(layoutHeight, MeasureSpec.UNSPECIFIED)
+            );
+
+            int width = child.getMeasuredWidth();
+            int height = child.getMeasuredHeight();
+
+            if (width > layoutWidth) {
                 child.measure(
-                        View.MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(layoutHeight, MeasureSpec.UNSPECIFIED)
                 );
-                int width = child.getMeasuredWidth();
-                int height = child.getMeasuredHeight();
-                if (width > layoutWidth) {
-                    child.measure(
-                            View.MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.EXACTLY),
-                            View.MeasureSpec.makeMeasureSpec(layoutHeight, MeasureSpec.UNSPECIFIED)
-                    );
-                    width = child.getMeasuredWidth();
-                    height = child.getMeasuredHeight();
-                }
-                if (i != 0 && layoutWidth > currentTotal + width + spaceWidth) {
-                    currentTotal += width + spaceWidth;
-                    lineMaxHeight = Math.max(lineMaxHeight, height);
-                    lineChild.add(child);
-                } else {
-                    lineTop += lineMaxHeight + (i == 0 ? 0 : spaceHeight);
-                    currentTotal = width;
-                    lineMaxHeight = height;
-                    lineChild.clear();
-                    lineChild.add(child);
-                }
+                width = child.getMeasuredWidth();
+                height = child.getMeasuredHeight();
             }
+
+            if (!lineChildren.isEmpty() && currentTotal + spaceWidth + width > layoutWidth) {
+                lineTop += lineMaxHeight + spaceHeight;
+                currentTotal = 0;
+                lineMaxHeight = 0;
+                lineChildren.clear();
+            }
+
+            int startX = (lineChildren.isEmpty() ? 0 : spaceWidth) + currentTotal;
+            currentTotal = startX + width;
+            lineMaxHeight = Math.max(lineMaxHeight, height);
+            lineChildren.add(Pair.create(child, startX));
         }
 
         setMeasuredDimension(
@@ -233,5 +253,6 @@ public class WrapLayout extends ViewGroup {
                 lineTop + lineMaxHeight + getPaddingTop() + getPaddingBottom()
         );
 
+        lineChildren.clear();
     }
 }
