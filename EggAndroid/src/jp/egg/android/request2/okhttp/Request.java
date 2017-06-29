@@ -24,6 +24,8 @@ public interface Request<O> {
 
     void cancel();
 
+    void setCancelExecutor (CancelExecutor<O> cancelExecutor) ;
+
     Object getTag();
 
     void setTag(Object tag);
@@ -115,4 +117,7 @@ public interface Request<O> {
         }
     }
 
+    public interface CancelExecutor <O> {
+        public void cancel (Request<O> request);
+    }
 }

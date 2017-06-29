@@ -93,7 +93,7 @@ public class OkHttpNetwork implements Network {
             MediaType mediaType = MediaType.parse(request.getBodyContentType());
             requestBody = okhttp3.RequestBody.create(mediaType, request.getBody());
         }
-        if (requestBody!=null) {
+        if (requestBody != null) {
             requestBody = wrap(requestBody, request);
         }
         return requestBody;
@@ -162,7 +162,9 @@ public class OkHttpNetwork implements Network {
                         .build();
 
                 Call call = client.newCall(handleBuildRequest(request));
+                request.setCancelExecutor(new CancelExecutorImpl(call));
                 response = call.execute();
+                request.setCancelExecutor(null);
                 int statusCode = response.code();
 
                 for (Map.Entry<String, List<String>> valuesByName : response.headers().toMultimap().entrySet()) {
@@ -230,7 +232,7 @@ public class OkHttpNetwork implements Network {
             catch (IOException e) {
                 int statusCode;
                 NetworkResponse networkResponse = null;
-                if (request != null) {
+                if (response != null) {
                     statusCode = response.code();
                 } else {
                     throw new NoConnectionError(e);
@@ -250,13 +252,26 @@ public class OkHttpNetwork implements Network {
                 }
             }
             finally {
-                if (response!=null) {
+                if (response != null) {
                     response.close();
                 }
             }
         }
     }
 
+    private static class CancelExecutorImpl implements Request.CancelExecutor {
+
+        Call call;
+
+        CancelExecutorImpl (Call call) {
+            this.call = call;
+        }
+
+        @Override
+        public void cancel(Request request) {
+            this.call.cancel();
+        }
+    }
 
     /**
      * Logs requests that took over SLOW_REQUEST_THRESHOLD_MS to complete.

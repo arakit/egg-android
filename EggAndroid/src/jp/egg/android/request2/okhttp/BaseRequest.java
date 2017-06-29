@@ -89,6 +89,8 @@ public abstract class BaseRequest<I, O> implements Request<O> {
     private Object mTag;
     private boolean mShouldCache;
 
+    private CancelExecutor<O> mCancelExecutor;
+
     protected BaseRequest(Context context, int method, String url) {
         this(context, method, url, null, null);
     }
@@ -631,12 +633,22 @@ public abstract class BaseRequest<I, O> implements Request<O> {
         return volleyError;
     }
 
+    @Override
+    public void setCancelExecutor(CancelExecutor<O> cancelExecutor) {
+        mCancelExecutor = cancelExecutor;
+    }
+
     /**
      * Mark this request as canceled.  No callback will be delivered.
      */
     @Override
     public void cancel() {
-        mCanceled = true;
+        if (!mCanceled) {
+            mCanceled = true;
+            if (mCancelExecutor != null) {
+                mCancelExecutor.cancel(this);
+            }
+        }
     }
 
     /**
