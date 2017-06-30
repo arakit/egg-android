@@ -165,6 +165,7 @@ public class OkHttpNetwork implements Network {
                 request.setCancelExecutor(new CancelExecutorImpl(call));
                 response = call.execute();
                 request.setCancelExecutor(null);
+
                 int statusCode = response.code();
 
                 for (Map.Entry<String, List<String>> valuesByName : response.headers().toMultimap().entrySet()) {

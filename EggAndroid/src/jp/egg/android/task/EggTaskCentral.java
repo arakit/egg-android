@@ -233,13 +233,13 @@ public final class EggTaskCentral {
 
 
     public void cancelRequestQueue(jp.egg.android.request2.okhttp.RequestQueue.RequestFilter filter) {
-        if (mRequestQueue!=null) {
+        if (mRequestQueue != null) {
             mRequestQueue.cancelAll(filter);
         }
     }
 
     public void cancelRequestQueueAll() {
-        if (mRequestQueue!=null) {
+        if (mRequestQueue != null) {
             mRequestQueue.cancelAll(null);
         }
     }

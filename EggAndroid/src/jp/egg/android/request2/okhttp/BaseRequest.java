@@ -89,7 +89,7 @@ public abstract class BaseRequest<I, O> implements Request<O> {
     private Object mTag;
     private boolean mShouldCache;
 
-    private CancelExecutor<O> mCancelExecutor;
+    private CancelExecutor mCancelExecutor;
 
     protected BaseRequest(Context context, int method, String url) {
         this(context, method, url, null, null);
@@ -625,7 +625,7 @@ public abstract class BaseRequest<I, O> implements Request<O> {
     @Override
     public VolleyError parseNetworkError(VolleyError volleyError) {
 
-        if (volleyError != null && volleyError.networkResponse != null && volleyError.networkResponse != null) {
+        if (volleyError != null && volleyError.networkResponse != null) {
             String body = parseToString(volleyError.networkResponse);
             Log.e("error", "parseNetworkError " + body);
         }
@@ -634,7 +634,7 @@ public abstract class BaseRequest<I, O> implements Request<O> {
     }
 
     @Override
-    public void setCancelExecutor(CancelExecutor<O> cancelExecutor) {
+    public void setCancelExecutor(CancelExecutor cancelExecutor) {
         mCancelExecutor = cancelExecutor;
     }
 
@@ -645,8 +645,9 @@ public abstract class BaseRequest<I, O> implements Request<O> {
     public void cancel() {
         if (!mCanceled) {
             mCanceled = true;
-            if (mCancelExecutor != null) {
-                mCancelExecutor.cancel(this);
+            CancelExecutor cancelExecutor = mCancelExecutor;
+            if (cancelExecutor != null) {
+                cancelExecutor.cancel(this);
             }
         }
     }
