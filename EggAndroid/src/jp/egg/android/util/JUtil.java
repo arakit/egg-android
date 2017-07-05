@@ -68,6 +68,11 @@ public class JUtil {
         for (int i = 0; i < ret.length; i++) ret[i] = arr[i];
         return ret;
     }
+    public static final boolean[] toPrimitiveArray(Boolean[] arr) {
+        boolean[] ret = new boolean[arr.length];
+        for (int i = 0; i < ret.length; i++) ret[i] = arr[i];
+        return ret;
+    }
 
 
     public static final Integer[] toWrappedArray(int[] arr) {
@@ -105,6 +110,7 @@ public class JUtil {
         for (int i = 0; i < ret.length; i++) ret[i] = arr[i];
         return ret;
     }
+
 
 
     public static final <T> Class<? extends T> getClass(T obj) {
