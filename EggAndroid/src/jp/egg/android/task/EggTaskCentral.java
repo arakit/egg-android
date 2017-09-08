@@ -2,6 +2,7 @@ package jp.egg.android.task;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,6 +19,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
@@ -356,6 +358,18 @@ public final class EggTaskCentral {
     }
 
     public LoadImageContainer displayImage(final ImageView view, String url, int loadingRes, final LoadImageListener listener) {
+        return displayImageInternalWithImageSize(view, url, loadingRes, (ImageSize) null, listener);
+    }
+    public LoadImageContainer displayImageWithSize(final ImageView view, String url, int loadingRes, int width, int height) {
+        ImageSize imageSize = (width < 0 || height < 0) ? (ImageSize)null : new ImageSize(width, height);
+        return displayImageWithSize(view, url, loadingRes, width, height, (LoadImageListener)null);
+    }
+    public LoadImageContainer displayImageWithSize(final ImageView view, String url, int loadingRes, int width, int height, final LoadImageListener listener) {
+        ImageSize imageSize = (width < 0 || height < 0) ? (ImageSize)null : new ImageSize(width, height);
+        return displayImageInternalWithImageSize(view, url, loadingRes, imageSize, listener);
+    }
+
+    private LoadImageContainer displayImageInternalWithImageSize(final ImageView view, String url, int loadingRes, @Nullable ImageSize imageSize, final LoadImageListener listener) {
 
         String curLoadUrl = (String) view.getTag(R.id.tag_loading_image);
 
@@ -377,17 +391,22 @@ public final class EggTaskCentral {
             options.showImageOnLoading(loadingRes);
         }
 
-        return displayImage(view, url, options.build(), listener);
+        return displayImageInternal(view, url, imageSize, options.build(), listener);
     }
 
     public LoadImageContainer displayImage(final ImageView view, String url, DisplayImageOptions options, final LoadImageListener listener) {
+        return displayImageInternal(view, url, null, options, listener);
+    }
+
+    private LoadImageContainer displayImageInternal(final ImageView view, String url, @Nullable ImageSize imageSize, DisplayImageOptions options, final LoadImageListener listener) {
 
         view.setTag(R.id.tag_loading_image, url);
 
         mUnivImageLoader.displayImage(
                 url,
-                view,
+                new ImageViewAware(view),
                 options,
+                imageSize,
                 new ImageLoadingListener() {
 
                     @Override
@@ -418,7 +437,8 @@ public final class EggTaskCentral {
                             listener.onCancel();
                         }
                     }
-                }
+                },
+                null
         );
 
         //ImageContainer ic = mVolleyImageLoader.get(url, listener, maxWidth, maxHeight);
