@@ -2,6 +2,9 @@ package jp.egg.android.task;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
@@ -10,7 +13,6 @@ import android.widget.ImageView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RequestQueue.RequestFilter;
-import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -23,16 +25,24 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import jp.egg.android.R;
 import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
 import jp.egg.android.request2.okhttp.OkHttpNetwork;
 import jp.egg.android.request2.okhttp.RequestQueueImpl;
-import jp.egg.android.request2.task.BaseFileDownloadTask;
+import jp.egg.android.request2.task.BaseFileDownloadTask2;
 import okhttp3.CookieJar;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
 public final class EggTaskCentral {
 
@@ -488,26 +498,61 @@ public final class EggTaskCentral {
 
     }
 
-    public void downloadFile(String url, File output, final OnDownloadFileListener listener) {
+    public void downloadFile(String url, final File output, final OnDownloadFileListener listener) {
 
-        BaseFileDownloadTask task = new BaseFileDownloadTask(mContext, url, output) {
+        final Handler handlerForListener = listener != null ? new Handler(Looper.getMainLooper()) : null;
+        BaseFileDownloadTask2 task = new BaseFileDownloadTask2(mContext, Request.Method.GET, url) {
+
+            private long lastNotifyProgressTime = 0;
+
             @Override
             protected Object getInput() {
                 return null;
             }
 
             @Override
-            protected RequestParams getRequestParams(Object in) {
-                return new RequestParams();
+            protected RequestBody getRequestBody(Object in) {
+                return null;
             }
 
             @Override
-            protected void onDownloadProgress(long bytesWritten, long totalSize) {
-                super.onDownloadProgress(bytesWritten, totalSize);
-                if (listener != null) {
-                    listener.onDownloadProgress(bytesWritten, totalSize);
+            protected Object getOutput(ResponseBody body) {
+                InputStream inputStream = null;
+                OutputStream outputStream = null;
+                try {
+                    inputStream = body.byteStream();
+                    outputStream = new FileOutputStream(output);
+                    IOUtils.copy(inputStream, outputStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    if (inputStream != null) {
+                        IOUtils.closeQuietly(inputStream);
+                    }
+                    if (outputStream != null) {
+                        IOUtils.closeQuietly(outputStream);
+                    }
+                }
+                return output;
+            }
+
+            @Override
+            protected void onResponseProgress(final long bytesWritten, final long contentLength) {
+                super.onResponseProgress(bytesWritten, contentLength);
+                if (listener == null) {
+                    return;
+                }
+                long now = System.currentTimeMillis();
+                if (now - this.lastNotifyProgressTime > 400) {
+                    this.lastNotifyProgressTime = now;
+                    handlerForListener.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onDownloadProgress(bytesWritten, contentLength);
+                        }
+                    });
                 }
             }
+
         };
         task.setOnListener(new EggTaskListener() {
             @Override

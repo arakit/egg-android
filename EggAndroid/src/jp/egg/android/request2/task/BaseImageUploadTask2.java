@@ -315,7 +315,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         super.onError(result);
     }
 
-    public static class CountingRequestBody extends RequestBody {
+    private static class CountingRequestBody extends RequestBody {
 
         protected RequestBody delegate;
         protected Listener listener;
@@ -349,7 +349,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
             bufferedSink.flush();
         }
 
-        public static interface Listener {
+        static interface Listener {
 
             public void onRequestProgress(long bytesWritten, long contentLength);
 
