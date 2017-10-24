@@ -37,6 +37,11 @@ android {
 
     useLibrary 'org.apache.http.legacy'
 
+    defaultConfig {
+        //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
     sourceSets {
         defaultConfig {
             // testPackageName 'com.android.volley.tests'
