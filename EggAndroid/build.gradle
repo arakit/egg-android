@@ -1,25 +1,24 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile 'com.android.support:support-v4:26.1.0'
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
-    compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile 'com.android.support:gridlayout-v7:26.1.0'
-    compile 'com.android.support:cardview-v7:26.1.0'
+    api 'com.android.support:support-v4:26.1.0'
+    api 'com.android.support:appcompat-v7:26.1.0'
+    api 'com.android.support:design:26.1.0'
+    api 'com.android.support:recyclerview-v7:26.1.0'
+    api 'com.android.support:gridlayout-v7:26.1.0'
+    api 'com.android.support:cardview-v7:26.1.0'
 
-    compile 'com.fasterxml.jackson.core:jackson-core:2.9.1'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.1'
-    //compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
-    compile 'commons-io:commons-io:2.4'
+    api 'com.fasterxml.jackson.core:jackson-core:2.9.1'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
+    api 'com.fasterxml.jackson.core:jackson-annotations:2.9.1'
+    //api 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    api 'commons-io:commons-io:2.4'
 
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    //compile 'com.loopj.android:android-async-http:1.4.9'
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
-    compile project(':volley-eggandroid')
+    api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    api 'com.squareup.okhttp3:okhttp:3.9.0'
+    api project(':volley-eggandroid')
 }
 
 buildscript {
