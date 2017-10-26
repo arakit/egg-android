@@ -10,10 +10,10 @@ dependencies {
     api 'com.android.support:gridlayout-v7:26.1.0'
     api 'com.android.support:cardview-v7:26.1.0'
 
-    api 'com.fasterxml.jackson.core:jackson-core:2.9.1'
+    //api 'com.fasterxml.jackson.core:jackson-core:2.9.1'
     api 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
-    api 'com.fasterxml.jackson.core:jackson-annotations:2.9.1'
-    //api 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    //api 'com.fasterxml.jackson.core:jackson-annotations:2.9.1'
+
     api 'commons-io:commons-io:2.4'
 
     api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
