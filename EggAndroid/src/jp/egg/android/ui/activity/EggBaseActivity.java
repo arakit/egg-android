@@ -24,11 +24,6 @@ import jp.egg.android.R;
 import jp.egg.android.manager.SystemBarTintManager;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
-import jp.egg.android.view.widget.actionbarpulltorefresh.ActionBarPullToRefresh;
-import jp.egg.android.view.widget.actionbarpulltorefresh.Options;
-import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
-import jp.egg.android.view.widget.actionbarpulltorefresh.ToolBarHeaderTransformer;
-import jp.egg.android.view.widget.actionbarpulltorefresh.listeners.OnRefreshListener;
 
 /**
  * Created by chikara on 2014/07/10.
@@ -44,7 +39,7 @@ public class EggBaseActivity extends AppCompatActivity {
     //private final Set<OnAutoHideActionBarListener> mAutoHideActionBarListeners = new HashSet<OnAutoHideActionBarListener>();
     private final Set<OnCustomActionListener> mCustomActionListeners = new HashSet<OnCustomActionListener>();
     protected Set<Object> mRefreshRequest = new HashSet<Object>();
-    private PullToRefreshLayout mPullToRefreshLayout;
+    //private PullToRefreshLayout mPullToRefreshLayout;
     private CustomHandler mCustomHandler = new CustomHandler();
     private SystemBarTintManager mSystemBarTintManager;
     private Toolbar mToolBar;
@@ -297,79 +292,79 @@ public class EggBaseActivity extends AppCompatActivity {
     }
 
     protected void onRefreshStateUpdate(boolean refreshing) {
-        if (mPullToRefreshLayout != null) {
-            mPullToRefreshLayout.setRefreshing(refreshing);
-        }
+//        if (mPullToRefreshLayout != null) {
+//            mPullToRefreshLayout.setRefreshing(refreshing);
+//        }
     }
 
     protected boolean isPullToRefreshing() {
-        if (mPullToRefreshLayout != null) {
-            return mPullToRefreshLayout.isRefreshing();
-        }
+//        if (mPullToRefreshLayout != null) {
+//            return mPullToRefreshLayout.isRefreshing();
+//        }
         return false;
     }
 
-    protected void setPullToRefreshLayout2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer) {
-        mPullToRefreshLayout = layout;
-        setRefreshProgressContainer(refreshProgressContainer);
-
-        ToolBarHeaderTransformer headerTransformer = new ToolBarHeaderTransformer();
-        headerTransformer.setHeaderInsetTop(getInsetTopWithTopMaterialActionBar(false));
-
-        setUpRefreshBar2(
-                layout,
-                refreshProgressContainer,
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        onPullToRefresh();
-                    }
-                },
-                new Options.Builder()
-                        .scrollDistance(0.3f)
-                        .headerTransformer(headerTransformer)
-                        .build()
-        );
-    }
+//    protected void setPullToRefreshLayout2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer) {
+//        mPullToRefreshLayout = layout;
+//        setRefreshProgressContainer(refreshProgressContainer);
+//
+//        ToolBarHeaderTransformer headerTransformer = new ToolBarHeaderTransformer();
+//        headerTransformer.setHeaderInsetTop(getInsetTopWithTopMaterialActionBar(false));
+//
+//        setUpRefreshBar2(
+//                layout,
+//                refreshProgressContainer,
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        onPullToRefresh();
+//                    }
+//                },
+//                new Options.Builder()
+//                        .scrollDistance(0.3f)
+//                        .headerTransformer(headerTransformer)
+//                        .build()
+//        );
+//    }
 
     protected void onPullToRefresh() {
 
     }
 
-    public Options getDefaultPullToRefreshOptions() {
-        ToolBarHeaderTransformer headerTransformer = new ToolBarHeaderTransformer();
-        headerTransformer.setHeaderInsetTop(getInsetTopWithTopMaterialActionBar(false));
-
-        Options options;
-        options = new Options.Builder()
-                .scrollDistance(0.3f)
-                .headerTransformer(headerTransformer)
-                .build();
-        return options;
-    }
-
-    public void setUpRefreshBar2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer, final Runnable refreshListener, Options options) {
-
-        if (options == null) {
-            options = getDefaultPullToRefreshOptions();
-        }
-
-        ActionBarPullToRefresh.from(this)
-                .allChildrenArePullable()
-                .listener(new OnRefreshListener() {
-                    @Override
-                    public void onRefreshStarted(View view) {
-                        if (refreshListener != null) {
-                            refreshListener.run();
-                        }
-                    }
-                })
-                .options(
-                        options
-                )
-                .setup(layout, refreshProgressContainer);
-
-    }
+//    public Options getDefaultPullToRefreshOptions() {
+//        ToolBarHeaderTransformer headerTransformer = new ToolBarHeaderTransformer();
+//        headerTransformer.setHeaderInsetTop(getInsetTopWithTopMaterialActionBar(false));
+//
+//        Options options;
+//        options = new Options.Builder()
+//                .scrollDistance(0.3f)
+//                .headerTransformer(headerTransformer)
+//                .build();
+//        return options;
+//    }
+//
+//    public void setUpRefreshBar2(PullToRefreshLayout layout, ViewGroup refreshProgressContainer, final Runnable refreshListener, Options options) {
+//
+//        if (options == null) {
+//            options = getDefaultPullToRefreshOptions();
+//        }
+//
+//        ActionBarPullToRefresh.from(this)
+//                .allChildrenArePullable()
+//                .listener(new OnRefreshListener() {
+//                    @Override
+//                    public void onRefreshStarted(View view) {
+//                        if (refreshListener != null) {
+//                            refreshListener.run();
+//                        }
+//                    }
+//                })
+//                .options(
+//                        options
+//                )
+//                .setup(layout, refreshProgressContainer);
+//
+//    }
 
 //    public void setUpRefreshBar(PullToRefreshLayout layout, Toolbar toolbar, final Runnable refreshListener){
 //        setUpRefreshBar(

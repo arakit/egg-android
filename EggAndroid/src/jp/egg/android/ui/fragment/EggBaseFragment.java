@@ -24,7 +24,6 @@ import java.util.Set;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 import jp.egg.android.ui.activity.EggBaseActivity;
-import jp.egg.android.view.widget.actionbarpulltorefresh.PullToRefreshLayout;
 
 /**
  * フラグメント共通基底クラス。
@@ -33,8 +32,7 @@ public abstract class EggBaseFragment extends Fragment {
 
     private Set<Object> mRefreshRequest = new HashSet<Object>();
 
-    private PullToRefreshLayout mPullToRefreshLayout;
-
+    //private PullToRefreshLayout mPullToRefreshLayout;
 
     private boolean mIsStarted = false;
     private boolean mIsStopped = false;
@@ -227,40 +225,40 @@ public abstract class EggBaseFragment extends Fragment {
     }
 
     protected void onRefreshStateUpdate(boolean refreshing) {
-        if (mPullToRefreshLayout != null) {
-            mPullToRefreshLayout.setRefreshing(refreshing);
-        }
+//        if (mPullToRefreshLayout != null) {
+//            mPullToRefreshLayout.setRefreshing(refreshing);
+//        }
     }
 
-    protected void setPullToRefreshLayout(PullToRefreshLayout layout) {
-        mPullToRefreshLayout = layout;
-        EggBaseActivity activity = getEggActivity();
-        activity.setUpRefreshBar2(
-                mPullToRefreshLayout,
-                activity.getRefreshProgressContainer(),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        onPullToRefresh();
-                    }
-                },
-                null
-        );
-    }
+//    protected void setPullToRefreshLayout(PullToRefreshLayout layout) {
+//        mPullToRefreshLayout = layout;
+//        EggBaseActivity activity = getEggActivity();
+//        activity.setUpRefreshBar2(
+//                mPullToRefreshLayout,
+//                activity.getRefreshProgressContainer(),
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        onPullToRefresh();
+//                    }
+//                },
+//                null
+//        );
+//    }
 
-    protected void onPullToRefresh() {
+//    protected void onPullToRefresh() {
+//
+//    }
 
-    }
 
-
-    private void setActionBarBackgroundDrawable(EggBaseActivity activity, Drawable drawable) {
-        if (activity != null) {
-            ActionBar actionBar = activity.getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setBackgroundDrawable(drawable);
-            }
-        }
-    }
+//    private void setActionBarBackgroundDrawable(EggBaseActivity activity, Drawable drawable) {
+//        if (activity != null) {
+//            ActionBar actionBar = activity.getSupportActionBar();
+//            if (actionBar != null) {
+//                actionBar.setBackgroundDrawable(drawable);
+//            }
+//        }
+//    }
 
 
 }
