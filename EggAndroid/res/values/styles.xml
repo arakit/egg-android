@@ -2,24 +2,24 @@
 <resources>
 
 
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    <!--&lt;!&ndash;-->
+        <!--Base application theme, dependent on API level. This theme is replaced-->
+        <!--by AppBaseTheme from res/values-vXX/styles.xml on newer devices.-->
 
-    -->
-    <style name="EggBaseTheme" parent="Theme.AppCompat.Light">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
+    <!--&ndash;&gt;-->
+    <!--<style name="EggBaseTheme" parent="Theme.AppCompat.Light">-->
+        <!--&lt;!&ndash;-->
+            <!--Theme customizations available in newer API levels can go in-->
+            <!--res/values-vXX/styles.xml, while customizations related to-->
+            <!--backward-compatibility can go here.-->
 
-        -->
-    </style>
+        <!--&ndash;&gt;-->
+    <!--</style>-->
 
-    <!-- Application theme. -->
-    <style name="EggTheme" parent="EggBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-    </style>
+    <!--&lt;!&ndash; Application theme. &ndash;&gt;-->
+    <!--<style name="EggTheme" parent="EggBaseTheme">-->
+        <!--&lt;!&ndash; All customizations that are NOT specific to a particular API-level can go here. &ndash;&gt;-->
+    <!--</style>-->
 
     <style name="EggFullscreenTheme" parent="android:Theme.NoTitleBar">
         <item name="android:windowContentOverlay">@null</item>
