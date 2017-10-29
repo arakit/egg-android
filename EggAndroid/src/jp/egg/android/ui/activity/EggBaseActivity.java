@@ -12,7 +12,6 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.Request;
@@ -21,7 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jp.egg.android.R;
-import jp.egg.android.manager.SystemBarTintManager;
 import jp.egg.android.task.EggTask;
 import jp.egg.android.task.EggTaskCentral;
 
@@ -41,7 +39,7 @@ public class EggBaseActivity extends AppCompatActivity {
     protected Set<Object> mRefreshRequest = new HashSet<Object>();
     //private PullToRefreshLayout mPullToRefreshLayout;
     private CustomHandler mCustomHandler = new CustomHandler();
-    private SystemBarTintManager mSystemBarTintManager;
+    //private SystemBarTintManager mSystemBarTintManager;
     private Toolbar mToolBar;
     private ViewGroup mRefreshProgressContainer;
 
@@ -58,90 +56,90 @@ public class EggBaseActivity extends AppCompatActivity {
         actionBarStyleAttributes.recycle();
     }
 
-    @Override
-    public void setContentView(View view) {
-        super.setContentView(view);
-        setupSystemBarTint();
-    }
+//    @Override
+//    public void setContentView(View view) {
+//        super.setContentView(view);
+//        setupSystemBarTint();
+//    }
+//
+//    @Override
+//    public void setContentView(int layoutResID) {
+//        super.setContentView(layoutResID);
+//        setupSystemBarTint();
+//    }
+//
+//    @Override
+//    public void setContentView(View view, ViewGroup.LayoutParams params) {
+//        super.setContentView(view, params);
+//        setupSystemBarTint();
+//    }
+//
+//    @Override
+//    public void addContentView(View view, ViewGroup.LayoutParams params) {
+//        super.addContentView(view, params);
+//        setupSystemBarTint();
+//    }
 
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(layoutResID);
-        setupSystemBarTint();
-    }
-
-    @Override
-    public void setContentView(View view, ViewGroup.LayoutParams params) {
-        super.setContentView(view, params);
-        setupSystemBarTint();
-    }
-
-    @Override
-    public void addContentView(View view, ViewGroup.LayoutParams params) {
-        super.addContentView(view, params);
-        setupSystemBarTint();
-    }
-
-    protected SystemBarTintManager setupSystemBarTint() {
-
-        if (mSystemBarTintManager != null) {
-            return mSystemBarTintManager;
-        }
-
-        // create our manager instance after the content view is set
-        SystemBarTintManager tintManager = new SystemBarTintManager(this);
-        // enable status bar tint
-        // tintManager.setStatusBarTintEnabled(true);
-        // enable navigation bar tint
-        // tintManager.setNavigationBarTintEnabled(true);
-
-        mSystemBarTintManager = tintManager;
-
-        return mSystemBarTintManager;
-    }
-
-    protected SystemBarTintManager getSystemBarTintManager() {
-        return mSystemBarTintManager;
-    }
-
-    public int getInsetTop(boolean withActionBar) {
-        return mSystemBarTintManager.getConfig().getPixelInsetTop(withActionBar);
-    }
-
-    public int getInsetBottom() {
-        return mSystemBarTintManager.getConfig().getPixelInsetBottom();
-    }
-
-    public int getInsetLeft() {
-        return 0;
-    }
-
-    public int getInsetRight() {
-        return mSystemBarTintManager.getConfig().getPixelInsetRight();
-    }
-
-    public void setInsetPadding(View view) {
-        view.setPadding(
-                getInsetLeft(),
-                getInsetTop(true),
-                getInsetRight(),
-                getInsetBottom()
-        );
-    }
-
-    public int getInsetTopWithTopMaterialActionBar(boolean withActionBar) {
-        return mSystemBarTintManager.getConfig().getPixelInsetTop(false) +
-                (withActionBar ? (int) getResources().getDimension(R.dimen.abc_action_bar_default_height_material) : 0);
-    }
-
-    public void setInsetPaddingWithTopMaterialActionBar(View view, boolean withActionBar) {
-        view.setPadding(
-                getInsetLeft(),
-                getInsetTopWithTopMaterialActionBar(withActionBar),
-                getInsetRight(),
-                getInsetBottom()
-        );
-    }
+//    protected SystemBarTintManager setupSystemBarTint() {
+//
+//        if (mSystemBarTintManager != null) {
+//            return mSystemBarTintManager;
+//        }
+//
+//        // create our manager instance after the content view is set
+//        SystemBarTintManager tintManager = new SystemBarTintManager(this);
+//        // enable status bar tint
+//        // tintManager.setStatusBarTintEnabled(true);
+//        // enable navigation bar tint
+//        // tintManager.setNavigationBarTintEnabled(true);
+//
+//        mSystemBarTintManager = tintManager;
+//
+//        return mSystemBarTintManager;
+//    }
+//
+//    protected SystemBarTintManager getSystemBarTintManager() {
+//        return mSystemBarTintManager;
+//    }
+//
+//    public int getInsetTop(boolean withActionBar) {
+//        return mSystemBarTintManager.getConfig().getPixelInsetTop(withActionBar);
+//    }
+//
+//    public int getInsetBottom() {
+//        return mSystemBarTintManager.getConfig().getPixelInsetBottom();
+//    }
+//
+//    public int getInsetLeft() {
+//        return 0;
+//    }
+//
+//    public int getInsetRight() {
+//        return mSystemBarTintManager.getConfig().getPixelInsetRight();
+//    }
+//
+//    public void setInsetPadding(View view) {
+//        view.setPadding(
+//                getInsetLeft(),
+//                getInsetTop(true),
+//                getInsetRight(),
+//                getInsetBottom()
+//        );
+//    }
+//
+//    public int getInsetTopWithTopMaterialActionBar(boolean withActionBar) {
+//        return mSystemBarTintManager.getConfig().getPixelInsetTop(false) +
+//                (withActionBar ? (int) getResources().getDimension(R.dimen.abc_action_bar_default_height_material) : 0);
+//    }
+//
+//    public void setInsetPaddingWithTopMaterialActionBar(View view, boolean withActionBar) {
+//        view.setPadding(
+//                getInsetLeft(),
+//                getInsetTopWithTopMaterialActionBar(withActionBar),
+//                getInsetRight(),
+//                getInsetBottom()
+//        );
+//    }
 
     public void addCustomActionListener(OnCustomActionListener listener) {
         mCustomActionListeners.add(listener);
