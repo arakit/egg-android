@@ -29,11 +29,27 @@ public class ToastUtil {
         toast.show();
     }
 
+    public static final void shortMessage(Context context, int messageResId) {
+        Toast toast = toast(context);
+        toast.setText(messageResId);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
     public static final void postShortMessage(final Context context, final String message) {
         HandlerUtil.post(new Runnable() {
             @Override
             public void run() {
                 shortMessage(context, message);
+            }
+        });
+    }
+
+    public static final void postShortMessage(final Context context, final int messageResId) {
+        HandlerUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                shortMessage(context, messageResId);
             }
         });
     }
@@ -45,11 +61,27 @@ public class ToastUtil {
         toast.show();
     }
 
+    public static final void longMessage(Context context, int messageResId) {
+        Toast toast = toast(context);
+        toast.setText(messageResId);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.show();
+    }
+
     public static final void postLongMessage(final Context context, final String message) {
         HandlerUtil.post(new Runnable() {
             @Override
             public void run() {
                 longMessage(context, message);
+            }
+        });
+    }
+
+    public static final void postLongMessage(final Context context, final int messageResId) {
+        HandlerUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                longMessage(context, messageResId);
             }
         });
     }
