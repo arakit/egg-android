@@ -10,7 +10,7 @@ public class JobWaiter {
 
     public static final String TAG = "JobWaiter";
 
-    final List<Object> jobs = new ArrayList<Object>();
+    private final List<Object> jobs = new ArrayList<Object>();
 
     public JobWaiter() {
 
