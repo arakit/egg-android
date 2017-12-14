@@ -149,7 +149,7 @@ public class RequestQueueImpl implements RequestQueue, QueueHandler {
     public void cancelAll(RequestFilter filter) {
         synchronized (mCurrentRequests) {
             for (Request<?> request : mCurrentRequests) {
-                if (request != null && filter.apply(request)) {
+                if (request != null && (filter == null || filter.apply(request))) {
                     request.cancel();
                 }
             }
