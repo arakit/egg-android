@@ -1,0 +1,16 @@
+<resources>
+
+    <declare-styleable name="FontAwesomeTextView">
+        <attr name="faIconName" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="FontAwesomeTabView">
+        <attr name="faTabIconName" format="string" />
+        <attr name="faTabLabel" format="string" />
+        <attr name="faTabLayout" format="reference" />
+        <!--<attr name="faTabIconTextSize" format="dimension"/>-->
+        <!--<attr name="faTabTextColor" format="color"/>-->
+        <!--<attr name="faTabLabelTextSize" format="dimension"/>-->
+    </declare-styleable>
+
+</resources>

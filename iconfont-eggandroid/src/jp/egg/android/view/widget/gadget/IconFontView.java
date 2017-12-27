@@ -3,10 +3,10 @@ package jp.egg.android.view.widget.gadget;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.TextView;
 
 import jp.egg.android.manager.IconFontManager;
-import jp.egg.android.util.Log;
 
 /**
  * Created by chikara on 2014/10/10.

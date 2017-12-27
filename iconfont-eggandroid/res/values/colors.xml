@@ -1,0 +1,25 @@
+<resources>
+
+    <color name="ifea_background_dark_1">#ff000000</color>
+    <color name="ifea_background_dark_2">#ff444444</color>
+    <color name="ifea_background_dark_3">#ff888888</color>
+    <color name="ifea_background_light_1">#ffffffff</color>
+    <color name="ifea_background_light_2">#ffeeeeee</color>
+    <color name="ifea_background_light_3">#ffdddddd</color>
+
+    <color name="ifea_bright_foreground_dark_1">@color/ifea_background_light_1</color>
+    <color name="ifea_bright_foreground_light_1">@color/ifea_background_dark_1</color>
+    <color name="ifea_bright_foreground_dark_disabled_1">#80ffffff</color>
+    <color name="ifea_bright_foreground_light_disabled_1">#80000000</color>
+
+    <color name="ifea_bright_foreground_dark_2">@color/ifea_background_light_2</color>
+    <color name="ifea_bright_foreground_light_2">@color/ifea_background_dark_2</color>
+    <color name="ifea_bright_foreground_dark_disabled_2">#80ffffff</color>
+    <color name="ifea_bright_foreground_light_disabled_2">#80000000</color>
+
+    <color name="ifea_bright_foreground_dark_3">@color/ifea_background_light_3</color>
+    <color name="ifea_bright_foreground_light_3">@color/ifea_background_dark_3</color>
+    <color name="ifea_bright_foreground_dark_disabled_3">#80ffffff</color>
+    <color name="ifea_bright_foreground_light_disabled_3">#80000000</color>
+
+</resources>

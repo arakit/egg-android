@@ -2,10 +2,10 @@ package jp.egg.android.manager;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import java.util.Hashtable;
 
-import jp.egg.android.util.Log;
 
 /**
  * Created by chikara on 2014/10/10.

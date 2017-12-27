@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:textColor="@color/text_light_2"
+            android:textColor="@color/ifea_text_light_2"
             android:textSize="20sp" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:gravity="center"
-            android:textColor="@color/text_light_2"
+            android:textColor="@color/ifea_text_light_2"
             android:textSize="10.5sp" />
 
     </LinearLayout>

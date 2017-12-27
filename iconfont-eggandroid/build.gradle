@@ -1,0 +1,51 @@
+apply plugin: 'com.android.library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        //classpath 'com.android.tools.build:gradle:3.0.0'
+        //classpath 'com.android.tools.build:gradle:2.3.3'
+    }
+}
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+    useLibrary 'org.apache.http.legacy'
+
+    defaultConfig {
+        //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    sourceSets {
+        defaultConfig {
+            // testPackageName 'com.android.volley.tests'
+        }
+
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+
+    }
+
+
+}
+
+
+
