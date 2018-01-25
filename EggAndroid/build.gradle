@@ -20,7 +20,7 @@ dependencies {
     api 'commons-io:commons-io:2.4'
 
     api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    api 'com.squareup.okhttp3:okhttp:3.9.0'
+    api 'com.squareup.okhttp3:okhttp:3.9.1'
     api project(':volley-eggandroid')
 }
 

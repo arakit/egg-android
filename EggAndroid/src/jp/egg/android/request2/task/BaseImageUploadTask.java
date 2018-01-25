@@ -37,7 +37,7 @@ import okio.Sink;
 /**
  * Created by chikara on 2014/09/06.
  */
-public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUploadTask2.UploadTaskError> {
+public abstract class BaseImageUploadTask<I, O> extends EggTask<O, BaseImageUploadTask.UploadTaskError> {
 
     protected static final int DEFAULT_RETRY_LIMIT = 1;
     private static final int REQUEST_RESULT_FINISH = 0;
@@ -50,11 +50,11 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
     private Call mCurrentRequest;
     private int mRetryLimit = DEFAULT_RETRY_LIMIT;
 
-    protected BaseImageUploadTask2(Context context, int method, String url) {
+    protected BaseImageUploadTask(Context context, int method, String url) {
         mContext = context.getApplicationContext();
         mMethod = method;
         mUrl = url;
-        Type[] types = ((ParameterizedType) JUtil.getClass(BaseImageUploadTask2.this).getGenericSuperclass()).getActualTypeArguments();
+        Type[] types = ((ParameterizedType) JUtil.getClass(BaseImageUploadTask.this).getGenericSuperclass()).getActualTypeArguments();
         mBackedOutputType = (Class) types[1];
     }
 
@@ -180,7 +180,7 @@ public abstract class BaseImageUploadTask2<I, O> extends EggTask<O, BaseImageUpl
         requestBody = new CountingRequestBody(requestBody, new CountingRequestBody.Listener() {
             @Override
             public void onRequestProgress(long bytesWritten, long contentLength) {
-                BaseImageUploadTask2.this.onRequestProgress(bytesWritten, contentLength);
+                BaseImageUploadTask.this.onRequestProgress(bytesWritten, contentLength);
             }
         });
 

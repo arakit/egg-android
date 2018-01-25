@@ -33,7 +33,7 @@ import okio.Source;
 /**
  * Created by chikara on 2014/09/06.
  */
-public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDownloadTask2.UploadTaskError> {
+public abstract class BaseFileDownloadTask<I, O> extends EggTask<O, BaseFileDownloadTask.UploadTaskError> {
 
     protected static final int DEFAULT_RETRY_LIMIT = 1;
     private static final int REQUEST_RESULT_FINISH = 0;
@@ -46,11 +46,11 @@ public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDow
     private Call mCurrentRequest;
     private int mRetryLimit = DEFAULT_RETRY_LIMIT;
 
-    protected BaseFileDownloadTask2(Context context, int method, String url) {
+    protected BaseFileDownloadTask(Context context, int method, String url) {
         mContext = context.getApplicationContext();
         mMethod = method;
         mUrl = url;
-        Type[] types = ((ParameterizedType) JUtil.getClass(BaseFileDownloadTask2.this).getGenericSuperclass()).getActualTypeArguments();
+        Type[] types = ((ParameterizedType) JUtil.getClass(BaseFileDownloadTask.this).getGenericSuperclass()).getActualTypeArguments();
         mBackedOutputType = (Class) types[1];
     }
 
@@ -108,7 +108,7 @@ public abstract class BaseFileDownloadTask2<I, O> extends EggTask<O, BaseFileDow
 //                System.out.println(contentLength);
 //                System.out.println(done);
 //                System.out.format("%d%% done\n", (100 * bytesRead) / contentLength);
-                BaseFileDownloadTask2.this.onResponseProgress(bytesRead, contentLength);
+                BaseFileDownloadTask.this.onResponseProgress(bytesRead, contentLength);
             }
         };
 

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
@@ -38,8 +37,7 @@ import jp.egg.android.request.volley.EggVolley;
 import jp.egg.android.request.volley.VolleyTag;
 import jp.egg.android.request2.okhttp.OkHttpNetwork;
 import jp.egg.android.request2.okhttp.RequestQueueImpl;
-import jp.egg.android.request2.task.BaseFileDownloadTask2;
-import okhttp3.CookieJar;
+import jp.egg.android.request2.task.BaseFileDownloadTask;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -501,7 +499,7 @@ public final class EggTaskCentral {
     public void downloadFile(String url, final File output, final OnDownloadFileListener listener) {
 
         final Handler handlerForListener = listener != null ? new Handler(Looper.getMainLooper()) : null;
-        BaseFileDownloadTask2 task = new BaseFileDownloadTask2(mContext, Request.Method.GET, url) {
+        BaseFileDownloadTask task = new BaseFileDownloadTask(mContext, Request.Method.GET, url) {
 
             private long lastNotifyProgressTime = 0;
 
