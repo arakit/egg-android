@@ -33,6 +33,7 @@ public class VerticalSquareLayout extends FrameLayout {
     private void init(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SquareLayout);
         mHorizontalWeight = a.getFloat(R.styleable.SquareLayout_slWeight, 1.0f);
+        a.recycle();
     }
 
     public void setHorizontalWeight (float weight) {
