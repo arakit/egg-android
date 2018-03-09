@@ -1,5 +1,15 @@
 apply plugin: 'com.android.library'
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        //classpath 'com.android.tools.build:gradle:3.0.0'
+        //classpath 'com.android.tools.build:gradle:2.3.3'
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -20,19 +30,12 @@ dependencies {
     api 'commons-io:commons-io:2.4'
 
     api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    api 'com.squareup.okhttp3:okhttp:3.9.1'
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
+    //api 'com.squareup.okhttp3:okhttp-urlconnection:3.10.0'
+    //api 'com.squareup.okio:okio:1.14.0'
     api project(':volley-eggandroid')
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        //classpath 'com.android.tools.build:gradle:3.0.0'
-        //classpath 'com.android.tools.build:gradle:2.3.3'
-    }
-}
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)

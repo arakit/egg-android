@@ -13,7 +13,6 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -24,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import jp.egg.android.util.Log;
 import okhttp3.Call;
+import okhttp3.CookieJar;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -81,10 +81,9 @@ public class OkHttpNetwork implements Network {
                 if (e instanceof Request.TextFormData) {
                     Request.TextFormData content = (Request.TextFormData) e;
                     builder.addFormDataPart(content.name, content.value);
-                }
-                else if (e instanceof Request.FileFormData) {
+                } else if (e instanceof Request.FileFormData) {
                     Request.FileFormData content = (Request.FileFormData) e;
-                    MediaType mediaType = content.contentType!=null ? MediaType.parse(content.contentType) : null;
+                    MediaType mediaType = content.contentType != null ? MediaType.parse(content.contentType) : null;
                     builder.addFormDataPart(content.name, content.filename, RequestBody.create(mediaType, content.file));
                 }
             }
@@ -118,7 +117,7 @@ public class OkHttpNetwork implements Network {
                 break;
             case Request.Method.DELETE:
                 okHttpRequestBody = handleBuildRequestBody(request);
-                if (okHttpRequestBody!=null) {
+                if (okHttpRequestBody != null) {
                     builder.delete(okHttpRequestBody);
                 } else {
                     builder.delete();
@@ -136,7 +135,7 @@ public class OkHttpNetwork implements Network {
         return builder.build();
     }
 
-    private RequestBody wrap (final RequestBody requestBody, final Request request) {
+    private RequestBody wrap(final RequestBody requestBody, final Request request) {
         return new CountingRequestBody(requestBody, new CountingRequestBody.OnRequestProgressListener() {
             @Override
             public void onRequestProgress(long bytesWritten, long contentLength) {
@@ -156,10 +155,15 @@ public class OkHttpNetwork implements Network {
 
                 int timeout = request.getRetryPolicy().getCurrentTimeout();
 
-                OkHttpClient client = mClient.newBuilder()
+                CookieJar cookieJar = request.getCookieJar();
+
+                OkHttpClient.Builder clientBuilder = mClient.newBuilder()
                         .connectTimeout(timeout, TimeUnit.MILLISECONDS)
-                        .readTimeout(timeout, TimeUnit.MILLISECONDS)
-                        .build();
+                        .readTimeout(timeout, TimeUnit.MILLISECONDS);
+                if (cookieJar != null) {
+                    clientBuilder.cookieJar(cookieJar);
+                }
+                OkHttpClient client = clientBuilder.build();
 
                 Call call = client.newCall(handleBuildRequest(request));
                 request.setCancelExecutor(new CancelExecutorImpl(call));
@@ -220,8 +224,7 @@ public class OkHttpNetwork implements Network {
                 }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false);
 
-            }
-            catch (SocketTimeoutException e) {
+            } catch (SocketTimeoutException e) {
                 attemptRetryOnException("socket", request, new TimeoutError());
             }
 //            catch (ConnectTimeoutException e) {
@@ -229,8 +232,7 @@ public class OkHttpNetwork implements Network {
 //            }
             catch (MalformedURLException e) {
                 throw new RuntimeException("Bad URL " + request.getUrl(), e);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 int statusCode;
                 NetworkResponse networkResponse = null;
                 if (response != null) {
@@ -251,26 +253,11 @@ public class OkHttpNetwork implements Network {
                 } else {
                     throw new NetworkError(networkResponse);
                 }
-            }
-            finally {
+            } finally {
                 if (response != null) {
                     response.close();
                 }
             }
-        }
-    }
-
-    private static class CancelExecutorImpl implements Request.CancelExecutor {
-
-        Call call;
-
-        CancelExecutorImpl (Call call) {
-            this.call = call;
-        }
-
-        @Override
-        public void cancel(Request request) {
-            this.call.cancel();
         }
     }
 
@@ -284,6 +271,20 @@ public class OkHttpNetwork implements Network {
                             "[rc=%d], [retryCount=%s]", request, requestLifetime,
                     responseContents != null ? responseContents.length : "null",
                     statusCode, request.getRetryPolicy().getCurrentRetryCount()));
+        }
+    }
+
+    private static class CancelExecutorImpl implements Request.CancelExecutor {
+
+        Call call;
+
+        CancelExecutorImpl(Call call) {
+            this.call = call;
+        }
+
+        @Override
+        public void cancel(Request request) {
+            this.call.cancel();
         }
     }
 

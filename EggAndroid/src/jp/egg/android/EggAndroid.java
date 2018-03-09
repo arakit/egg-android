@@ -12,8 +12,7 @@ import java.security.NoSuchAlgorithmException;
 
 import jp.egg.android.task.EggTaskCentral;
 
-public class EggAndroid {
-
+public final class EggAndroid {
 
     public static final void initialize(Context context, @Nullable EggTaskCentral.Options options) {
         if (options == null) {
@@ -23,11 +22,9 @@ public class EggAndroid {
         EggTaskCentral.initialize(appContext, options);
     }
 
-
     public static final void terminate() {
         EggTaskCentral.destroy();
     }
-
 
     public static String getAppKeyHash(Context context) {
         try {

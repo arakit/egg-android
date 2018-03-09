@@ -1,5 +1,6 @@
 package jp.egg.android.request2.okhttp;
 
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import com.android.volley.NetworkResponse;
@@ -9,7 +10,10 @@ import com.android.volley.VolleyError;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.CookieManager;
 import java.util.List;
+
+import okhttp3.CookieJar;
 
 /**
  * Created by chikara on 16/07/26.
@@ -69,6 +73,9 @@ public interface Request<O> {
     boolean shouldCache();
 
     Priority getPriority();
+
+    @Nullable
+    CookieJar getCookieJar ();
 
     /**
      * Priority values.  Requests will be processed from higher priorities to
