@@ -1,5 +1,6 @@
 package jp.egg.android.util;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableStringBuilder;
@@ -41,6 +43,8 @@ import java.util.regex.Pattern;
  * Created by chikara on 2014/08/30.
  */
 public class AUtil {
+
+    private static final String TAG = AUtil.class.getSimpleName();
 
     public static void makeAboutSpannable(SpannableStringBuilder span, String strLink, String replace, int color, final Runnable onClick) {
         Pattern pattern = Pattern.compile(strLink);
@@ -162,7 +166,7 @@ public class AUtil {
     }
 
 
-    public static final boolean checkImageAndSize(Context context, Uri uri, long bytes) {
+    public static boolean checkImageAndSize(Context context, Uri uri, long bytes) {
         if (uri == null) return false;
 
         InputStream is = null;
@@ -198,6 +202,7 @@ public class AUtil {
             try {
                 if (is != null) is.close();
             } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
@@ -245,7 +250,7 @@ public class AUtil {
         }
     }
 
-    public static final int getExifOrientation(File file) {
+    public static int getExifOrientation(File file) {
         try {
             ExifInterface exifInterface = new ExifInterface(file.getAbsolutePath());
             // 向きを取得
@@ -259,112 +264,185 @@ public class AUtil {
         }
     }
 
+    @Nullable
+    public static Bitmap getBitmapFromFileForView(@Nullable File file, int maxWidth, int maxHeight) {
+        if (file == null) {
+            return null;
+        }
+        return getBitmapMaxWidthHeight(new FileInputStreamSource(file), maxWidth, maxHeight, Bitmap.Config.RGB_565);
+    }
 
-    public static final Bitmap getBitmapFromUri(Context context, Uri uri) {
-        if (uri == null) return null;
+    @Nullable
+    public static Bitmap getBitmapFromFile(@Nullable File file, int maxWidth, int maxHeight, @Nullable Bitmap.Config preferredConfig) {
+        if (file == null) {
+            return null;
+        }
+        return getBitmapMaxWidthHeight(new FileInputStreamSource(file), maxWidth, maxHeight, preferredConfig);
+    }
+
+    @Nullable
+    public static Bitmap getBitmapFromUri(Context context, Uri uri, int maxWidth, int maxHeight, @Nullable Bitmap.Config preferredConfig) {
+        if (uri == null) {
+            return null;
+        }
+        return getBitmapMaxWidthHeight(new UriInputStreamSource(context, uri), maxWidth, maxHeight, preferredConfig);
+    }
+
+    @Nullable
+    private static Bitmap getBitmapMaxWidthHeight(
+            @NonNull InputStreamSource source,
+            int maxWidth,
+            int maxHeight,
+            @Nullable Bitmap.Config preferredConfig) {
+        InputStream is = null;
+        try {
+            is = new BufferedInputStream(source.createInputStream());
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            if (preferredConfig != null) {
+                options.inPreferredConfig = preferredConfig;
+            }
+            // Set height and width in options, does not return an image and no resource taken
+            BitmapFactory.decodeStream(is, null, options);
+            int pow = 0;
+            while (options.outHeight >> pow > maxHeight || options.outWidth >> pow > maxWidth) {
+                pow += 1;
+            }
+            is.close();
+            is = null;
+            is = new BufferedInputStream(source.createInputStream());
+            options.inSampleSize = 1 << pow;
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeStream(is, null, options);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @Nullable
+    public static Bitmap getBitmapFromUriMaxPixels(
+            @NonNull final Context context,
+            @Nullable final Uri uri,
+            int maxPixels,
+            @Nullable Bitmap.Config preferredConfig) {
+        if (uri == null) {
+            return null;
+        }
+        return getBitmapFromFileMaxPixels(new UriInputStreamSource(context, uri), maxPixels, preferredConfig);
+    }
+
+    @Nullable
+    public static Bitmap getBitmapFromFileMaxPixels(
+            @Nullable final File file,
+            int maxPixels,
+            @Nullable Bitmap.Config preferredConfig) {
+        if (file == null) {
+            return null;
+        }
+        return getBitmapFromFileMaxPixels(new FileInputStreamSource(file), maxPixels, preferredConfig);
+    }
+
+    @Nullable
+    private static Bitmap getBitmapFromFileMaxPixels(
+            @NonNull InputStreamSource source,
+            int maxPixels,
+            @Nullable Bitmap.Config preferredConfig) {
+
+        InputStream is = null;
+        try {
+            is = new BufferedInputStream(source.createInputStream());
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            if (preferredConfig != null) {
+                options.inPreferredConfig = preferredConfig;
+            }
+            options.inJustDecodeBounds = true;
+            // Set height and width in options, does not return an image and no resource taken
+            BitmapFactory.decodeStream(is, null, options);
+            int pow = 0;
+            while (((options.outHeight >> pow) * (options.outWidth >> pow)) > maxPixels) {
+                pow += 1;
+            }
+            is.close();
+            is = null;
+            is = new BufferedInputStream(source.createInputStream());
+            options.inSampleSize = 1 << pow;
+            options.inJustDecodeBounds = false;
+            int oneSide = (int) Math.sqrt(maxPixels);
+            Log.d(TAG, "getBitmapFromFileMaxPixels maxPixels: " + maxPixels + ", oneSide: " + oneSide + ", sw: " + options.outWidth + ", sh: " + options.outHeight + ", sampleSize: " + options.inSampleSize);
+            return BitmapFactory.decodeStream(is, null, options);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public static Bitmap getBitmapFromUri(Context context, Uri uri) {
+        if (uri == null) {
+            return null;
+        }
         InputStream is = null;
         try {
             is = context.getContentResolver().openInputStream(uri);
             BitmapFactory.Options imageOptions = new BitmapFactory.Options();
-            Bitmap bmp = BitmapFactory.decodeStream(is, null, imageOptions);
-            return bmp;
+            return BitmapFactory.decodeStream(is, null, imageOptions);
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         } finally {
             try {
-                if (is != null) is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
 
-    public static final Bitmap getBitmapFromUri(Context context, Uri uri, int maxWidth, int maxHeight) {
-        if (uri == null) return null;
-        InputStream is = null;
-        try {
-            is = context.getContentResolver().openInputStream(uri);
-
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            // Set height and width in options, does not return an image and no resource taken
-            BitmapFactory.decodeStream(is, null, options);
-            int pow = 0;
-            while (options.outHeight >> pow > maxHeight || options.outWidth >> pow > maxWidth) {
-                pow += 1;
-            }
-            is.close();
-            is = null;
-            is = context.getContentResolver().openInputStream(uri);
-            options.inSampleSize = 1 << pow;
-            options.inJustDecodeBounds = false;
-            Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
-            return bmp;
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    public static Bitmap getBitmapFromRaw(Context context, int resId) {
+        if (resId <= 0) {
             return null;
-        } finally {
-            try {
-                if (is != null) is.close();
-            } catch (Exception ex) {
-            }
         }
-    }
-
-    public static final Bitmap getBitmapFromFile(File file, int maxWidth, int maxHeight) {
-        if (file == null) return null;
-        InputStream is = null;
-        try {
-            is = new BufferedInputStream(new FileInputStream(file));
-
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            // Set height and width in options, does not return an image and no resource taken
-            BitmapFactory.decodeStream(is, null, options);
-            int pow = 0;
-            while (options.outHeight >> pow > maxHeight || options.outWidth >> pow > maxWidth) {
-                pow += 1;
-            }
-            is.close();
-            is = null;
-            is = new BufferedInputStream(new FileInputStream(file));
-            options.inSampleSize = 1 << pow;
-            options.inJustDecodeBounds = false;
-            Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
-            return bmp;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        } finally {
-            try {
-                if (is != null) is.close();
-            } catch (Exception ex) {
-            }
-        }
-    }
-
-
-    public static final Bitmap getBitmapFromRaw(Context context, int resId) {
-        if (resId <= 0) return null;
         InputStream is = null;
         try {
             is = context.getResources().openRawResource(resId);
             BitmapFactory.Options imageOptions = new BitmapFactory.Options();
-            Bitmap bmp = BitmapFactory.decodeStream(is, null, imageOptions);
-            return bmp;
+            return BitmapFactory.decodeStream(is, null, imageOptions);
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         } finally {
             try {
-                if (is != null) is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
 
-    public static final BitmapOutInfo getBitmapOutInfoFromUri(Context context, Uri uri) {
-        if (uri == null) return null;
+    public static BitmapOutInfo getBitmapOutInfoFromUri(Context context, Uri uri) {
+        if (uri == null) {
+            return null;
+        }
         InputStream is = null;
         try {
             is = context.getContentResolver().openInputStream(uri);
@@ -507,6 +585,57 @@ public class AUtil {
             return encodedParams.toString();
         } catch (UnsupportedEncodingException uee) {
             throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
+        }
+    }
+
+    private interface InputStreamSource {
+        @NonNull
+        InputStream createInputStream() throws IOException;
+    }
+
+    private static class UriInputStreamSource implements InputStreamSource {
+
+        @NonNull
+        private final Context context;
+
+        @NonNull
+        private final Uri uri;
+
+        UriInputStreamSource(@NonNull Context context, @NonNull Uri uri) {
+            this.context = context;
+            this.uri = uri;
+        }
+
+
+        @NonNull
+        @Override
+        public InputStream createInputStream() throws IOException {
+            ContentResolver contentResolver = context.getContentResolver();
+            if (contentResolver == null) {
+                throw new IOException("get contentResolver is null.");
+            }
+            InputStream is = contentResolver.openInputStream(uri);
+            if (is == null) {
+                throw new IOException("can not open uri " + uri);
+            }
+            return is;
+        }
+    }
+
+    private static class FileInputStreamSource implements InputStreamSource {
+
+        @NonNull
+        private final File file;
+
+
+        FileInputStreamSource(@NonNull File file) {
+            this.file = file;
+        }
+
+        @NonNull
+        @Override
+        public InputStream createInputStream() throws IOException {
+            return new FileInputStream(file);
         }
     }
 
