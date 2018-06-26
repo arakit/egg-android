@@ -24,6 +24,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.Pair;
+import android.util.Size;
 import android.view.View;
 
 import org.apache.commons.io.FileUtils;
@@ -45,6 +46,8 @@ import java.util.regex.Pattern;
 public class AUtil {
 
     private static final String TAG = AUtil.class.getSimpleName();
+
+    public static final int MUST_MAX_TEXTURE_SIZE = 2048;
 
     public static void makeAboutSpannable(SpannableStringBuilder span, String strLink, String replace, int color, final Runnable onClick) {
         Pattern pattern = Pattern.compile(strLink);
@@ -265,19 +268,27 @@ public class AUtil {
     }
 
     @Nullable
-    public static Bitmap getBitmapFromFileForView(@Nullable File file, int maxWidth, int maxHeight) {
+    public static Bitmap getBitmapFromFileWithMaxPixelsLengthForView(@Nullable File file, int maxPixelsLength) {
         if (file == null) {
             return null;
         }
-        return getBitmapMaxWidthHeight(new FileInputStreamSource(file), maxWidth, maxHeight, Bitmap.Config.RGB_565);
+        return getBitmapMaxPixelsLengthWidthHeight(
+                new FileInputStreamSource(file),
+                maxPixelsLength,
+                MUST_MAX_TEXTURE_SIZE, MUST_MAX_TEXTURE_SIZE,
+                Bitmap.Config.RGB_565);
     }
 
     @Nullable
-    public static Bitmap getBitmapFromFile(@Nullable File file, int maxWidth, int maxHeight, @Nullable Bitmap.Config preferredConfig) {
+    public static Bitmap getBitmapFromFileWithMaxWidthHeight(@Nullable File file, int maxWidth, int maxHeight, @Nullable Bitmap.Config preferredConfig) {
         if (file == null) {
             return null;
         }
-        return getBitmapMaxWidthHeight(new FileInputStreamSource(file), maxWidth, maxHeight, preferredConfig);
+        return getBitmapMaxPixelsLengthWidthHeight(
+                new FileInputStreamSource(file),
+                -1,
+                maxWidth, maxHeight,
+                preferredConfig);
     }
 
     @Nullable
@@ -285,76 +296,55 @@ public class AUtil {
         if (uri == null) {
             return null;
         }
-        return getBitmapMaxWidthHeight(new UriInputStreamSource(context, uri), maxWidth, maxHeight, preferredConfig);
+        return getBitmapMaxPixelsLengthWidthHeight(
+                new UriInputStreamSource(context, uri),
+                -1,
+                maxWidth, maxHeight,
+                preferredConfig);
     }
 
-    @Nullable
-    private static Bitmap getBitmapMaxWidthHeight(
-            @NonNull InputStreamSource source,
-            int maxWidth,
-            int maxHeight,
-            @Nullable Bitmap.Config preferredConfig) {
-        InputStream is = null;
-        try {
-            is = new BufferedInputStream(source.createInputStream());
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            if (preferredConfig != null) {
-                options.inPreferredConfig = preferredConfig;
-            }
-            // Set height and width in options, does not return an image and no resource taken
-            BitmapFactory.decodeStream(is, null, options);
-            int pow = 0;
-            while (options.outHeight >> pow > maxHeight || options.outWidth >> pow > maxWidth) {
-                pow += 1;
-            }
-            is.close();
-            is = null;
-            is = new BufferedInputStream(source.createInputStream());
-            options.inSampleSize = 1 << pow;
-            options.inJustDecodeBounds = false;
-            return BitmapFactory.decodeStream(is, null, options);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
 
     @Nullable
-    public static Bitmap getBitmapFromUriMaxPixels(
+    public static Bitmap getBitmapFromUriMaxPixelsLengthWidthHeight(
             @NonNull final Context context,
             @Nullable final Uri uri,
-            int maxPixels,
+            int maxPixelsLength,
+            int maxWidth,
+            int maxHeight,
             @Nullable Bitmap.Config preferredConfig) {
         if (uri == null) {
             return null;
         }
-        return getBitmapFromFileMaxPixels(new UriInputStreamSource(context, uri), maxPixels, preferredConfig);
+        return getBitmapMaxPixelsLengthWidthHeight(
+                new UriInputStreamSource(context, uri),
+                maxPixelsLength,
+                maxWidth, maxHeight,
+                preferredConfig);
     }
 
     @Nullable
-    public static Bitmap getBitmapFromFileMaxPixels(
+    public static Bitmap getBitmapFromFileMaxPixelsLengthWidthHeight(
             @Nullable final File file,
-            int maxPixels,
+            int maxPixelsLength,
+            int maxWidth,
+            int maxHeight,
             @Nullable Bitmap.Config preferredConfig) {
         if (file == null) {
             return null;
         }
-        return getBitmapFromFileMaxPixels(new FileInputStreamSource(file), maxPixels, preferredConfig);
+        return getBitmapMaxPixelsLengthWidthHeight(
+                new FileInputStreamSource(file),
+                maxPixelsLength,
+                maxWidth, maxHeight,
+                preferredConfig);
     }
 
     @Nullable
-    private static Bitmap getBitmapFromFileMaxPixels(
+    private static Bitmap getBitmapMaxPixelsLengthWidthHeight(
             @NonNull InputStreamSource source,
-            int maxPixels,
+            int maxPixelsLength,
+            int maxWidth,
+            int maxHeight,
             @Nullable Bitmap.Config preferredConfig) {
 
         InputStream is = null;
@@ -368,16 +358,32 @@ public class AUtil {
             // Set height and width in options, does not return an image and no resource taken
             BitmapFactory.decodeStream(is, null, options);
             int pow = 0;
-            while (((options.outHeight >> pow) * (options.outWidth >> pow)) > maxPixels) {
-                pow += 1;
+            if (maxPixelsLength >= 0) {
+                int maxPixels = maxPixelsLength * maxPixelsLength;
+                while (((options.outHeight >> pow) * (options.outWidth >> pow)) > maxPixels) {
+                    pow += 1;
+                }
+            }
+            if (maxWidth >= 0) {
+                while (options.outWidth >> pow > maxWidth) {
+                    pow += 1;
+                }
+            }
+            if (maxHeight >= 0) {
+                while (options.outHeight >> pow > maxHeight) {
+                    pow += 1;
+                }
             }
             is.close();
             is = null;
             is = new BufferedInputStream(source.createInputStream());
             options.inSampleSize = 1 << pow;
             options.inJustDecodeBounds = false;
-            int oneSide = (int) Math.sqrt(maxPixels);
-            Log.d(TAG, "getBitmapFromFileMaxPixels maxPixels: " + maxPixels + ", oneSide: " + oneSide + ", sw: " + options.outWidth + ", sh: " + options.outHeight + ", sampleSize: " + options.inSampleSize);
+            Log.d(TAG, "getBitmap maxPixelsLength: " + maxPixelsLength + ", " +
+                    "maxSize: " + maxHeight + "x" + maxHeight + ", " +
+                    "sSize: " + options.outWidth + "x" + options.outHeight + ", " +
+                    "sampleSize: " + options.inSampleSize + ", " +
+                    "preferredConfig: " + preferredConfig);
             return BitmapFactory.decodeStream(is, null, options);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -466,7 +472,7 @@ public class AUtil {
         }
     }
 
-    public static final BitmapOutInfo getBitmapOutInfoFromFile(File file) {
+    public static BitmapOutInfo getBitmapOutInfoFromFile(File file) {
         if (file == null) return null;
         InputStream is = null;
         try {
