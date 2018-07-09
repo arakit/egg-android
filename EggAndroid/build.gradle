@@ -44,14 +44,17 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
+        minSdkVersion 14
+
         //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         consumerProguardFiles 'proguard-rules.pro'
     }
 
+
     sourceSets {
-        defaultConfig {
-            // testPackageName 'com.android.volley.tests'
-        }
+//        defaultConfig {
+//            // testPackageName 'com.android.volley.tests'
+//        }
 
         main {
             manifest.srcFile 'AndroidManifest.xml'
